@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Lexend_Deco, Poppins, JetBrains_Mono } from 'next/font/google'
+import { Lexend_Deca, Poppins, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { ATISProvider } from '@/lib/context'
 
@@ -10,7 +10,7 @@ const _poppins = Poppins({
   variable: '--font-sans',
 })
 
-const _lexendDeco = Lexend_Deco({
+const _lexendDeca = Lexend_Deca({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-display',
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${_poppins.variable} ${_lexendDeco.variable} ${_jetbrainsMono.variable} bg-bg-primary`}>
+    <html lang="en" className={`${_poppins.variable} ${_lexendDeca.variable} ${_jetbrainsMono.variable} bg-bg-primary`}>
       <body className="antialiased bg-bg-primary text-text-primary font-sans">
         <ATISProvider>
           {children}

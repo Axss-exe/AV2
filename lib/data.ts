@@ -17,7 +17,8 @@ function randomDelay(min = 200, max = 800): Promise<void> {
 }
 
 function maybeThrow(): void {
-  if (Math.random() < 0.05) {
+  // 2% error rate — keeps error states testable without blocking normal use
+  if (Math.random() < 0.02) {
     throw new Error('Connection to intelligence service interrupted. Displaying cached intelligence.');
   }
 }
