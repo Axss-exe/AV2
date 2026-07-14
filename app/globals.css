@@ -1,0 +1,107 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ATIS Color System */
+  --color-bg-primary: #000000;
+  --color-bg-surface: #0a0a0a;
+  --color-bg-elevated: #111111;
+  --color-bg-control: #1c1c1e;
+  --color-bg-control-active: #2c2c2e;
+  --color-border-default: #1c1c1e;
+  --color-border-hover: #262626;
+  --color-border-active: #333333;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d1d1d6;
+  --color-text-tertiary: #a1a1a6;
+  --color-text-muted: #737373;
+  --color-text-dim: #525252;
+  --color-accent-danger: #ff453a;
+  --color-accent-warning: #ff9f0a;
+  --color-accent-success: #30d158;
+
+  /* Shadcn tokens mapped to ATIS palette */
+  --color-background: #000000;
+  --color-foreground: #ffffff;
+  --color-card: #0a0a0a;
+  --color-card-foreground: #ffffff;
+  --color-popover: #0a0a0a;
+  --color-popover-foreground: #ffffff;
+  --color-primary: #ffffff;
+  --color-primary-foreground: #000000;
+  --color-secondary: #1c1c1e;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #1c1c1e;
+  --color-muted-foreground: #737373;
+  --color-accent: #1c1c1e;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #ff453a;
+  --color-border: #1c1c1e;
+  --color-input: #1c1c1e;
+  --color-ring: #333333;
+
+  /* Typography */
+  --font-sans: 'Poppins', sans-serif;
+  --font-display: 'Lexend Deco', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radius */
+  --radius: 0.5rem;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+  --radius-4xl: 16px;
+}
+
+@layer base {
+  * {
+    @apply border-border-default outline-border-active/50;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #444;
+  }
+
+  /* Focus ring */
+  *:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+}
+
+@keyframes edgeFlow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
