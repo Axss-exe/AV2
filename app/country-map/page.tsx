@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AppShell } from '@/components/app-shell';
@@ -9,7 +10,39 @@ import { ErrorState } from '@/components/error-state';
 import { getCountries } from '@/lib/data';
 import type { Country } from '@/lib/types';
 
-const REGION_FILTERS = ['All', 'East Africa', 'West Africa'];
+// Dynamically import the Leaflet map to avoid SSR issues
+const AfricaMap = dynamic(
+  () => import('@/components/africa-map').then((m) => m.AfricaMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          background: '#0a0a0a',
+          borderRadius: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 300,
+            fontSize: 13,
+            color: '#525252',
+          }}
+        >
+          Loading map...
+        </span>
+      </div>
+    ),
+  }
+);
+
+const REGION_FILTERS = ['All', 'East Africa', 'West Africa', 'Southern Africa'];
 
 export default function CountryMapPage() {
   const [countries, setCountries] = useState<Country[]>([]);
@@ -18,6 +51,7 @@ export default function CountryMapPage() {
   const [activeRegion, setActiveRegion] = useState('All');
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'map' | 'cards'>('map');
 
   const load = async () => {
     setLoading(true);
@@ -38,9 +72,17 @@ export default function CountryMapPage() {
     (c) => activeRegion === 'All' || c.region === activeRegion
   );
 
-  const openCountry = (country: Country) => {
-    setSelectedCountry(country);
-    setModalOpen(true);
+  const openCountry = (countryNameOrObj: Country | string) => {
+    if (typeof countryNameOrObj === 'string') {
+      const found = countries.find((c) => c.name === countryNameOrObj);
+      if (found) {
+        setSelectedCountry(found);
+        setModalOpen(true);
+      }
+    } else {
+      setSelectedCountry(countryNameOrObj);
+      setModalOpen(true);
+    }
   };
 
   return (
@@ -51,29 +93,72 @@ export default function CountryMapPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-8"
+          className="mb-6"
         >
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: 24,
-              color: '#ffffff',
-              marginBottom: 6,
-            }}
-          >
-            Country Map
-          </h1>
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontWeight: 300,
-              fontSize: 13,
-              color: '#737373',
-            }}
-          >
-            Intelligence profiles for {countries.length} monitored African markets
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 700,
+                  fontSize: 24,
+                  color: '#ffffff',
+                  marginBottom: 6,
+                }}
+              >
+                Country Map
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 300,
+                  fontSize: 13,
+                  color: '#737373',
+                }}
+              >
+                Intelligence profiles for {countries.length || 8} monitored African markets
+              </p>
+            </div>
+
+            {/* View toggle */}
+            <div
+              className="flex"
+              style={{
+                background: '#0a0a0a',
+                border: '1px solid #1c1c1e',
+                borderRadius: 8,
+                padding: 3,
+              }}
+              role="tablist"
+              aria-label="Map view toggle"
+            >
+              {(['map', 'cards'] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setActiveView(v)}
+                  role="tab"
+                  aria-selected={activeView === v}
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 600,
+                    fontSize: 11,
+                    textTransform: 'uppercase' as const,
+                    letterSpacing: '0.06em',
+                    color: activeView === v ? '#ffffff' : '#737373',
+                    background: activeView === v ? '#1c1c1e' : 'transparent',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '6px 14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    minHeight: 32,
+                  }}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
         </motion.div>
 
         {/* Region Filter */}
@@ -113,7 +198,24 @@ export default function CountryMapPage() {
 
         {error ? (
           <ErrorState message={error} onRetry={load} />
+        ) : activeView === 'map' ? (
+          /* ── INTERACTIVE LEAFLET MAP ── */
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            style={{
+              background: '#0a0a0a',
+              border: '1px solid #1c1c1e',
+              borderRadius: 16,
+              overflow: 'hidden',
+              height: 520,
+            }}
+          >
+            <AfricaMap onCountryClick={openCountry} />
+          </motion.div>
         ) : (
+          /* ── CARD VIEW ── */
           <div
             style={{
               background: '#0a0a0a',
@@ -156,6 +258,39 @@ export default function CountryMapPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Legend */}
+        {activeView === 'map' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="flex items-center gap-6 mt-4"
+          >
+            <div className="flex items-center gap-2">
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  border: '1.5px solid #333333',
+                }}
+                aria-hidden="true"
+              />
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 500,
+                  fontSize: 11,
+                  color: '#737373',
+                }}
+              >
+                Monitored Market — hover for summary, click for full profile
+              </span>
+            </div>
+          </motion.div>
         )}
       </div>
 

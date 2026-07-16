@@ -3,93 +3,103 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AppShell } from '@/components/app-shell';
-import { OpportunityCard } from '@/components/opportunity-card';
 import { ErrorState } from '@/components/error-state';
-import { getOpportunities, getQueryHistory } from '@/lib/data';
-import type { Opportunity, QueryHistory } from '@/lib/types';
+import { queryAPI } from '@/lib/api';
+import { getQueryHistory } from '@/lib/data';
+import type { QueryHistory } from '@/lib/types';
+
+// ---- Zimbabwean intelligence data (realistic mock) ----
+const ZIMBABWE_STATS = [
+  { label: 'Head of State', value: 'E. Mnangagwa' },
+  { label: 'Population', value: '16.3M' },
+  { label: 'GDP (USD)', value: '$26.7B' },
+  { label: 'Currency', value: 'ZiG / USD' },
+];
+
+const ZIMBABWE_PROFILE = {
+  capital: 'Harare',
+  official_languages: ['English', 'Shona', 'Ndebele'],
+  gdp_growth: '+3.4%',
+  primary_sectors: ['Mining', 'Agriculture', 'Tourism'],
+  key_exports: 'Gold, Tobacco, Diamonds, Chrome',
+  major_risk: 'Hyperinflation legacy & currency instability',
+  AfCFTA_status: 'Signatory — tariff phase-in ongoing',
+};
 
 function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
   return 'Good evening';
 }
 
 function formatDate(): string {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).toUpperCase();
+  return new Date()
+    .toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+    .toUpperCase();
 }
 
 function formatTime(iso: string): string {
-  const d = new Date(iso);
-  const diff = Date.now() - d.getTime();
-  const hours = Math.floor(diff / 3600000);
+  const diff = Date.now() - new Date(iso).getTime();
+  const hours = Math.floor(diff / 3_600_000);
   if (hours < 1) return 'Just now';
   if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
-const statsConfig = [
-  { key: 'opportunities', label: 'Active Opportunities' },
-  { key: 'countries', label: 'Countries Monitored' },
-  { key: 'entities', label: 'Entities Tracked' },
-  { key: 'validation', label: 'Avg. Validation Score' },
-];
+const cardVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.35, delay: i * 0.05, ease: [0.4, 0, 0.2, 1] },
+  }),
+};
 
 export default function HomePage() {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [queryHistory, setQueryHistory] = useState<QueryHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Attempt a lightweight backend sweep; fall back gracefully
+  const [backendSummary, setBackendSummary] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [opps, history] = await Promise.all([getOpportunities(), getQueryHistory()]);
-      setOpportunities(opps);
+      const history = await getQueryHistory();
       setQueryHistory(history);
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {
       setLoading(false);
     }
+
+    // Non-blocking backend ping for a Zimbabwe briefing summary
+    try {
+      const res = await queryAPI({ question: 'Zimbabwe intelligence overview' });
+      const summary = res.executive_summary ?? res.summary ?? null;
+      if (summary) setBackendSummary(summary);
+    } catch {
+      // Silently ignore — dashboard should not crash on backend unavailability
+    }
   };
 
-  useEffect(() => { load(); }, []);
-
-  const activeOpportunities = opportunities.filter((o) => o.status === 'active');
-  const validationAvg = opportunities.length
-    ? Math.round(
-        opportunities.reduce((acc, o) => acc + parseInt(o.validation_score), 0) / opportunities.length
-      )
-    : 0;
-
-  const stats = [
-    { label: 'Active Opportunities', value: activeOpportunities.length.toString() },
-    { label: 'Countries Monitored', value: '7' },
-    { label: 'Entities Tracked', value: '6' },
-    { label: 'Avg. Validation Score', value: `${validationAvg}%` },
-  ];
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.35, delay: i * 0.05, ease: [0.4, 0, 0.2, 1] },
-    }),
-  };
+  useEffect(() => {
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AppShell>
       <div style={{ paddingTop: 40 }}>
-        {/* Hero */}
+        {/* Hero greeting */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -116,7 +126,7 @@ export default function HomePage() {
               marginBottom: 4,
             }}
           >
-            Here&apos;s your intelligence briefing for today
+            Here&apos;s your Zimbabwe intelligence briefing for today
           </p>
           <p
             style={{
@@ -136,13 +146,13 @@ export default function HomePage() {
           <ErrorState message={error} onRetry={load} />
         ) : (
           <>
-            {/* Stats Row */}
+            {/* Zimbabwe key metrics */}
             <div
               className="grid gap-4 mb-8"
               style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
-              aria-label="Quick statistics"
+              aria-label="Zimbabwe intelligence metrics"
             >
-              {stats.map((stat, i) => (
+              {ZIMBABWE_STATS.map((stat, i) => (
                 <motion.div
                   key={stat.label}
                   custom={i}
@@ -156,30 +166,20 @@ export default function HomePage() {
                     padding: 20,
                   }}
                 >
-                  {loading ? (
-                    <div
-                      style={{
-                        width: 60,
-                        height: 22,
-                        background: '#1c1c1e',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                        animation: 'pulse-soft 1.5s infinite',
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontWeight: 700,
-                        fontSize: 22,
-                        color: '#ffffff',
-                        marginBottom: 6,
-                      }}
-                    >
-                      {stat.value}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontWeight: 700,
+                      fontSize: 18,
+                      color: '#ffffff',
+                      marginBottom: 6,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {stat.value}
+                  </div>
                   <div
                     style={{
                       fontFamily: 'var(--font-sans)',
@@ -198,7 +198,7 @@ export default function HomePage() {
 
             {/* Two-column layout */}
             <div className="grid gap-6" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
-              {/* Recent Intelligence */}
+              {/* Zimbabwe Country Profile */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -210,12 +210,96 @@ export default function HomePage() {
                   overflow: 'hidden',
                 }}
               >
-                <div
-                  style={{
-                    padding: '16px 20px',
-                    borderBottom: '1px solid #1c1c1e',
-                  }}
-                >
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #1c1c1e' }}>
+                  <h2
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontWeight: 600,
+                      fontSize: 14,
+                      color: '#ffffff',
+                    }}
+                  >
+                    Zimbabwe — Country Profile
+                  </h2>
+                </div>
+                <div style={{ padding: '16px 20px' }}>
+                  {backendSummary && (
+                    <p
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontWeight: 300,
+                        fontSize: 12,
+                        color: '#a1a1a6',
+                        lineHeight: 1.6,
+                        marginBottom: 16,
+                        borderLeft: '2px solid #333333',
+                        paddingLeft: 12,
+                      }}
+                    >
+                      {backendSummary.slice(0, 260)}
+                      {backendSummary.length > 260 ? '...' : ''}
+                    </p>
+                  )}
+                  {(
+                    [
+                      ['Capital', ZIMBABWE_PROFILE.capital],
+                      ['Languages', ZIMBABWE_PROFILE.official_languages.join(', ')],
+                      ['GDP Growth', ZIMBABWE_PROFILE.gdp_growth],
+                      ['Key Sectors', ZIMBABWE_PROFILE.primary_sectors.join(', ')],
+                      ['Key Exports', ZIMBABWE_PROFILE.key_exports],
+                      ['AfCFTA', ZIMBABWE_PROFILE.AfCFTA_status],
+                      ['Primary Risk', ZIMBABWE_PROFILE.major_risk],
+                    ] as [string, string][]
+                  ).map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex items-start gap-3"
+                      style={{ marginBottom: 10 }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          fontWeight: 600,
+                          fontSize: 10,
+                          color: '#525252',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.06em',
+                          flexShrink: 0,
+                          width: 80,
+                          paddingTop: 1,
+                        }}
+                      >
+                        {k}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          fontWeight: 400,
+                          fontSize: 12,
+                          color: '#d1d1d6',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {v}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Recent Intelligence */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.25 }}
+                style={{
+                  background: '#0a0a0a',
+                  border: '1px solid #1c1c1e',
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #1c1c1e' }}>
                   <h2
                     style={{
                       fontFamily: 'var(--font-sans)',
@@ -255,7 +339,7 @@ export default function HomePage() {
                       No queries yet. Start by asking a question in the Query dashboard.
                     </p>
                   ) : (
-                    queryHistory.slice(0, 5).map((item, i) => (
+                    queryHistory.slice(0, 6).map((item, i) => (
                       <motion.div
                         key={item.id}
                         custom={i}
@@ -264,9 +348,12 @@ export default function HomePage() {
                         variants={cardVariants}
                         style={{
                           padding: '12px 20px',
-                          borderBottom: i < Math.min(queryHistory.length, 5) - 1 ? '1px solid #1c1c1e' : 'none',
+                          borderBottom:
+                            i < Math.min(queryHistory.length, 6) - 1
+                              ? '1px solid #1c1c1e'
+                              : 'none',
                           cursor: 'pointer',
-                          transition: 'background 0.2s, border-color 0.2s',
+                          transition: 'background 0.2s',
                         }}
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLDivElement).style.background = '#111111';
@@ -320,65 +407,6 @@ export default function HomePage() {
                   )}
                 </div>
               </motion.div>
-
-              {/* Featured Opportunities */}
-              <div>
-                <div
-                  style={{
-                    marginBottom: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <h2
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontWeight: 600,
-                      fontSize: 14,
-                      color: '#ffffff',
-                    }}
-                  >
-                    Featured Opportunities
-                  </h2>
-                  <a
-                    href="/query"
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontWeight: 500,
-                      fontSize: 11,
-                      color: '#a1a1a6',
-                      textDecoration: 'none',
-                    }}
-                    onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#ffffff'; }}
-                    onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#a1a1a6'; }}
-                  >
-                    View all
-                  </a>
-                </div>
-                {loading ? (
-                  <div className="flex flex-col gap-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          height: 100,
-                          background: '#0a0a0a',
-                          border: '1px solid #1c1c1e',
-                          borderRadius: 14,
-                          animation: 'pulse-soft 1.5s infinite',
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {opportunities.slice(0, 3).map((opp, i) => (
-                      <OpportunityCard key={opp.id} opportunity={opp} index={i} />
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
           </>
         )}

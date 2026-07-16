@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
@@ -10,7 +11,10 @@ import {
   Network,
   Newspaper,
   MapPin,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
+import { useATIS } from '@/lib/context';
 
 const navItems = [
   { label: 'Home', href: '/', icon: Home },
@@ -21,72 +25,177 @@ const navItems = [
   { label: 'Country Map', href: '/country-map', icon: MapPin },
 ];
 
+const COLLAPSED_WIDTH = 60;
+const EXPANDED_WIDTH = 240;
+
 export function Sidebar() {
   const pathname = usePathname();
+  const { sidebarCollapsed, setSidebarCollapsed } = useATIS();
+
+  const width = sidebarCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
 
   return (
-    <aside
-      className="fixed left-0 top-0 h-full w-[240px] flex flex-col z-40"
+    <motion.aside
+      animate={{ width }}
+      transition={{ type: 'spring', stiffness: 340, damping: 36 }}
+      className="fixed left-0 top-0 h-full flex flex-col z-40 overflow-hidden"
       style={{ background: '#0a0a0a', borderRight: '1px solid #1c1c1e' }}
       aria-label="Main navigation"
     >
-      {/* Logo */}
-      <div className="px-5 py-6 flex items-center gap-3" style={{ borderBottom: '1px solid #1c1c1e' }}>
-        <div
-          className="flex items-center justify-center flex-shrink-0"
-          style={{
-            width: 32,
-            height: 32,
-            background: '#ffffff',
-            borderRadius: 6,
-          }}
-          aria-hidden="true"
-        >
-          <span style={{ color: '#000000', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16 }}>
-            A
-          </span>
-        </div>
-        <div className="flex flex-col min-w-0">
-          <span
+      {/* Logo + collapse toggle */}
+      <div
+        className="flex items-center flex-shrink-0"
+        style={{
+          height: 64,
+          borderBottom: '1px solid #1c1c1e',
+          padding: sidebarCollapsed ? '0 14px' : '0 16px 0 16px',
+          justifyContent: sidebarCollapsed ? 'center' : 'space-between',
+        }}
+      >
+        {/* Brand mark — always visible */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="flex-shrink-0 flex items-center justify-center"
             style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: 13,
-              color: '#ffffff',
-              letterSpacing: '0.02em',
+              width: 30,
+              height: 30,
+              background: '#ffffff',
+              borderRadius: 6,
+              overflow: 'hidden',
             }}
+            aria-hidden="true"
           >
-            ATIS
-          </span>
-          <span
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ATIS%20SYMBOL-ooX7WbP3p5bVAv6S3KR9oEkEmh3IGU.png"
+              alt="ATIS symbol"
+              width={30}
+              height={30}
+              style={{ objectFit: 'cover' }}
+              priority
+            />
+          </div>
+
+          {/* Text — fades out when collapsed */}
+          <motion.div
+            animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col overflow-hidden"
+            style={{ minWidth: 0 }}
+          >
+            <span
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: 13,
+                color: '#ffffff',
+                letterSpacing: '0.02em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ATIS
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 500,
+                fontSize: 9,
+                color: '#525252',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                lineHeight: 1.3,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Africa Trade &amp; Intelligence
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Collapse toggle — only shown when expanded */}
+        {!sidebarCollapsed && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.12 }}
+            onClick={() => setSidebarCollapsed(true)}
+            className="flex items-center justify-center flex-shrink-0 transition-colors duration-150"
             style={{
-              fontFamily: 'var(--font-sans)',
-              fontWeight: 500,
-              fontSize: 9,
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
               color: '#525252',
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              lineHeight: 1.3,
             }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
+              (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              (e.currentTarget as HTMLButtonElement).style.color = '#525252';
+            }}
+            aria-label="Collapse sidebar"
           >
-            Africa Trade &amp; Intelligence
-          </span>
-        </div>
+            <PanelLeftClose size={14} strokeWidth={1.5} aria-hidden="true" />
+          </motion.button>
+        )}
       </div>
 
+      {/* Expand toggle shown when collapsed */}
+      {sidebarCollapsed && (
+        <div
+          className="flex items-center justify-center"
+          style={{ padding: '8px 0 4px' }}
+        >
+          <button
+            onClick={() => setSidebarCollapsed(false)}
+            className="flex items-center justify-center transition-colors duration-150"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 6,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#525252',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
+              (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              (e.currentTarget as HTMLButtonElement).style.color = '#525252';
+            }}
+            aria-label="Expand sidebar"
+          >
+            <PanelLeftOpen size={14} strokeWidth={1.5} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
       {/* Nav Items */}
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-1" role="navigation">
+      <nav
+        className="flex-1 flex flex-col gap-1"
+        style={{ padding: sidebarCollapsed ? '8px 10px' : '8px 10px' }}
+        role="navigation"
+      >
         {navItems.map(({ label, href, icon: Icon }) => {
-          const isActive =
-            href === '/' ? pathname === '/' : pathname.startsWith(href);
+          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
               aria-current={isActive ? 'page' : undefined}
-              className="flex items-center gap-3 transition-all duration-200 group"
+              title={sidebarCollapsed ? label : undefined}
+              className="flex items-center relative transition-all duration-150"
               style={{
-                padding: '8px 12px',
+                gap: sidebarCollapsed ? 0 : 12,
+                padding: sidebarCollapsed ? '9px 0' : '8px 10px',
+                justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                 borderRadius: 8,
                 background: isActive ? '#1c1c1e' : 'transparent',
                 color: isActive ? '#ffffff' : '#a1a1a6',
@@ -109,21 +218,26 @@ export function Sidebar() {
                 size={16}
                 strokeWidth={isActive ? 2 : 1.5}
                 aria-hidden="true"
+                style={{ flexShrink: 0 }}
               />
-              <span
+              <motion.span
+                animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
+                transition={{ duration: 0.15 }}
                 style={{
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 500,
                   fontSize: 13,
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {label}
-              </span>
+              </motion.span>
               {isActive && (
                 <motion.div
                   layoutId="nav-active"
-                  className="absolute left-0 w-[2px] h-5 rounded-r"
-                  style={{ background: '#ffffff' }}
+                  className="absolute left-0 w-[2px] rounded-r"
+                  style={{ background: '#ffffff', top: 6, bottom: 6 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                 />
               )}
@@ -134,8 +248,13 @@ export function Sidebar() {
 
       {/* User Footer */}
       <div
-        className="px-4 py-4 flex items-center gap-3"
-        style={{ borderTop: '1px solid #1c1c1e' }}
+        className="flex items-center flex-shrink-0"
+        style={{
+          borderTop: '1px solid #1c1c1e',
+          padding: sidebarCollapsed ? '12px 0' : '12px 14px',
+          gap: 10,
+          justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+        }}
       >
         <div
           className="flex items-center justify-center flex-shrink-0"
@@ -153,7 +272,12 @@ export function Sidebar() {
         >
           A
         </div>
-        <div className="flex flex-col min-w-0">
+        <motion.div
+          animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
+          transition={{ duration: 0.15 }}
+          className="flex flex-col overflow-hidden"
+          style={{ minWidth: 0 }}
+        >
           <span
             style={{
               fontFamily: 'var(--font-sans)',
@@ -173,12 +297,13 @@ export function Sidebar() {
               fontWeight: 400,
               fontSize: 10,
               color: '#737373',
+              whiteSpace: 'nowrap',
             }}
           >
             Intelligence Desk
           </span>
-        </div>
+        </motion.div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

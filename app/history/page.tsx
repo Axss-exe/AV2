@@ -6,7 +6,7 @@ import { Trash2, ExternalLink } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { getQueryHistory } from '@/lib/data';
+import { fetchHistory, APIError } from '@/lib/api';
 import { useATIS } from '@/lib/context';
 import { useRouter } from 'next/navigation';
 import type { QueryHistory } from '@/lib/types';
@@ -24,7 +24,7 @@ function formatDate(iso: string): string {
 export default function HistoryPage() {
   const router = useRouter();
   const { queryHistory: contextHistory, removeQueryFromHistory, setCurrentQueryResult } = useATIS();
-  const [seedHistory, setSeedHistory] = useState<QueryHistory[]>([]);
+  const [backendHistory, setBackendHistory] = useState<QueryHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -33,10 +33,31 @@ export default function HistoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getQueryHistory();
-      setSeedHistory(data);
+      const data = await fetchHistory();
+      // Normalize backend history items to QueryHistory shape
+      const normalized: QueryHistory[] = data.map((item) => ({
+        id: item.id,
+        query: item.query,
+        summary: item.summary ?? (item.output && typeof item.output === 'object'
+          ? (item.output as Record<string, unknown>)?.executive_summary as string ?? 'No summary available.'
+          : 'No summary available.'),
+        stats: {
+          traces: typeof item.stats?.traces === 'number' ? item.stats.traces : 0,
+          nodes: typeof item.stats?.nodes === 'number' ? item.stats.nodes : 0,
+          concepts: typeof item.stats?.concepts === 'number' ? item.stats.concepts : 0,
+          entities: typeof item.stats?.entities === 'number' ? item.stats.entities : 0,
+          validated: typeof item.stats?.validated === 'string' ? item.stats.validated : '—',
+        },
+        created_at: item.created_at,
+      }));
+      setBackendHistory(normalized);
     } catch (e: unknown) {
-      setError((e as Error).message);
+      // If the backend history endpoint doesn't exist yet, silently degrade
+      if (e instanceof APIError && (e.status === 404 || e.status === 405)) {
+        setBackendHistory([]);
+      } else {
+        setError(e instanceof Error ? e.message : 'Failed to load query history.');
+      }
     } finally {
       setLoading(false);
     }
@@ -44,7 +65,7 @@ export default function HistoryPage() {
 
   useEffect(() => { load(); }, []);
 
-  // Merge context history (new queries) with seed history
+  // Merge context history (new queries from this session) with backend history
   const allHistory: (QueryHistory & { fromContext?: boolean })[] = [
     ...contextHistory.map((r) => ({
       id: r.query,
@@ -54,7 +75,7 @@ export default function HistoryPage() {
       created_at: new Date().toISOString(),
       fromContext: true as const,
     })),
-    ...seedHistory,
+    ...backendHistory,
   ];
 
   const handleView = (item: typeof allHistory[0]) => {
@@ -74,7 +95,7 @@ export default function HistoryPage() {
     if (item.fromContext) {
       removeQueryFromHistory(item.query);
     } else {
-      setSeedHistory((prev) => prev.filter((h) => h.id !== item.id));
+      setBackendHistory((prev) => prev.filter((h) => h.id !== item.id));
     }
     setTimeout(() => setDeletingId(null), 400);
   };

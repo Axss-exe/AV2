@@ -19,6 +19,8 @@ interface ATISContextType {
   queryHistory: QueryResult[];
   addQueryToHistory: (result: QueryResult) => void;
   removeQueryFromHistory: (query: string) => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 const ATISContext = createContext<ATISContextType | null>(null);
@@ -31,6 +33,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [articleModalOpen, setArticleModalOpen] = useState(false);
   const [currentQueryResult, setCurrentQueryResult] = useState<QueryResult | null>(null);
   const [queryHistory, setQueryHistory] = useState<QueryResult[]>([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const addQueryToHistory = useCallback((result: QueryResult) => {
     setQueryHistory((prev) => [result, ...prev]);
@@ -58,6 +61,8 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         queryHistory,
         addQueryToHistory,
         removeQueryFromHistory,
+        sidebarCollapsed,
+        setSidebarCollapsed,
       }}
     >
       {children}
