@@ -4,10 +4,7 @@
  */
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ??
-  (process.env.NODE_ENV === 'production'
-    ? 'https://atis-api.onrender.com'
-    : 'http://localhost:8000');
+  process.env.NEXT_PUBLIC_API_URL ?? 'https://atisv2.onrender.com';
 
 const DEFAULT_TIMEOUT_MS = 120_000; // 2 minutes — Render cold-start can be slow
 
