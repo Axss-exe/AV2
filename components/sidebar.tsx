@@ -11,6 +11,7 @@ import {
   Network,
   Newspaper,
   MapPin,
+  Zap,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ const navItems = [
   { label: 'Entities', href: '/entities', icon: Network },
   { label: 'Newsroom', href: '/newsroom', icon: Newspaper },
   { label: 'Country Map', href: '/country-map', icon: MapPin },
+  { label: 'Execute', href: '/execute', icon: Zap },
 ];
 
 const COLLAPSED_WIDTH = 60;
@@ -70,7 +72,7 @@ export function Sidebar() {
               alt="ATIS symbol"
               width={30}
               height={30}
-              style={{ objectFit: 'cover' }}
+              style={{ width: 30, height: 30, objectFit: 'cover' }}
               priority
             />
           </div>

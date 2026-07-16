@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${_poppins.variable} ${_lexendDeca.variable} ${_jetbrainsMono.variable} bg-bg-primary`}>
-      <body className="antialiased bg-bg-primary text-text-primary font-sans">
+      <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
         <ATISProvider>
           {children}
         </ATISProvider>

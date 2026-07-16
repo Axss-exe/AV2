@@ -26,15 +26,14 @@ const ZIMBABWE_PROFILE = {
   AfCFTA_status: 'Signatory — tariff phase-in ongoing',
 };
 
-function getGreeting(): string {
-  const h = new Date().getHours();
+function getGreeting(h: number): string {
   if (h < 12) return 'Good morning';
   if (h < 17) return 'Good afternoon';
   return 'Good evening';
 }
 
-function formatDate(): string {
-  return new Date()
+function formatDate(d: Date): string {
+  return d
     .toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -66,8 +65,18 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Client-only time values to avoid hydration mismatch
+  const [greeting, setGreeting] = useState('');
+  const [dateStr, setDateStr] = useState('');
+
   // Attempt a lightweight backend sweep; fall back gracefully
   const [backendSummary, setBackendSummary] = useState<string | null>(null);
+
+  useEffect(() => {
+    const now = new Date();
+    setGreeting(getGreeting(now.getHours()));
+    setDateStr(formatDate(now));
+  }, []);
 
   const load = async () => {
     setLoading(true);
@@ -115,7 +124,7 @@ export default function HomePage() {
               marginBottom: 6,
             }}
           >
-            {getGreeting()}, Analyst
+            {greeting || 'Welcome back'}, Analyst
           </h1>
           <p
             style={{
@@ -138,7 +147,7 @@ export default function HomePage() {
               letterSpacing: '0.08em',
             }}
           >
-            {formatDate()}
+            {dateStr}
           </p>
         </motion.div>
 
