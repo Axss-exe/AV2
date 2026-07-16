@@ -3,8 +3,10 @@
  * All requests go through this module so base URL is never scattered.
  */
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? 'https://atisv2.onrender.com';
+// Client-side requests go through the Next.js proxy routes (/api/*)
+// to avoid CORS issues. The proxy routes (lib/proxy.ts) forward to
+// the real backend server-side.
+const API_BASE = '';
 
 const DEFAULT_TIMEOUT_MS = 120_000; // 2 minutes — Render cold-start can be slow
 
