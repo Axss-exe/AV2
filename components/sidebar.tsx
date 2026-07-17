@@ -12,6 +12,8 @@ import {
   Newspaper,
   MapPin,
   Zap,
+  TrendingUp,
+  Rss,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -22,6 +24,8 @@ const navItems = [
   { label: 'Query', href: '/query', icon: Search },
   { label: 'History', href: '/history', icon: Clock },
   { label: 'Entities', href: '/entities', icon: Network },
+  { label: 'News', href: '/news', icon: Rss },
+  { label: 'Opportunities', href: '/opportunities', icon: TrendingUp },
   { label: 'Newsroom', href: '/newsroom', icon: Newspaper },
   { label: 'Country Map', href: '/country-map', icon: MapPin },
   { label: 'Execute', href: '/execute', icon: Zap },

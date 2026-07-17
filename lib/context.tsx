@@ -2,8 +2,11 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { Article, Opportunity, QueryResult } from './types';
+import type { Article as NewsArticle } from '@/types/article';
+import type { Dashboard } from '@/types/dashboard';
 
 interface ATISContextType {
+  // Existing state
   currentView: string;
   setCurrentView: (view: string) => void;
   selectedArticle: Article | null;
@@ -21,9 +24,25 @@ interface ATISContextType {
   removeQueryFromHistory: (query: string) => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  // News analysis state
+  currentNewsArticle: NewsArticle | null;
+  analysisLoading: boolean;
+  analysisProgress: number;
+  analysisStatusText: string;
+  analysisError: string | null;
+  currentDashboard: Dashboard | null;
+  runAnalysis: (article: NewsArticle) => Promise<void>;
+  clearAnalysis: () => void;
 }
 
 const ATISContext = createContext<ATISContextType | null>(null);
+
+const STATUS_MESSAGES = [
+  'Running constraint analysis...',
+  'Extracting entities...',
+  'Solving equilibrium...',
+  'Formatting dashboard...',
+];
 
 export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [currentView, setCurrentView] = useState('home');
@@ -35,12 +54,101 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [queryHistory, setQueryHistory] = useState<QueryResult[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // News analysis
+  const [currentNewsArticle, setCurrentNewsArticle] = useState<NewsArticle | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStatusText, setAnalysisStatusText] = useState('');
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(null);
+
   const addQueryToHistory = useCallback((result: QueryResult) => {
     setQueryHistory((prev) => [result, ...prev]);
   }, []);
 
   const removeQueryFromHistory = useCallback((query: string) => {
     setQueryHistory((prev) => prev.filter((r) => r.query !== query));
+  }, []);
+
+  const runAnalysis = useCallback(async (article: NewsArticle) => {
+    setCurrentNewsArticle(article);
+    setAnalysisLoading(true);
+    setAnalysisProgress(0);
+    setAnalysisError(null);
+    setCurrentDashboard(null);
+
+    // Animate progress over 60s while the API runs
+    let elapsed = 0;
+    const TOTAL = 60;
+    const TICK = 500;
+    let messageIndex = 0;
+    setAnalysisStatusText(STATUS_MESSAGES[0]);
+
+    const timer = setInterval(() => {
+      elapsed += TICK / 1000;
+      const pct = Math.min(98, (elapsed / TOTAL) * 100);
+      setAnalysisProgress(pct);
+      const newIndex = Math.floor((elapsed / TOTAL) * STATUS_MESSAGES.length);
+      if (newIndex !== messageIndex && newIndex < STATUS_MESSAGES.length) {
+        messageIndex = newIndex;
+        setAnalysisStatusText(STATUS_MESSAGES[messageIndex]);
+      }
+    }, TICK);
+
+    const MAX_RETRIES = 10;
+    const RETRY_DELAY = 5000;
+
+    const attempt = async (): Promise<Dashboard> => {
+      for (let i = 0; i < MAX_RETRIES; i++) {
+        const res = await fetch('/api/news', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ article_text: article.article_text }),
+        });
+
+        const json = await res.json();
+
+        // Handle busy response — retry
+        if (json.status === 'busy' || res.status === 503) {
+          if (i < MAX_RETRIES - 1) {
+            await new Promise((r) => setTimeout(r, RETRY_DELAY));
+            continue;
+          }
+          throw new Error('Analysis engine is busy. Please try again in a moment.');
+        }
+
+        if (!res.ok) {
+          throw new Error(json.detail ?? json.error ?? `Request failed (${res.status})`);
+        }
+
+        // Unwrap { status, data: {...} } or flat shape
+        const dashboard: Dashboard = json.data ?? json;
+        return dashboard;
+      }
+      throw new Error('Max retries exceeded. Please try again.');
+    };
+
+    try {
+      const dashboard = await attempt();
+      clearInterval(timer);
+      setAnalysisProgress(100);
+      setAnalysisStatusText('Analysis complete.');
+      setCurrentDashboard(dashboard);
+    } catch (err) {
+      clearInterval(timer);
+      setAnalysisError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+    } finally {
+      setAnalysisLoading(false);
+    }
+  }, []);
+
+  const clearAnalysis = useCallback(() => {
+    setCurrentNewsArticle(null);
+    setAnalysisLoading(false);
+    setAnalysisProgress(0);
+    setAnalysisStatusText('');
+    setAnalysisError(null);
+    setCurrentDashboard(null);
   }, []);
 
   return (
@@ -63,6 +171,14 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         removeQueryFromHistory,
         sidebarCollapsed,
         setSidebarCollapsed,
+        currentNewsArticle,
+        analysisLoading,
+        analysisProgress,
+        analysisStatusText,
+        analysisError,
+        currentDashboard,
+        runAnalysis,
+        clearAnalysis,
       }}
     >
       {children}
