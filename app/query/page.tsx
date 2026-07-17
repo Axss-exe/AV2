@@ -32,8 +32,9 @@ function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<type
       typeof res.statistics?.validated === 'number' ? `${res.statistics.validated}%` : '76%',
   };
 
-  // Map structured intelligence rows
-  const tableRows: IntelTableRow[] = (res.structured_intelligence ?? []).map((row) => ({
+  // Map structured intelligence rows — guard against non-array
+  const intelRows = Array.isArray(res.structured_intelligence) ? res.structured_intelligence : [];
+  const tableRows: IntelTableRow[] = intelRows.map((row) => ({
     source: row.source ?? 'Unknown Source',
     relationship: row.relationship ?? '',
     confidence: row.confidence ?? '—',
@@ -41,8 +42,9 @@ function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<type
     last_updated: row.last_updated ?? new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
   }));
 
-  // Map entity graph nodes
-  const graphNodes: GraphNode[] = (res.entity_graph?.nodes ?? []).map((n, i) => ({
+  // Map entity graph nodes — guard against non-array
+  const graphNodeData = Array.isArray(res.entity_graph?.nodes) ? res.entity_graph!.nodes : [];
+  const graphNodes: GraphNode[] = graphNodeData.map((n, i) => ({
     id: n.id ?? `n${i}`,
     label: n.label ?? n.id ?? `Node ${i}`,
     type: (['hub', 'entity', 'risk', 'partner'].includes(n.type) ? n.type : 'entity') as GraphNode['type'],
@@ -56,9 +58,9 @@ function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<type
     stats,
     graphNodes,
     tableRows,
-    findings: res.findings ?? [],
-    opportunities: res.opportunities ?? [],
-    riskFactors: res.risks ?? [],
+    findings: Array.isArray(res.findings) ? res.findings : [],
+    opportunities: Array.isArray(res.opportunities) ? res.opportunities : [],
+    riskFactors: Array.isArray(res.risks) ? res.risks : [],
   };
 }
 

@@ -103,13 +103,32 @@ export interface EntityGraphData {
   edges?: { from: string; to: string; label?: string }[];
 }
 
+interface QueryEnvelope {
+  status?: string;
+  cached?: boolean;
+  elapsed_seconds?: number;
+  data?: QueryAPIResponse;
+  // Also support flat shape (no envelope)
+  executive_summary?: string;
+  summary?: string;
+  structured_intelligence?: IntelligenceRow[];
+  findings?: string[];
+  opportunities?: string[];
+  risks?: string[];
+  statistics?: Record<string, string | number>;
+  entity_graph?: EntityGraphData;
+}
+
 export async function queryAPI(body: QueryRequest): Promise<QueryAPIResponse> {
   const res = await fetchWithTimeout(`${API_BASE}/api/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  return parseJSON<QueryAPIResponse>(res);
+  const json = await parseJSON<QueryEnvelope>(res);
+  // Unwrap { status, data: {...} } envelope if present
+  if (json.data && typeof json.data === 'object') return json.data;
+  return json as QueryAPIResponse;
 }
 
 // ---------------------------------------------------------------------------
@@ -206,9 +225,88 @@ export async function fetchHistory(): Promise<HistoryItem[]> {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/entities  (if the endpoint exists)
+// GET /api/entities
+// Returns: { status, count, directory, entities: [...] }
 // ---------------------------------------------------------------------------
 
+export interface EntityListItem {
+  id: string;
+  name: string;
+  filename: string;
+  path: string;
+}
+
+export interface EntitiesListResponse {
+  status: string;
+  count: number;
+  directory: string;
+  entities: EntityListItem[];
+}
+
+export async function fetchEntities(): Promise<EntityListItem[]> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/entities`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const json = await parseJSON<EntitiesListResponse | EntityListItem[]>(res);
+  // Handle both { entities: [...] } and raw array shapes
+  if (Array.isArray(json)) return json;
+  return Array.isArray((json as EntitiesListResponse).entities)
+    ? (json as EntitiesListResponse).entities
+    : [];
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/entity/{id}
+// Returns parsed frontmatter + body sections
+// ---------------------------------------------------------------------------
+
+export interface EntityFrontmatter {
+  entity?: string;
+  entity_type?: string;
+  sector?: string;
+  ownership_type?: string;
+  located_in?: string[];
+  owned_by?: string[];
+  regulated_by?: string[];
+  licenses_from?: string[];
+  government_entities?: string[];
+  relevant_laws?: string[];
+  stakeholders?: string[];
+  active_projects?: string[];
+  decision_makers?: string[];
+  key_contacts?: string[];
+  [key: string]: unknown;
+}
+
+export interface EntityBodySections {
+  summary?: string;
+  core_information?: string;
+  governance_regulation?: string;
+  stakeholders?: string;
+  projects?: string;
+  decision_makers?: string;
+  key_contacts?: string;
+  [key: string]: unknown;
+}
+
+export interface EntityProfileResponse {
+  status: string;
+  id: string;
+  frontmatter: EntityFrontmatter;
+  body_sections: EntityBodySections;
+  raw_markdown?: string;
+}
+
+export async function fetchEntityProfile(id: string): Promise<EntityProfileResponse> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/entity/${encodeURIComponent(id)}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return parseJSON<EntityProfileResponse>(res);
+}
+
+// Keep legacy type alias so existing components don't break immediately
 export interface EntityAPIItem {
   id: string;
   name: string;
@@ -219,20 +317,4 @@ export interface EntityAPIItem {
   relationships?: { entity: string; type: string }[];
   summary?: string;
   connected_entities?: string[];
-}
-
-export async function fetchEntities(): Promise<EntityAPIItem[]> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/entities`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return parseJSON<EntityAPIItem[]>(res);
-}
-
-export async function fetchEntityProfile(id: string): Promise<EntityAPIItem> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/entities/${encodeURIComponent(id)}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return parseJSON<EntityAPIItem>(res);
 }
