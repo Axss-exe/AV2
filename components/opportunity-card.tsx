@@ -158,7 +158,10 @@ export function OpportunityCard({
   const [savedDbId, setSavedDbId] = useState<number | undefined>(initialDbId);
   const [saving, setSaving] = useState(false);
   const [unsaving, setUnsaving] = useState(false);
-  const uColor = urgencyColor(opportunity.urgency_score);
+  // pg returns NUMERIC columns as strings — coerce to number before any arithmetic
+  const urgencyScore = Number(opportunity.urgency_score);
+  const feasibilityScore = Number(opportunity.feasibility_score);
+  const uColor = urgencyColor(urgencyScore);
 
   const handleSave = async () => {
     if (saved || saving) return;
@@ -305,7 +308,7 @@ export function OpportunityCard({
                 lineHeight: 1,
               }}
             >
-              {opportunity.feasibility_score.toFixed(1)}
+              {feasibilityScore.toFixed(1)}
             </div>
             <div
               style={{
@@ -365,7 +368,7 @@ export function OpportunityCard({
       </div>
 
       {/* Urgency bar */}
-      <UrgencyBar score={opportunity.urgency_score} />
+      <UrgencyBar score={urgencyScore} />
 
       {/* Justification */}
       <blockquote
