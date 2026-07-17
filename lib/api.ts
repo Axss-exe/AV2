@@ -293,6 +293,8 @@ export interface EntityListItem {
   name: string;
   filename: string;
   path: string;
+  content?: string;
+  size_bytes?: number;
 }
 
 export interface EntitiesListResponse {

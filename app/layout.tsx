@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Lexend_Deca, Poppins, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { ATISProvider } from '@/lib/context'
+import { EntityProvider } from '@/components/entity-provider'
 
 const _poppins = Poppins({
   subsets: ['latin'],
@@ -42,7 +43,9 @@ export default function RootLayout({
     <html lang="en" className={`${_poppins.variable} ${_lexendDeca.variable} ${_jetbrainsMono.variable} bg-bg-primary`}>
       <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
         <ATISProvider>
-          {children}
+          <EntityProvider>
+            {children}
+          </EntityProvider>
         </ATISProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
