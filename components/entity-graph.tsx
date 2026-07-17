@@ -27,9 +27,13 @@ const nodeColors: Record<GraphNode['type'], { fill: string; stroke: string; text
   risk: { fill: '#000000', stroke: '#ff453a', text: '#ff453a' },
 };
 
-export function EntityGraph({ nodes, edges, title }: EntityGraphProps) {
+export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: EntityGraphProps) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Defensive guards — never call .map() on undefined
+  const nodes = Array.isArray(nodesProp) ? nodesProp : [];
+  const edges = Array.isArray(edgesProp) ? edgesProp : [];
 
   const getNodeById = (id: string) => nodes.find((n) => n.id === id);
 

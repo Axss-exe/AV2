@@ -78,6 +78,17 @@ export interface QueryHistory {
   created_at: string;
 }
 
+export interface KeyEntity {
+  entity_name: string;
+  entity_type?: string;
+  country?: string;
+  sector?: string;
+  significance_score?: number;
+  related_count?: number;
+  summary?: string;
+  source_node?: string;
+}
+
 export interface QueryResult {
   query: string;
   summary: string;
@@ -89,10 +100,12 @@ export interface QueryResult {
     validated: string;
   };
   graphNodes: GraphNode[];
+  graphEdges: GraphEdge[];
   tableRows: IntelTableRow[];
   findings: string[];
   opportunities: string[];
   riskFactors: string[];
+  keyEntities: KeyEntity[];
 }
 
 export interface GraphNode {

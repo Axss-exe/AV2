@@ -11,7 +11,7 @@ import { IntelTable } from '@/components/intel-table';
 import { InfoCards } from '@/components/info-cards';
 import { useATIS } from '@/lib/context';
 import { queryAPI, APIError } from '@/lib/api';
-import type { QueryResult, IntelTableRow, GraphNode } from '@/lib/types';
+import type { QueryResult, IntelTableRow, GraphNode, GraphEdge, KeyEntity } from '@/lib/types';
 
 const SUGGESTIONS = [
   'What are the opportunities in Zimbabwe?',
@@ -21,46 +21,89 @@ const SUGGESTIONS = [
   'Zimbabwe mining sector intelligence',
 ];
 
-// Map backend API response to the existing QueryResult type
+// Map backend API response to the existing QueryResult type.
+// The backend returns { status, elapsed_seconds, data: { ... } } — the
+// queryAPI() function in lib/api.ts already unwraps this so `res` is the
+// flat `data` object here.
 function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<typeof queryAPI>>): QueryResult {
+  // Derive stats from res.stats (real) or res.statistics (legacy fallback)
+  const s = res.stats ?? {};
+  const leg = res.statistics ?? {};
   const stats = {
-    traces: typeof res.statistics?.traces === 'number' ? res.statistics.traces : 12,
-    nodes: typeof res.statistics?.nodes === 'number' ? res.statistics.nodes : 7,
-    concepts: typeof res.statistics?.concepts === 'number' ? res.statistics.concepts : 10,
-    entities: typeof res.statistics?.entities === 'number' ? res.statistics.entities : 5,
-    validated: typeof res.statistics?.validated === 'string' ? res.statistics.validated :
-      typeof res.statistics?.validated === 'number' ? `${res.statistics.validated}%` : '76%',
+    traces:    typeof s.traces === 'number'    ? s.traces    : typeof leg.traces === 'number'    ? leg.traces    : 0,
+    nodes:     typeof s.total_entities === 'number' ? s.total_entities : typeof leg.nodes === 'number' ? leg.nodes : 0,
+    concepts:  typeof s.commodities_tracked === 'number' ? s.commodities_tracked : typeof leg.concepts === 'number' ? leg.concepts : 0,
+    entities:  typeof s.total_entities === 'number' ? s.total_entities : typeof leg.entities === 'number' ? leg.entities : 0,
+    validated: typeof s.validated === 'string'   ? s.validated
+             : typeof s.validated === 'number'   ? `${s.validated}%`
+             : typeof leg.validated === 'string' ? leg.validated
+             : typeof leg.validated === 'number' ? `${leg.validated}%`
+             : '—',
   };
 
-  // Map structured intelligence rows — guard against non-array
+  // Map structured intelligence rows (real fields: entity, type, relationship, status, priority, insight, source_node)
   const intelRows = Array.isArray(res.structured_intelligence) ? res.structured_intelligence : [];
-  const tableRows: IntelTableRow[] = intelRows.map((row) => ({
-    source: row.source ?? 'Unknown Source',
-    relationship: row.relationship ?? '',
-    confidence: row.confidence ?? '—',
-    status: (['Validated', 'Gap', 'External'].includes(row.status) ? row.status : 'External') as IntelTableRow['status'],
-    last_updated: row.last_updated ?? new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+  const tableRows: IntelTableRow[] = intelRows.map((row) => {
+    // Normalise status: backend sends e.g. "Operational", map to badge values
+    const rawStatus = row.status ?? '';
+    const status: IntelTableRow['status'] =
+      rawStatus === 'Validated' ? 'Validated'
+      : rawStatus === 'Gap' ? 'Gap'
+      : 'External';
+    return {
+      source:       row.entity ?? row.source ?? 'Unknown',
+      relationship: row.relationship ?? row.type ?? '',
+      confidence:   row.priority ?? row.confidence ?? '—',
+      status,
+      last_updated: row.insight ?? row.last_updated ?? row.source_node ?? '',
+    };
+  });
+
+  // Map entity graph nodes — use x/y from backend if provided, otherwise distribute
+  const graphNodeData = Array.isArray(res.entity_graph?.nodes) ? res.entity_graph!.nodes : [];
+  const FALLBACK_X = [280, 50, 520, 50, 520, 280, 160, 420];
+  const FALLBACK_Y = [114, 50, 50, 180, 180, 10,  230, 230];
+  const graphNodes: GraphNode[] = graphNodeData.map((n, i) => ({
+    id:    n.id    ?? `n${i}`,
+    label: n.label ?? n.id ?? `Node ${i}`,
+    type:  (['hub', 'entity', 'risk', 'partner'].includes(n.type ?? '') ? n.type : 'entity') as GraphNode['type'],
+    x:     typeof n.x === 'number' ? n.x : FALLBACK_X[i % FALLBACK_X.length],
+    y:     typeof n.y === 'number' ? n.y : FALLBACK_Y[i % FALLBACK_Y.length],
   }));
 
-  // Map entity graph nodes — guard against non-array
-  const graphNodeData = Array.isArray(res.entity_graph?.nodes) ? res.entity_graph!.nodes : [];
-  const graphNodes: GraphNode[] = graphNodeData.map((n, i) => ({
-    id: n.id ?? `n${i}`,
-    label: n.label ?? n.id ?? `Node ${i}`,
-    type: (['hub', 'entity', 'risk', 'partner'].includes(n.type) ? n.type : 'entity') as GraphNode['type'],
-    x: i === 0 ? 280 : [50, 520, 50, 520, 280][i % 5],
-    y: i === 0 ? 114 : [50, 50, 180, 180, 10][i % 5],
+  // Map entity graph edges
+  const graphEdgeData = Array.isArray(res.entity_graph?.edges) ? res.entity_graph!.edges : [];
+  const graphEdges: GraphEdge[] = graphEdgeData.map((e) => ({
+    from:  e.from ?? e.source ?? '',
+    to:    e.to   ?? e.target ?? '',
+    label: e.label ?? '',
   }));
+
+  // Map key_entities (new field in real response)
+  const keyEntities: KeyEntity[] = Array.isArray(res.key_entities)
+    ? res.key_entities.map((ke) => ({
+        entity_name:       ke.entity_name ?? 'Unknown',
+        entity_type:       ke.entity_type,
+        country:           ke.country,
+        sector:            ke.sector,
+        significance_score: ke.significance_score,
+        related_count:     ke.related_count,
+        summary:           ke.summary,
+        source_node:       ke.source_node,
+      }))
+    : [];
 
   return {
     query,
-    summary: res.executive_summary ?? res.summary ?? 'Intelligence analysis complete.',
+    summary:      res.executive_summary ?? res.summary ?? 'Intelligence analysis complete.',
     stats,
     graphNodes,
+    graphEdges,
     tableRows,
-    findings: Array.isArray(res.findings) ? res.findings : [],
+    findings:     Array.isArray(res.findings)     ? res.findings     : [],
     opportunities: Array.isArray(res.opportunities) ? res.opportunities : [],
-    riskFactors: Array.isArray(res.risks) ? res.risks : [],
+    riskFactors:  Array.isArray(res.risks)        ? res.risks        : [],
+    keyEntities,
   };
 }
 
@@ -333,15 +376,28 @@ export default function QueryPage() {
 
                   <div className="grid gap-4" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
                     <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
-                      <EntityGraph result={currentQueryResult} />
+                      <EntityGraph
+                        nodes={currentQueryResult.graphNodes ?? []}
+                        edges={(currentQueryResult.graphEdges ?? []).map((e) => ({
+                          from: e.from,
+                          to: e.to,
+                          label: e.label ?? '',
+                        }))}
+                        title="Entity Network"
+                      />
                     </motion.div>
                     <motion.div custom={2} initial="hidden" animate="visible" variants={cardVariants}>
-                      <IntelTable rows={currentQueryResult.tableRows} />
+                      <IntelTable rows={currentQueryResult.tableRows ?? []} />
                     </motion.div>
                   </div>
 
                   <motion.div custom={3} initial="hidden" animate="visible" variants={cardVariants}>
-                    <InfoCards result={currentQueryResult} />
+                    <InfoCards
+                      findings={currentQueryResult.findings ?? []}
+                      opportunities={currentQueryResult.opportunities ?? []}
+                      riskFactors={currentQueryResult.riskFactors ?? []}
+                      keyEntities={currentQueryResult.keyEntities ?? []}
+                    />
                   </motion.div>
                 </div>
               )}

@@ -33,7 +33,13 @@ export default function HistoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchHistory();
+      const raw = await fetchHistory();
+      // Backend may return { status, data: [...] } or a raw array — unwrap either
+      const data: typeof raw = Array.isArray(raw)
+        ? raw
+        : Array.isArray((raw as unknown as { data: typeof raw }).data)
+          ? (raw as unknown as { data: typeof raw }).data
+          : [];
       // Normalize backend history items to QueryHistory shape
       const normalized: QueryHistory[] = data.map((item) => ({
         id: item.id,

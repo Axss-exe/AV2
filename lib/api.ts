@@ -79,6 +79,30 @@ export interface QueryRequest {
   question?: string;
 }
 
+export interface KeyEntity {
+  entity_name?: string;
+  entity_type?: string;
+  country?: string;
+  sector?: string;
+  significance_score?: number;
+  related_count?: number;
+  summary?: string;
+  source_node?: string;
+}
+
+export interface QueryStats {
+  total_entities?: number;
+  total_relationships?: number;
+  commodities_tracked?: number;
+  countries_covered?: number;
+  // legacy fallback fields
+  traces?: number;
+  nodes?: number;
+  concepts?: number;
+  entities?: number;
+  validated?: string | number;
+}
+
 export interface QueryAPIResponse {
   executive_summary?: string;
   summary?: string;
@@ -86,35 +110,70 @@ export interface QueryAPIResponse {
   findings?: string[];
   opportunities?: string[];
   risks?: string[];
+  key_entities?: KeyEntity[];
+  stats?: QueryStats;
+  // legacy field name fallback
   statistics?: Record<string, string | number>;
   entity_graph?: EntityGraphData;
 }
 
 export interface IntelligenceRow {
-  source: string;
-  relationship: string;
-  confidence: string;
-  status: 'Validated' | 'Gap' | 'External';
-  last_updated: string;
+  // Real backend fields
+  entity?: string;
+  type?: string;
+  country?: string;
+  relationship?: string;
+  status?: string;
+  priority?: string;
+  insight?: string;
+  source_node?: string;
+  // Legacy fallback fields (keep for graceful degradation)
+  source?: string;
+  confidence?: string;
+  last_updated?: string;
 }
 
 export interface EntityGraphData {
-  nodes?: { id: string; label: string; type: string }[];
-  edges?: { from: string; to: string; label?: string }[];
+  viewBox?: string;
+  height?: number;
+  nodes?: EntityGraphNode[];
+  edges?: EntityGraphEdge[];
+}
+
+export interface EntityGraphNode {
+  id?: string;
+  label?: string;
+  type?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  fill?: string;
+}
+
+export interface EntityGraphEdge {
+  from?: string;
+  to?: string;
+  label?: string;
+  source?: string;
+  target?: string;
 }
 
 interface QueryEnvelope {
+  // Wrapped shape: { status, elapsed_seconds, data: { ... } }
   status?: string;
   cached?: boolean;
   elapsed_seconds?: number;
   data?: QueryAPIResponse;
-  // Also support flat shape (no envelope)
+  // Flat shape fallback (no envelope)
   executive_summary?: string;
   summary?: string;
   structured_intelligence?: IntelligenceRow[];
   findings?: string[];
   opportunities?: string[];
   risks?: string[];
+  key_entities?: KeyEntity[];
+  stats?: QueryStats;
   statistics?: Record<string, string | number>;
   entity_graph?: EntityGraphData;
 }

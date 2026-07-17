@@ -10,7 +10,8 @@ interface IntelTableProps {
   rows: IntelTableRow[];
 }
 
-export function IntelTable({ rows }: IntelTableProps) {
+export function IntelTable({ rows: rowsProp }: IntelTableProps) {
+  const rows = Array.isArray(rowsProp) ? rowsProp : [];
   return (
     <div
       style={{
@@ -60,6 +61,24 @@ export function IntelTable({ rows }: IntelTableProps) {
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  style={{
+                    padding: '20px',
+                    textAlign: 'center',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: 300,
+                    fontSize: 12,
+                    color: '#525252',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  No intelligence data available
+                </td>
+              </tr>
+            ) : null}
             {rows.map((row, i) => {
               const ss = statusStyles[row.status] ?? statusStyles.Validated;
               return (
