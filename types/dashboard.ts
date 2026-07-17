@@ -10,6 +10,11 @@ export interface Opportunity {
     likely_funder: string;
   };
   justification: string;
+  // Fields added when an opportunity is sourced from a news article pipeline
+  intelligence_id?: string;
+  trigger_event?: string;
+  source_article_id?: number;
+  source_article_headline?: string;
 }
 
 export interface PipelineMetadata {

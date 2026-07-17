@@ -2,12 +2,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Zap, ArrowRight, Loader2 } from 'lucide-react';
+import { Zap, ArrowRight, Loader2, Bookmark, BookmarkCheck } from 'lucide-react';
 import { useEntities } from '@/components/entity-provider';
 import type { Opportunity } from '@/types/dashboard';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
+  /** Pre-mark as saved (e.g. when rendered from DB list) */
+  initialSaved?: boolean;
+  /** DB row id if already saved */
+  savedDbId?: number;
+  /** Called after a successful save — receives the new DB id */
+  onSaved?: (dbId: number) => void;
+  /** Called after unsave/delete */
+  onDeleted?: (dbId: number) => void;
   onExecute?: (opportunityId: string) => Promise<void>;
 }
 
@@ -136,10 +144,75 @@ function EntityChip({ name }: { name: string }) {
   );
 }
 
-export function OpportunityCard({ opportunity, onExecute }: OpportunityCardProps) {
+export function OpportunityCard({
+  opportunity,
+  initialSaved = false,
+  savedDbId: initialDbId,
+  onSaved,
+  onDeleted,
+  onExecute,
+}: OpportunityCardProps) {
   const [executing, setExecuting] = useState(false);
   const [executeError, setExecuteError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(initialSaved);
+  const [savedDbId, setSavedDbId] = useState<number | undefined>(initialDbId);
+  const [saving, setSaving] = useState(false);
+  const [unsaving, setUnsaving] = useState(false);
   const uColor = urgencyColor(opportunity.urgency_score);
+
+  const handleSave = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/saved-opportunities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          opportunity_id: opportunity.opportunity_id,
+          title: opportunity.title,
+          type: opportunity.type,
+          urgency_score: opportunity.urgency_score,
+          feasibility_score: opportunity.feasibility_score,
+          justification: opportunity.justification,
+          required_missing_nodes: opportunity.required_missing_nodes,
+          capital_flow: opportunity.capital_flow,
+          dashboard_json: opportunity,
+          intelligence_id: opportunity.intelligence_id,
+          trigger_event: opportunity.trigger_event,
+          source_article_id: opportunity.source_article_id,
+          source_article_headline: opportunity.source_article_headline,
+        }),
+      });
+      const data = await res.json();
+      if (data.id) {
+        setSaved(true);
+        setSavedDbId(data.id);
+        onSaved?.(data.id);
+      } else if (data.status === 'already_saved') {
+        setSaved(true);
+        setSavedDbId(data.id);
+      }
+    } catch (err) {
+      console.error('[OpportunityCard save]', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUnsave = async () => {
+    if (!savedDbId || unsaving) return;
+    setUnsaving(true);
+    try {
+      await fetch(`/api/saved-opportunities/${savedDbId}`, { method: 'DELETE' });
+      setSaved(false);
+      onDeleted?.(savedDbId);
+      setSavedDbId(undefined);
+    } catch (err) {
+      console.error('[OpportunityCard unsave]', err);
+    } finally {
+      setUnsaving(false);
+    }
+  };
 
   const handleExecute = async () => {
     if (!onExecute) return;
@@ -212,40 +285,82 @@ export function OpportunityCard({ opportunity, onExecute }: OpportunityCardProps
           </h3>
         </div>
 
-        {/* Feasibility badge */}
-        <div
-          style={{
-            background: '#1c1c1e',
-            border: '1px solid #2c2c2e',
-            borderRadius: 8,
-            padding: '6px 10px',
-            textAlign: 'center' as const,
-            flexShrink: 0,
-          }}
-        >
+        <div className="flex items-start gap-2 flex-shrink-0">
+          {/* Feasibility badge */}
           <div
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 700,
-              fontSize: 14,
-              color: '#a1a1a6',
-              lineHeight: 1,
+              background: '#1c1c1e',
+              border: '1px solid #2c2c2e',
+              borderRadius: 8,
+              padding: '6px 10px',
+              textAlign: 'center' as const,
             }}
           >
-            {opportunity.feasibility_score.toFixed(1)}
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700,
+                fontSize: 14,
+                color: '#a1a1a6',
+                lineHeight: 1,
+              }}
+            >
+              {opportunity.feasibility_score.toFixed(1)}
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 9,
+                color: '#333333',
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.05em',
+                marginTop: 3,
+              }}
+            >
+              Feasibility
+            </div>
           </div>
-          <div
+
+          {/* Save / Unsave button */}
+          <button
+            onClick={saved ? handleUnsave : handleSave}
+            disabled={saving || unsaving}
+            aria-label={saved ? 'Remove from saved opportunities' : 'Save to Opportunities'}
+            title={saved ? 'Unsave' : 'Save'}
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 9,
-              color: '#333333',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.05em',
-              marginTop: 3,
+              background: saved ? 'rgba(48,209,88,0.1)' : 'transparent',
+              border: `1px solid ${saved ? 'rgba(48,209,88,0.3)' : '#2c2c2e'}`,
+              borderRadius: 8,
+              width: 36,
+              height: 36,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: saving || unsaving ? 'wait' : 'pointer',
+              color: saved ? '#30d158' : '#525252',
+              transition: 'all 0.2s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              if (!saving && !unsaving && !saved) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#525252';
+                (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!saved) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#2c2c2e';
+                (e.currentTarget as HTMLButtonElement).style.color = '#525252';
+              }
             }}
           >
-            Feasibility
-          </div>
+            {saving || unsaving
+              ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />
+              : saved
+                ? <BookmarkCheck size={14} aria-hidden="true" />
+                : <Bookmark size={14} aria-hidden="true" />
+            }
+          </button>
         </div>
       </div>
 

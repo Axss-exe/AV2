@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, AlertCircle, ChevronDown, ChevronUp, CheckCircle2, XCircle } from 'lucide-react';
+import { Zap, AlertCircle, ChevronDown, ChevronUp, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { AnalystLoading } from '@/components/analyst-loading';
 import { executeOpportunity, APIError } from '@/lib/api';
@@ -212,12 +213,14 @@ export default function ExecutePage() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<ExecuteAPIResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savedRoadmapId, setSavedRoadmapId] = useState<number | null>(null);
 
   const handleExecute = async () => {
     if (!selectedOpportunity || running) return;
     setRunning(true);
     setResult(null);
     setError(null);
+    setSavedRoadmapId(null);
 
     try {
       const res = await executeOpportunity({
@@ -230,6 +233,25 @@ export default function ExecutePage() {
         opportunity_id: selectedOpportunity.id,
       });
       setResult(res);
+
+      // Auto-save roadmap to DB
+      try {
+        const saved = await fetch('/api/roadmaps', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            opportunity_id: selectedOpportunity.id,
+            opportunity_title: selectedOpportunity.title,
+            roadmap_text: res.roadmap ?? null,
+            lineage_traces: res.lineage_traces ?? [],
+            raw_response: res,
+          }),
+        });
+        const savedData = await saved.json();
+        if (savedData.id) setSavedRoadmapId(savedData.id);
+      } catch (saveErr) {
+        console.error('[execute page] roadmap save failed', saveErr);
+      }
     } catch (err: unknown) {
       const msg =
         err instanceof APIError
@@ -591,6 +613,7 @@ export default function ExecutePage() {
                     <CheckCircle2 size={18} color="#30d158" />
                   </div>
                   <div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
                         fontFamily: 'var(--font-sans)',
@@ -614,6 +637,32 @@ export default function ExecutePage() {
                     >
                       {selectedOpportunity.title}
                     </div>
+                  </div>
+                  {savedRoadmapId && (
+                    <Link
+                      href={`/execute/roadmap/${savedRoadmapId}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 11,
+                        color: '#30d158',
+                        background: 'rgba(48,209,88,0.1)',
+                        border: '1px solid rgba(48,209,88,0.3)',
+                        borderRadius: 8,
+                        padding: '8px 14px',
+                        textDecoration: 'none',
+                        flexShrink: 0,
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(48,209,88,0.18)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(48,209,88,0.1)'; }}
+                    >
+                      <ExternalLink size={12} aria-hidden="true" />
+                      View Roadmap Dashboard
+                    </Link>
+                  )}
                   </div>
                 </motion.div>
               )}
