@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ChevronLeft, Trash2, Zap, BookmarkX, RefreshCw,
-  Newspaper, ArrowLeft, Clock, Hash, BookmarkCheck,
+  Newspaper, Clock, Hash, BookmarkCheck, Loader2, AlertCircle,
 } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { OpportunityCard } from '@/components/opportunity-card';
 import { useATIS } from '@/lib/context';
-import { executeOpportunity } from '@/lib/api';
+import { executeOpportunity, APIError } from '@/lib/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -93,6 +93,10 @@ export default function OpportunitiesPage() {
   // Track which in-memory opp_ids have been saved this session
   const [justSaved, setJustSaved] = useState<Set<string>>(new Set());
 
+  // Execute pipeline inline then redirect to roadmap dashboard
+  const [executingId, setExecutingId] = useState<string | null>(null);
+  const [executeError, setExecuteError] = useState<string | null>(null);
+
   const load = useCallback(async () => {
     setLoadingSaved(true);
     setLoadError(null);
@@ -131,15 +135,97 @@ export default function OpportunitiesPage() {
   }
 
   const handleExecute = useCallback(async (opportunityId: string) => {
-    if (!currentDashboard) return;
-    await executeOpportunity({ dashboard_json: currentDashboard, opportunity_id: opportunityId });
-  }, [currentDashboard]);
+    if (executingId) return;
+    setExecutingId(opportunityId);
+    setExecuteError(null);
+
+    // Find the matching opportunity from the saved list or the in-memory dashboard
+    const savedRow = saved.find((r) => r.opportunity_id === opportunityId);
+    const dashboardJson = savedRow
+      ? savedRow.dashboard_json
+      : currentDashboard ?? {};
+
+    try {
+      const res = await executeOpportunity({
+        dashboard_json: dashboardJson,
+        opportunity_id: opportunityId,
+      });
+
+      // Auto-save roadmap and navigate to its dashboard
+      const saveRes = await fetch('/api/roadmaps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          opportunity_id: opportunityId,
+          opportunity_title: savedRow?.title ?? (dashboardJson as Record<string, unknown>)?.trigger_event ?? opportunityId,
+          saved_opportunity_id: savedRow?.id ?? null,
+          roadmap_text: res.roadmap ?? null,
+          lineage_traces: res.lineage_traces ?? [],
+          raw_response: res,
+        }),
+      });
+      const saved_ = await saveRes.json();
+      const roadmapId = saved_?.id;
+
+      if (roadmapId) {
+        router.push(`/execute/roadmap/${roadmapId}`);
+      }
+    } catch (err) {
+      const msg = err instanceof APIError ? err.message : 'Pipeline execution failed. Please try again.';
+      setExecuteError(msg);
+      setExecutingId(null);
+    }
+  }, [executingId, saved, currentDashboard, router]);
 
   // ── View: no analysis and no saved items ──────────────────────────────────
   const showEmpty = !loadingSaved && saved.length === 0 && !currentDashboard;
 
   return (
     <AppShell>
+      {/* ── Full-screen execute overlay ── */}
+      <AnimatePresence>
+        {executingId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9999,
+              background: 'rgba(0,0,0,0.88)',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: 20,
+              backdropFilter: 'blur(8px)',
+            }}
+            role="status"
+            aria-live="polite"
+          >
+            <div style={{ width: 56, height: 56, background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Loader2 size={26} color="#30d158" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#30d158', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+                Running Intelligence Pipeline
+              </p>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: '#f5f5f7', margin: 0, maxWidth: 340, lineHeight: 1.4 }}>
+                {saved.find((r) => r.opportunity_id === executingId)?.title ?? executingId}
+              </p>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#525252', marginTop: 8 }}>
+                Generating strategic roadmap &amp; lineage traces…
+              </p>
+            </div>
+            {/* Animated progress bar */}
+            <div style={{ width: 240, height: 2, background: '#1c1c1e', borderRadius: 2, overflow: 'hidden' }}>
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: '100%' }}
+                transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+                style={{ width: '60%', height: '100%', background: 'linear-gradient(90deg,transparent,#30d158,transparent)', borderRadius: 2 }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div style={{ minHeight: '100vh', background: '#050505', paddingBottom: 80 }}>
         <main className="pt-6 md:pt-8 px-4 sm:px-6 lg:px-8" style={{ maxWidth: 980, margin: '0 auto' }}>
 
@@ -285,7 +371,16 @@ export default function OpportunitiesPage() {
             </div>
           )}
 
-          {/* Error */}
+          {/* Execute error */}
+          {executeError && (
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }} role="alert">
+              <AlertCircle size={14} color="#ff453a" aria-hidden="true" />
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#ff453a', flex: 1 }}>{executeError}</span>
+              <button onClick={() => setExecuteError(null)} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#ff453a', background: 'transparent', border: '1px solid rgba(255,69,58,0.25)', borderRadius: 5, padding: '3px 8px', cursor: 'pointer' }}>Dismiss</button>
+            </motion.div>
+          )}
+
+          {/* Load error */}
           {loadError && (
             <div style={{ background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: 10, padding: '14px 18px', fontFamily: 'var(--font-sans)', fontSize: 13, color: '#ff453a', marginBottom: 24 }} role="alert">
               {loadError}

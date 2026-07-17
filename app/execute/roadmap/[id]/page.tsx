@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronDown, ChevronUp, CheckCircle2,
-  AlertCircle, Code2, Zap, Clock, BookmarkCheck,
+  AlertCircle, Code2, Zap, Clock, BookmarkCheck, Download,
 } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 
@@ -261,6 +261,18 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
 
   return (
     <AppShell>
+      {/* Print stylesheet — hides chrome and makes content full-width */}
+      <style>{`
+        @media print {
+          .atis-sidebar, .atis-topbar, .atis-bottomnav, nav, header { display: none !important; }
+          .atis-content { margin-left: 0 !important; }
+          body { background: #ffffff !important; color: #000000 !important; }
+          pre { white-space: pre-wrap !important; word-break: break-word !important; }
+          button { display: none !important; }
+          a[href]::after { content: none !important; }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
       <div style={{ minHeight: '100vh', background: '#050505', paddingBottom: 80 }}>
         <main className="pt-6 md:pt-8 px-4 sm:px-6 lg:px-8" style={{ maxWidth: 1000, margin: '0 auto' }}>
 
@@ -346,7 +358,17 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                    {/* Download PDF */}
+                    <button
+                      onClick={() => window.print()}
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f5f5f7', background: '#1c1c1e', border: '1px solid #333333', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2c2c2e'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e'; }}
+                    >
+                      <Download size={12} aria-hidden="true" /> Download PDF
+                    </button>
+
                     {record.saved_opportunity_id && (
                       <Link href="/opportunities" style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: '#30d158', background: 'rgba(48,209,88,0.08)', border: '1px solid rgba(48,209,88,0.2)', borderRadius: 8, padding: '7px 12px', textDecoration: 'none', transition: 'background 0.15s' }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(48,209,88,0.15)'; }}
