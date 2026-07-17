@@ -141,16 +141,16 @@ export default function OpportunitiesPage() {
   return (
     <AppShell>
       <main
+        className="pt-6 md:pt-8"
         style={{
           minHeight: '100vh',
           background: '#050505',
-          padding: '28px 28px 80px',
           maxWidth: 900,
           margin: '0 auto',
         }}
       >
         {/* Back link */}
-        <div className="flex items-center justify-between" style={{ marginBottom: 28 }}>
+        <div className="flex flex-wrap items-center justify-between gap-3" style={{ marginBottom: 28 }}>
           <button
             onClick={() => router.back()}
             style={{
@@ -414,7 +414,7 @@ export default function OpportunitiesPage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 380px), 1fr))',
                 gap: 16,
               }}
             >

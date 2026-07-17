@@ -119,8 +119,7 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
 
   return (
     <div
-      className="grid gap-4"
-      style={{ gridTemplateColumns: hasEntities ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)' }}
+      className={`grid gap-4 grid-cols-1 sm:grid-cols-2 ${hasEntities ? 'xl:grid-cols-4' : 'lg:grid-cols-3'}`}
     >
       <InfoCard title="Key Findings"   items={safeFindings} />
       <InfoCard title="Opportunities"  items={safeOpportunities} />

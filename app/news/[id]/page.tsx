@@ -116,10 +116,10 @@ export default function ArticleDetailPage({
       )}
 
       <main
+        className="pt-6 md:pt-8"
         style={{
           minHeight: '100vh',
           background: '#050505',
-          padding: '28px 28px 80px',
           maxWidth: 760,
           margin: '0 auto',
         }}

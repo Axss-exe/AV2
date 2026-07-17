@@ -87,7 +87,7 @@ export default function CountryMapPage() {
 
   return (
     <AppShell>
-      <div style={{ paddingTop: 40 }}>
+      <div className="pt-6 md:pt-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -95,7 +95,7 @@ export default function CountryMapPage() {
           transition={{ duration: 0.4 }}
           className="mb-6"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1
                 style={{
@@ -166,7 +166,7 @@ export default function CountryMapPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.08 }}
-          className="flex gap-2 mb-6"
+          className="flex flex-wrap gap-2 mb-6"
         >
           {REGION_FILTERS.map((region) => {
             const isActive = activeRegion === region;
@@ -209,7 +209,7 @@ export default function CountryMapPage() {
               border: '1px solid #1c1c1e',
               borderRadius: 16,
               overflow: 'hidden',
-              height: 520,
+              height: 'clamp(300px, 50vw, 520px)',
             }}
           >
             <AfricaMap onCountryClick={openCountry} />
@@ -226,8 +226,7 @@ export default function CountryMapPage() {
           >
             {loading ? (
               <div
-                className="grid gap-3"
-                style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
               >
                 {[...Array(7)].map((_, i) => (
                   <div
@@ -244,8 +243,7 @@ export default function CountryMapPage() {
               </div>
             ) : (
               <div
-                className="grid gap-3"
-                style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
               >
                 {filtered.map((country, i) => (
                   <CountryCard

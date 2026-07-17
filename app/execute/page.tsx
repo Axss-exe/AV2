@@ -262,7 +262,7 @@ export default function ExecutePage() {
     <AppShell>
       <AnalystLoading isVisible={running} durationMs={120_000} />
 
-      <div style={{ paddingTop: 40 }}>
+      <div className="pt-6 md:pt-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -337,7 +337,7 @@ export default function ExecutePage() {
               {/* Opportunity selection grid */}
               <div
                 className="grid gap-3 mb-6"
-                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}
+                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}
                 role="radiogroup"
                 aria-label="Select an opportunity to execute"
               >
@@ -618,7 +618,7 @@ export default function ExecutePage() {
                 </motion.div>
               )}
 
-              <div className="grid gap-6" style={{ gridTemplateColumns: result?.roadmap ? '1fr 1fr' : '1fr' }}>
+              <div className={`grid gap-6 ${result?.roadmap ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
                 {/* Roadmap */}
                 {result?.roadmap && (
                   <motion.div

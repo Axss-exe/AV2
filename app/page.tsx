@@ -107,7 +107,7 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div style={{ paddingTop: 40 }}>
+      <div className="pt-6 md:pt-10">
         {/* Hero greeting */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -157,8 +157,7 @@ export default function HomePage() {
           <>
             {/* Zimbabwe key metrics */}
             <div
-              className="grid gap-4 mb-8"
-              style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8"
               aria-label="Zimbabwe intelligence metrics"
             >
               {ZIMBABWE_STATS.map((stat, i) => (
@@ -206,7 +205,7 @@ export default function HomePage() {
             </div>
 
             {/* Two-column layout */}
-            <div className="grid gap-6" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-6">
               {/* Zimbabwe Country Profile */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}

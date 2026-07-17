@@ -194,8 +194,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                 <div>
                   {/* Stats Grid */}
                   <div
-                    className="grid gap-3 mb-6"
-                    style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
+                    className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6"
                   >
                     {[
                       { label: 'GDP', value: country.gdp },

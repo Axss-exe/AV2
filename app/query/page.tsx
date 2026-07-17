@@ -163,7 +163,7 @@ export default function QueryPage() {
     <AppShell>
       <AnalystLoading isVisible={loading} durationMs={120_000} />
 
-      <div style={{ paddingTop: 40 }}>
+      <div className="pt-6 md:pt-10">
         <AnimatePresence mode="wait">
           {!hasResult ? (
             /* ── INITIAL SEARCH STATE ── */
@@ -374,7 +374,7 @@ export default function QueryPage() {
                     <QueryHero result={currentQueryResult} />
                   </motion.div>
 
-                  <div className="grid gap-4" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
+                  <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
                     <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
                       <EntityGraph
                         nodes={currentQueryResult.graphNodes ?? []}

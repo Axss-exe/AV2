@@ -240,16 +240,16 @@ export default function NewsPage() {
   return (
     <AppShell>
       <main
+        className="pt-6 md:pt-8"
         style={{
           minHeight: '100vh',
           background: '#050505',
-          padding: '32px 28px',
           maxWidth: 860,
           margin: '0 auto',
         }}
       >
         {/* Header */}
-        <div className="flex items-start justify-between" style={{ marginBottom: 28 }}>
+        <div className="flex items-start justify-between gap-3 flex-wrap" style={{ marginBottom: 28 }}>
           <div>
             <h1
               style={{
@@ -316,7 +316,7 @@ export default function NewsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-3" style={{ marginBottom: 24 }}>
+        <div className="flex flex-wrap items-center gap-3" style={{ marginBottom: 24 }}>
           <FilterSelect
             label="All Countries"
             value={country}

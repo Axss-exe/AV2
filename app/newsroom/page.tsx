@@ -331,7 +331,7 @@ export default function NewsroomPage() {
 
   return (
     <AppShell>
-      <div style={{ paddingTop: 40 }}>
+      <div className="pt-6 md:pt-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -376,7 +376,7 @@ export default function NewsroomPage() {
                 animation: 'pulse-soft 1.5s infinite',
               }}
             />
-            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}

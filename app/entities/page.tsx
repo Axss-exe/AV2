@@ -52,7 +52,7 @@ export default function EntitiesPage() {
 
   return (
     <AppShell>
-      <div style={{ paddingTop: 40 }}>
+      <div className="pt-6 md:pt-10">
 
         {/* Header */}
         <motion.div
@@ -171,11 +171,8 @@ export default function EntitiesPage() {
         {/* Loading skeleton */}
         {isLoading && (
           <div
-            style={{
-              display: 'grid',
-              gap: 14,
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-            }}
+            className="grid gap-3.5"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 220px), 1fr))' }}
           >
             {[...Array(12)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
@@ -222,11 +219,8 @@ export default function EntitiesPage() {
         {/* Grid */}
         {!isLoading && !error && filtered.length > 0 && (
           <div
-            style={{
-              display: 'grid',
-              gap: 14,
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-            }}
+            className="grid gap-3.5"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 220px), 1fr))' }}
           >
             <AnimatePresence mode="popLayout">
               {filtered.map((entity, i) => (
