@@ -19,8 +19,12 @@ import { resolveEntityType, entityTypeMeta } from '@/lib/entity-types';
 
 function cleanVal(v: string): string {
   return v
-    .replace(/^["']|["']$/g, '')
-    .replace(/\[\[(.+?)\]\]/g, '$1')
+    .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')   // [[T|Alias]] -> Alias
+    .replace(/\[\[(.+?)\]\]/g, '$1')                 // [[Target]] -> Target
+    .replace(/`/g, '')                               // strip stray backticks
+    .replace(/^["']+|["']+$/g, '')                   // strip wrapping quotes
+    .replace(/["',]+$/g, '')                         // strip trailing quote/comma artifacts
+    .replace(/^["',]+/g, '')                         // strip leading quote/comma artifacts
     .trim();
 }
 
@@ -64,6 +68,36 @@ function parseFrontmatter(content: string): ParsedFrontmatter {
 }
 
 const HIDDEN_KEYS = new Set(['summary', 'entity', 'name', 'aliases']);
+
+/**
+ * Clean the vault body markdown for display:
+ *  - convert Obsidian [[wikilinks]] to plain label text (keeps the alias after |)
+ *  - strip a leading paragraph that merely duplicates the summary lead
+ *  - drop an inline "Value Is:" prose block that re-dumps the summary
+ */
+function cleanBody(body: string, summary: string): string {
+  let out = body;
+
+  // [[Target|Alias]] -> Alias  ;  [[Target]] -> Target
+  out = out.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2');
+  out = out.replace(/\[\[([^\]]+)\]\]/g, '$1');
+
+  // Remove a "Value Is: <long prose>" chunk that repeats the summary
+  out = out.replace(/\*{0,2}Value Is\*{0,2}\s*:\s*[\s\S]*?(?=\n\s*\n|$)/gi, '').trim();
+
+  // Drop a leading paragraph that is (nearly) identical to the summary
+  if (summary) {
+    const norm = (s: string) => s.replace(/[*_`#>[\]]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const summaryNorm = norm(summary).slice(0, 80);
+    const paras = out.split(/\n\s*\n/);
+    if (paras.length && summaryNorm && norm(paras[0]).slice(0, 80) === summaryNorm) {
+      paras.shift();
+      out = paras.join('\n\n').trim();
+    }
+  }
+
+  return out;
+}
 
 function humanizeKey(key: string): string {
   return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -267,7 +301,7 @@ export default function EntityProfilePage({ params }: PageProps) {
   const displayFields = metaFields.filter(([k, v]) => !HIDDEN_KEYS.has(k.toLowerCase()) && isMeaningful(v));
 
   const summary = profile?.summary?.trim() || '';
-  const bodyMarkdown = parsed.body.trim();
+  const bodyMarkdown = cleanBody(parsed.body.trim(), summary);
 
   const related = profile?.related_entities ?? [];
   const backlinks = related.filter((r) => r.relation_type === 'backlink');
