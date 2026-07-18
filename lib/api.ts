@@ -290,17 +290,23 @@ export async function fetchHistory(): Promise<HistoryItem[]> {
 
 export interface EntityListItem {
   id: string;
+  /** URL-safe identifier — ALWAYS use this for routing (id may contain spaces). */
+  slug: string;
   name: string;
   filename: string;
   path: string;
   content?: string;
   size_bytes?: number;
+  entity_type?: string;
 }
 
 export interface EntitiesListResponse {
   status: string;
   count: number;
-  directory: string;
+  /** Legacy single-directory field (kept for backward compat) */
+  directory?: string;
+  /** Real backend returns the list of vault directories */
+  directories?: string[];
   entities: EntityListItem[];
 }
 
@@ -318,53 +324,72 @@ export async function fetchEntities(): Promise<EntityListItem[]> {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/entity/{id}
-// Returns parsed frontmatter + body sections
+// GET /api/entity/{slug}
+// Returns full profile + related entities graph
 // ---------------------------------------------------------------------------
 
-export interface EntityFrontmatter {
-  entity?: string;
-  entity_type?: string;
-  sector?: string;
-  ownership_type?: string;
-  located_in?: string[];
-  owned_by?: string[];
-  regulated_by?: string[];
-  licenses_from?: string[];
-  government_entities?: string[];
-  relevant_laws?: string[];
-  stakeholders?: string[];
-  active_projects?: string[];
-  decision_makers?: string[];
-  key_contacts?: string[];
-  [key: string]: unknown;
+export interface RelatedEntity {
+  slug: string;
+  name: string;
+  entity_type: string;
+  relation_type: 'outbound' | 'backlink';
+  summary: string;
 }
 
-export interface EntityBodySections {
-  summary?: string;
-  core_information?: string;
-  governance_regulation?: string;
-  stakeholders?: string;
-  projects?: string;
-  decision_makers?: string;
-  key_contacts?: string;
-  [key: string]: unknown;
-}
-
-export interface EntityProfileResponse {
-  status: string;
+export interface EntityProfile {
   id: string;
-  frontmatter: EntityFrontmatter;
-  body_sections: EntityBodySections;
-  raw_markdown?: string;
+  slug: string;
+  name: string;
+  filename: string;
+  path: string;
+  content: string;
+  size_bytes?: number;
+  front_matter: Record<string, unknown>;
+  summary: string;
+  entity_type?: string;
+  outbound_links: string[];
+  backlink_uids: string[];
+  related_entities: RelatedEntity[];
 }
 
-export async function fetchEntityProfile(id: string): Promise<EntityProfileResponse> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/entity/${encodeURIComponent(id)}`, {
+/**
+ * Fetch an entity profile by slug. The slug is already URL-safe, so we pass it
+ * directly WITHOUT encodeURIComponent — the proxy route forwards it as-is to
+ * avoid double-encoding.
+ */
+export async function fetchEntityProfile(slug: string): Promise<EntityProfile> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/entity/${slug}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
-  return parseJSON<EntityProfileResponse>(res);
+  return parseJSON<EntityProfile>(res);
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/search?q={query}
+// ---------------------------------------------------------------------------
+
+export interface SearchResult {
+  id: string;
+  slug: string;
+  name: string;
+  entity_type: string;
+  summary: string;
+}
+
+export interface SearchResponse {
+  query: string;
+  count: number;
+  results: SearchResult[];
+}
+
+export async function searchEntitiesAPI(query: string): Promise<SearchResponse> {
+  const res = await fetchWithTimeout(
+    `${API_BASE}/api/search?q=${encodeURIComponent(query)}`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+    30_000
+  );
+  return parseJSON<SearchResponse>(res);
 }
 
 // Keep legacy type alias so existing components don't break immediately

@@ -13,6 +13,7 @@ interface EntityContextValue {
   isLoading: boolean;
   error: Error | null;
   getEntityById: (id: string) => EntityListItem | undefined;
+  getEntityBySlug: (slug: string) => EntityListItem | undefined;
   searchEntities: (query: string) => EntityListItem[];
   refetch: () => void;
 }
@@ -63,6 +64,11 @@ export function EntityProvider({ children }: EntityProviderProps) {
     [entities]
   );
 
+  const getEntityBySlug = useCallback(
+    (slug: string) => entities.find((e) => e.slug === slug),
+    [entities]
+  );
+
   const searchEntities = useCallback(
     (query: string): EntityListItem[] => {
       if (!query.trim()) return entities;
@@ -78,7 +84,7 @@ export function EntityProvider({ children }: EntityProviderProps) {
 
   return (
     <EntityContext.Provider
-      value={{ entities, isLoading, error, getEntityById, searchEntities, refetch: load }}
+      value={{ entities, isLoading, error, getEntityById, getEntityBySlug, searchEntities, refetch: load }}
     >
       {children}
     </EntityContext.Provider>

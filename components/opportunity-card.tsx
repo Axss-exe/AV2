@@ -94,7 +94,7 @@ function EntityChip({ name }: { name: string }) {
 
   if (matched) {
     return (
-      <Link href={`/entities/${matched.id}`} style={{ textDecoration: 'none' }}>
+      <Link href={`/entities/${matched.slug}`} style={{ textDecoration: 'none' }}>
         <span
           style={{
             display: 'inline-flex',

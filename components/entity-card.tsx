@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { EntityListItem } from '@/lib/api';
+import { resolveEntityType, entityTypeMeta } from '@/lib/entity-types';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -50,11 +51,6 @@ function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-
-function categoryFromPath(path: string): string {
-  const parts = path.split('/');
-  return parts.length >= 2 ? parts[parts.length - 2] : 'Entity';
 }
 
 // ---------------------------------------------------------------------------
@@ -197,8 +193,10 @@ function CompactCard({ entity, onClick }: Pick<EntityCardProps, 'entity' | 'onCl
 // ---------------------------------------------------------------------------
 
 function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
-  const color = hashToColor(entity.id);
-  const category = categoryFromPath(entity.path);
+  const type = resolveEntityType(entity.entity_type, entity.path);
+  const meta = entityTypeMeta(type);
+  const TypeIcon = meta.icon;
+  const color = meta.color;
   const size = entity.size_bytes != null ? formatBytes(entity.size_bytes) : null;
   const rawContent = entity.content ?? '';
   const stripped = stripMarkdown(rawContent);
@@ -267,20 +265,24 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
         </div>
         <span
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
             fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             fontSize: 9,
             textTransform: 'uppercase' as const,
             letterSpacing: '0.07em',
-            color: '#525252',
-            background: '#1c1c1e',
-            border: '1px solid #262626',
+            color,
+            background: `${color}1a`,
+            border: `1px solid ${color}40`,
             borderRadius: 5,
             padding: '3px 8px',
             flexShrink: 0,
           }}
         >
-          {category}
+          <TypeIcon size={10} aria-hidden="true" />
+          {meta.label}
         </span>
       </div>
 
@@ -378,7 +380,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
   if (asLink) {
     return (
       <Link
-        href={`/entities/${entity.id}`}
+        href={`/entities/${entity.slug}`}
         style={{ display: 'block', height: '100%', textDecoration: 'none' }}
         aria-label={`View profile for ${entity.name}`}
       >
