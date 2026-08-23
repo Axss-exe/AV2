@@ -419,7 +419,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
         }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
-      <div style={{ minHeight: '100vh', background: '#050505', paddingBottom: 80 }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: 80 }}>
         <main className="pt-6 md:pt-8 px-4 sm:px-6 lg:px-8" style={{ maxWidth: 1000, margin: '0 auto' }}>
 
           {/* Back link */}

@@ -245,7 +245,7 @@ function StatCard({ stat, i }: { stat: typeof VITAL_STATS[0]; i: number }) {
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
-        (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f';
+        (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)';
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
@@ -421,12 +421,12 @@ function CountryProfilePanel() {
                             title={p}
                             style={{
                               fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)',
-                              padding: '5px 8px', borderRadius: 6, background: '#0f0f0f',
+                              padding: '5px 8px', borderRadius: 6, background: 'var(--bg-control)',
                               border: '1px solid var(--border-default)', transition: 'color 0.15s, background 0.15s',
                               cursor: 'default', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                             }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-secondary)'; (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
                           >
                             {p}
                           </div>
@@ -455,9 +455,9 @@ function CountryProfilePanel() {
                 <div className="flex flex-col gap-1.5">
                   {INSTITUTIONAL.soes.map((s) => (
                     <div key={s} className="flex items-center justify-between"
-                      style={{ padding: '6px 10px', borderRadius: 6, background: '#0f0f0f', border: '1px solid var(--border-default)', transition: 'background 0.15s' }}
+                      style={{ padding: '6px 10px', borderRadius: 6, background: 'var(--bg-control)', border: '1px solid var(--border-default)', transition: 'background 0.15s' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
                     >
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-secondary)' }}>{s}</span>
                       <Link href="/entities" style={{ color: 'var(--border-default)', transition: 'color 0.15s' }}
@@ -477,7 +477,7 @@ function CountryProfilePanel() {
                 <div className="flex flex-col gap-1.5">
                   {INSTITUTIONAL.laws.map((l) => (
                     <div key={l}
-                      style={{ padding: '6px 10px', borderRadius: 6, background: '#0f0f0f', border: '1px solid var(--border-default)', fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)', borderLeft: '2px solid var(--border-hover)', transition: 'color 0.15s, border-left-color 0.15s', cursor: 'default' }}
+                      style={{ padding: '6px 10px', borderRadius: 6, background: 'var(--bg-control)', border: '1px solid var(--border-default)', fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)', borderLeft: '2px solid var(--border-hover)', transition: 'color 0.15s, border-left-color 0.15s', cursor: 'default' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-secondary)'; (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--text-dim)'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--border-hover)'; }}
                     >
@@ -519,7 +519,7 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
             transition: 'background 0.15s',
             cursor: 'default',
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
         >
           <div className="flex items-start justify-between gap-3 mb-1">
@@ -561,7 +561,7 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
             <div
               key={item.id}
               style={{ padding: '10px 18px', borderTop: '1px solid var(--bg-control)', transition: 'background 0.15s', cursor: 'pointer' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
             >
               <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>
@@ -602,7 +602,7 @@ function OpportunitiesSpotlight() {
               cursor: 'default',
               borderLeft: `3px solid ${URGENCY_COLOR[opp.urgency]}`,
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
           >
             <div className="flex items-start justify-between gap-2 mb-1">
@@ -661,18 +661,18 @@ function StrategicAssessment() {
                 title={a.detail}
                 style={{
                   padding: '9px 12px', borderRadius: 8,
-                  background: '#0f0f0f', border: '1px solid var(--border-default)',
+                  background: 'var(--bg-control)', border: '1px solid var(--border-default)',
                   borderLeft: '3px solid var(--border-active)',
                   transition: 'border-left-color 0.2s, background 0.2s',
                   cursor: 'default',
                 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--text-primary)';
-                  (e.currentTarget as HTMLDivElement).style.background = '#141414';
+                  (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-elevated)';
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--border-active)';
-                  (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f';
+                  (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)';
                 }}
               >
                 <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{a.name}</div>
@@ -695,18 +695,18 @@ function StrategicAssessment() {
                 title={c.detail}
                 style={{
                   padding: '9px 12px', borderRadius: 8,
-                  background: '#0f0f0f', border: '1px solid var(--border-default)',
+                  background: 'var(--bg-control)', border: '1px solid var(--border-default)',
                   borderLeft: '3px solid rgba(255,69,58,0.4)',
                   transition: 'border-left-color 0.2s, background 0.2s',
                   cursor: 'default',
                 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.borderLeftColor = '#ff453a';
-                  (e.currentTarget as HTMLDivElement).style.background = '#141414';
+                  (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-elevated)';
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'rgba(255,69,58,0.4)';
-                  (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f';
+                  (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)';
                 }}
               >
                 <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{c.name}</div>

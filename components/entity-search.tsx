@@ -196,7 +196,7 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
                       role="option"
                       aria-selected={false}
                       style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '10px 14px', textDecoration: 'none', borderBottom: '1px solid var(--bg-control)', transition: 'background 0.12s' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#141414'; }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--bg-elevated)'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
                     >
                       <span

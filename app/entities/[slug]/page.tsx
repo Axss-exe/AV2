@@ -230,7 +230,7 @@ function RelationColumn({
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>{rels.length}</span>
       </div>
       {rels.length === 0 ? (
-        <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#3a3a3a', fontStyle: 'italic', padding: '8px 0' }}>
+        <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-tertiary)', fontStyle: 'italic', padding: '8px 0' }}>
           No connections.
         </p>
       ) : (
@@ -385,7 +385,7 @@ export default function EntityProfilePage({ params }: PageProps) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   {(profile?.path ?? listEntity?.path) && (
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: '#141414', border: '1px solid var(--border-hover)', borderRadius: 5, padding: '3px 8px', wordBreak: 'break-all' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'var(--bg-elevated)', border: '1px solid var(--border-hover)', borderRadius: 5, padding: '3px 8px', wordBreak: 'break-all' }}>
                       {profile?.path ?? listEntity?.path}
                     </span>
                   )}
@@ -471,7 +471,7 @@ export default function EntityProfilePage({ params }: PageProps) {
                             {values
                               .filter((v) => v && v.toLowerCase() !== 'unknown')
                               .map((v, idx) => (
-                                <span key={idx} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-tertiary)', background: '#141414', border: '1px solid #1f1f1f', borderRadius: 5, padding: '3px 7px', wordBreak: 'break-word' }}>
+                                <span key={idx} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-tertiary)', background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 7px', wordBreak: 'break-word' }}>
                                   {v}
                                 </span>
                               ))}

@@ -240,7 +240,7 @@ export default function OpportunitiesPage() {
         )}
       </AnimatePresence>
 
-      <div style={{ minHeight: '100vh', background: '#050505', paddingBottom: 80 }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: 80 }}>
         <main className="pt-6 md:pt-8 px-4 sm:px-6 lg:px-8" style={{ maxWidth: 980, margin: '0 auto' }}>
 
           {/* ── Page header ───────────────────────────────────────────────── */}

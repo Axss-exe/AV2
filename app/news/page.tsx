@@ -460,7 +460,7 @@ export default function NewsPage() {
 
   return (
     <AppShell>
-      <div className="pt-6 md:pt-8" style={{ minHeight: '100vh', background: '#050505' }}>
+      <div className="pt-6 md:pt-8" style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
         {/* ── Page header ── */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">

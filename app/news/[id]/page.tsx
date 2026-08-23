@@ -119,7 +119,7 @@ export default function ArticleDetailPage({
         className="pt-6 md:pt-8"
         style={{
           minHeight: '100vh',
-          background: '#050505',
+          background: 'var(--bg-primary)',
           maxWidth: 760,
           margin: '0 auto',
         }}
