@@ -23,7 +23,7 @@ export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#000000' }}>
+    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
       {/* Desktop sidebar — self-hidden on mobile via `hidden md:flex` */}
       <Sidebar />
 
@@ -64,10 +64,10 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Mobile bottom tab bar */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center"
+        className="atis-bottomnav md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center"
         style={{
-          background: '#0a0a0a',
-          borderTop: '1px solid #1c1c1e',
+          background: 'var(--bg-surface)',
+          borderTop: '1px solid var(--border-default)',
           height: 'calc(56px + env(safe-area-inset-bottom))',
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
@@ -80,7 +80,7 @@ export function AppShell({ children }: AppShellProps) {
               key={href}
               href={href}
               className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2"
-              style={{ color: isActive ? '#ffffff' : '#525252', textDecoration: 'none', transition: 'color 0.15s' }}
+              style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} aria-hidden="true" />
@@ -94,7 +94,7 @@ export function AppShell({ children }: AppShellProps) {
         <button
           onClick={() => setDrawerOpen(true)}
           className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2"
-          style={{ color: '#525252', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ color: 'var(--text-dim)', background: 'none', border: 'none', cursor: 'pointer' }}
           aria-label="More navigation options"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">

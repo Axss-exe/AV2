@@ -1,26 +1,27 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Lexend_Deca, Poppins, JetBrains_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
+import { IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { ATISProvider } from '@/lib/context'
 import { EntityProvider } from '@/components/entity-provider'
+import { ThemeProvider, themeNoFlashScript } from '@/components/theme-provider'
 
-const _poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-sans',
+// Inter Display — ATIS editable production font (Regular + Medium).
+const _interDisplay = localFont({
+  src: [
+    { path: '../public/fonts/InterDisplay-Regular.otf', weight: '400', style: 'normal' },
+    { path: '../public/fonts/InterDisplay-Medium.otf', weight: '500', style: 'normal' },
+  ],
+  variable: '--font-inter-display',
+  display: 'swap',
 })
 
-const _lexendDeca = Lexend_Deca({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-display',
-})
-
-const _jetbrainsMono = JetBrains_Mono({
+// IBM Plex Mono — evidence IDs / metadata / system states.
+const _ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
-  variable: '--font-mono',
+  variable: '--font-ibm-plex-mono',
 })
 
 export const metadata: Metadata = {
@@ -30,8 +31,11 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
-  themeColor: '#000000',
+  colorScheme: 'dark light',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
+    { media: '(prefers-color-scheme: light)', color: '#F4F3EF' },
+  ],
 }
 
 export default function RootLayout({
@@ -40,13 +44,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${_poppins.variable} ${_lexendDeca.variable} ${_jetbrainsMono.variable} bg-bg-primary`}>
+    <html lang="en" suppressHydrationWarning className={`${_interDisplay.variable} ${_ibmPlexMono.variable} bg-bg-primary`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
+      </head>
       <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
-        <ATISProvider>
-          <EntityProvider>
-            {children}
-          </EntityProvider>
-        </ATISProvider>
+        <ThemeProvider>
+          <ATISProvider>
+            <EntityProvider>
+              {children}
+            </EntityProvider>
+          </ATISProvider>
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
