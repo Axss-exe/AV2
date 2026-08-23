@@ -50,15 +50,15 @@ const OPPORTUNITIES = [
 ];
 
 function confidenceColor(val?: string): string {
-  if (!val) return '#737373';
+  if (!val) return 'var(--text-muted)';
   const n = parseFloat(val);
   if (!isNaN(n)) {
-    if (n >= 0.75) return '#30d158';
+    if (n >= 0.75) return 'var(--text-primary)';
     if (n >= 0.5) return '#ff9f0a';
     return '#ff453a';
   }
   const v = val.toLowerCase();
-  if (v.includes('high')) return '#30d158';
+  if (v.includes('high')) return 'var(--text-primary)';
   if (v.includes('medium') || v.includes('moderate')) return '#ff9f0a';
   return '#ff453a';
 }
@@ -73,8 +73,8 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, delay: index * 0.04, ease: [0.4, 0, 0.2, 1] }}
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 10,
         overflow: 'hidden',
         marginBottom: 8,
@@ -100,7 +100,7 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
             width: 24,
             height: 24,
             borderRadius: '50%',
-            background: '#1c1c1e',
+            background: 'var(--border-default)',
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
@@ -108,7 +108,7 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
             fontFamily: 'var(--font-mono)',
             fontWeight: 700,
             fontSize: 10,
-            color: '#737373',
+            color: 'var(--text-muted)',
           }}
           aria-hidden="true"
         >
@@ -121,7 +121,7 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 500,
             fontSize: 13,
-            color: '#ffffff',
+            color: 'var(--text-primary)',
             flex: 1,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -140,8 +140,8 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
               fontSize: 10,
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
-              color: '#737373',
-              background: '#1c1c1e',
+              color: 'var(--text-muted)',
+              background: 'var(--border-default)',
               borderRadius: 4,
               padding: '2px 8px',
               flexShrink: 0,
@@ -167,9 +167,9 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
         )}
 
         {expanded ? (
-          <ChevronUp size={14} color="#525252" aria-hidden="true" style={{ flexShrink: 0 }} />
+          <ChevronUp size={14} color="var(--text-dim)" aria-hidden="true" style={{ flexShrink: 0 }} />
         ) : (
-          <ChevronDown size={14} color="#525252" aria-hidden="true" style={{ flexShrink: 0 }} />
+          <ChevronDown size={14} color="var(--text-dim)" aria-hidden="true" style={{ flexShrink: 0 }} />
         )}
       </button>
 
@@ -186,7 +186,7 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
             <div
               style={{
                 padding: '0 16px 14px 56px',
-                borderTop: '1px solid #1c1c1e',
+                borderTop: '1px solid var(--border-default)',
               }}
             >
               <p
@@ -194,7 +194,7 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 300,
                   fontSize: 12,
-                  color: '#a1a1a6',
+                  color: 'var(--text-tertiary)',
                   lineHeight: 1.65,
                   marginTop: 12,
                 }}
@@ -303,7 +303,7 @@ export default function ExecutePage() {
                 fontFamily: 'var(--font-display)',
                 fontWeight: 700,
                 fontSize: 24,
-                color: '#ffffff',
+                color: 'var(--text-primary)',
                 marginBottom: 6,
               }}
             >
@@ -314,7 +314,7 @@ export default function ExecutePage() {
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 300,
                 fontSize: 13,
-                color: '#737373',
+                color: 'var(--text-muted)',
               }}
             >
               Select an opportunity and run the intelligence pipeline to generate a strategic roadmap
@@ -328,9 +328,9 @@ export default function ExecutePage() {
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 500,
                 fontSize: 12,
-                color: '#a1a1a6',
-                background: '#1c1c1e',
-                border: '1px solid #262626',
+                color: 'var(--text-tertiary)',
+                background: 'var(--border-default)',
+                border: '1px solid var(--border-hover)',
                 borderRadius: 8,
                 padding: '8px 16px',
                 cursor: 'pointer',
@@ -338,12 +338,12 @@ export default function ExecutePage() {
                 flexShrink: 0,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = '#2c2c2e';
-                (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+                (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-hover)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
-                (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6';
+                (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)';
               }}
             >
               New Execution
@@ -381,24 +381,24 @@ export default function ExecutePage() {
                       role="radio"
                       aria-checked={isSelected}
                       style={{
-                        background: isSelected ? '#111111' : '#0a0a0a',
-                        border: `1px solid ${isSelected ? '#333333' : '#1c1c1e'}`,
+                        background: isSelected ? 'var(--bg-control)' : 'var(--bg-surface)',
+                        border: `1px solid ${isSelected ? 'var(--border-default)' : 'var(--border-default)'}`,
                         borderRadius: 14,
                         padding: 18,
                         textAlign: 'left',
                         cursor: 'pointer',
                         transition: 'all 0.2s',
-                        outline: isSelected ? '1px solid #ffffff20' : 'none',
+                        outline: isSelected ? '1px solid var(--text-primary)20' : 'none',
                         width: '100%',
                       }}
                       onMouseEnter={(e) => {
                         if (!isSelected) {
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = '#262626';
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-hover)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isSelected) {
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = '#1c1c1e';
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)';
                         }
                       }}
                     >
@@ -411,8 +411,8 @@ export default function ExecutePage() {
                             fontSize: 10,
                             textTransform: 'uppercase',
                             letterSpacing: '0.06em',
-                            color: '#737373',
-                            background: '#1c1c1e',
+                            color: 'var(--text-muted)',
+                            background: 'var(--border-default)',
                             borderRadius: 4,
                             padding: '2px 8px',
                           }}
@@ -422,7 +422,7 @@ export default function ExecutePage() {
                         {isSelected && (
                           <CheckCircle2
                             size={16}
-                            color="#30d158"
+                            color="var(--text-primary)"
                             aria-hidden="true"
                           />
                         )}
@@ -433,7 +433,7 @@ export default function ExecutePage() {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 600,
                           fontSize: 13,
-                          color: '#ffffff',
+                          color: 'var(--text-primary)',
                           lineHeight: 1.4,
                           marginBottom: 6,
                         }}
@@ -445,7 +445,7 @@ export default function ExecutePage() {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 300,
                           fontSize: 12,
-                          color: '#737373',
+                          color: 'var(--text-muted)',
                           lineHeight: 1.55,
                           marginBottom: 10,
                         }}
@@ -462,8 +462,8 @@ export default function ExecutePage() {
                               fontFamily: 'var(--font-sans)',
                               fontWeight: 500,
                               fontSize: 10,
-                              color: '#525252',
-                              background: '#111111',
+                              color: 'var(--text-dim)',
+                              background: 'var(--bg-control)',
                               borderRadius: 4,
                               padding: '2px 6px',
                               textTransform: 'uppercase',
@@ -533,8 +533,8 @@ export default function ExecutePage() {
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 600,
                     fontSize: 13,
-                    color: '#000000',
-                    background: selectedOpportunity ? '#ffffff' : '#333333',
+                    color: 'var(--bg-primary)',
+                    background: selectedOpportunity ? 'var(--text-primary)' : 'var(--border-default)',
                     border: 'none',
                     borderRadius: 10,
                     padding: '12px 24px',
@@ -544,12 +544,12 @@ export default function ExecutePage() {
                   }}
                   onMouseEnter={(e) => {
                     if (selectedOpportunity && !running) {
-                      (e.currentTarget as HTMLButtonElement).style.background = '#d1d1d6';
+                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--text-secondary)';
                       (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.02)';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = selectedOpportunity ? '#ffffff' : '#333333';
+                    (e.currentTarget as HTMLButtonElement).style.background = selectedOpportunity ? 'var(--text-primary)' : 'var(--border-default)';
                     (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
                   }}
                   aria-label={
@@ -570,10 +570,10 @@ export default function ExecutePage() {
                       fontFamily: 'var(--font-sans)',
                       fontWeight: 400,
                       fontSize: 12,
-                      color: '#525252',
+                      color: 'var(--text-dim)',
                     }}
                   >
-                    Selected: <strong style={{ color: '#a1a1a6' }}>{selectedOpportunity.title}</strong>
+                    Selected: <strong style={{ color: 'var(--text-tertiary)' }}>{selectedOpportunity.title}</strong>
                   </motion.span>
                 )}
               </motion.div>
@@ -592,8 +592,8 @@ export default function ExecutePage() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   style={{
-                    background: '#0a0a0a',
-                    border: '1px solid #1c1c1e',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-default)',
                     borderRadius: 14,
                     padding: 20,
                     marginBottom: 24,
@@ -607,7 +607,7 @@ export default function ExecutePage() {
                       width: 36,
                       height: 36,
                       borderRadius: 10,
-                      background: '#1c1c1e',
+                      background: 'var(--border-default)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -615,7 +615,7 @@ export default function ExecutePage() {
                     }}
                     aria-hidden="true"
                   >
-                    <CheckCircle2 size={18} color="#30d158" />
+                    <CheckCircle2 size={18} color="var(--text-primary)" />
                   </div>
                   <div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -624,7 +624,7 @@ export default function ExecutePage() {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 600,
                         fontSize: 10,
-                        color: '#30d158',
+                        color: 'var(--text-primary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.08em',
                         marginBottom: 3,
@@ -637,7 +637,7 @@ export default function ExecutePage() {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 600,
                         fontSize: 14,
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                       }}
                     >
                       {selectedOpportunity.title}
@@ -652,17 +652,17 @@ export default function ExecutePage() {
                         gap: 6,
                         fontFamily: 'var(--font-mono)',
                         fontSize: 11,
-                        color: '#30d158',
-                        background: 'rgba(48,209,88,0.1)',
-                        border: '1px solid rgba(48,209,88,0.3)',
+                        color: 'var(--text-primary)',
+                        background: 'var(--bg-control-active)',
+                        border: '1px solid var(--border-active)',
                         borderRadius: 8,
                         padding: '8px 14px',
                         textDecoration: 'none',
                         flexShrink: 0,
                         transition: 'background 0.15s',
                       }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(48,209,88,0.18)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(48,209,88,0.1)'; }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--bg-control-active)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--bg-control-active)'; }}
                     >
                       <ExternalLink size={12} aria-hidden="true" />
                       View Roadmap Dashboard
@@ -680,8 +680,8 @@ export default function ExecutePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35 }}
                     style={{
-                      background: '#0a0a0a',
-                      border: '1px solid #1c1c1e',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-default)',
                       borderRadius: 14,
                       overflow: 'hidden',
                     }}
@@ -689,7 +689,7 @@ export default function ExecutePage() {
                     <div
                       style={{
                         padding: '16px 20px',
-                        borderBottom: '1px solid #1c1c1e',
+                        borderBottom: '1px solid var(--border-default)',
                       }}
                     >
                       <h2
@@ -697,7 +697,7 @@ export default function ExecutePage() {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 600,
                           fontSize: 14,
-                          color: '#ffffff',
+                          color: 'var(--text-primary)',
                         }}
                       >
                         Strategic Roadmap
@@ -709,7 +709,7 @@ export default function ExecutePage() {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 300,
                           fontSize: 13,
-                          color: '#a1a1a6',
+                          color: 'var(--text-tertiary)',
                           lineHeight: 1.7,
                           whiteSpace: 'pre-wrap',
                         }}
@@ -727,8 +727,8 @@ export default function ExecutePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.08 }}
                     style={{
-                      background: '#0a0a0a',
-                      border: '1px solid #1c1c1e',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-default)',
                       borderRadius: 14,
                       overflow: 'hidden',
                     }}
@@ -736,7 +736,7 @@ export default function ExecutePage() {
                     <div
                       style={{
                         padding: '16px 20px',
-                        borderBottom: '1px solid #1c1c1e',
+                        borderBottom: '1px solid var(--border-default)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
@@ -747,7 +747,7 @@ export default function ExecutePage() {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 600,
                           fontSize: 14,
-                          color: '#ffffff',
+                          color: 'var(--text-primary)',
                         }}
                       >
                         Lineage Traces
@@ -757,8 +757,8 @@ export default function ExecutePage() {
                           fontFamily: 'var(--font-mono)',
                           fontWeight: 700,
                           fontSize: 11,
-                          color: '#737373',
-                          background: '#1c1c1e',
+                          color: 'var(--text-muted)',
+                          background: 'var(--border-default)',
                           borderRadius: 4,
                           padding: '2px 8px',
                         }}
@@ -780,8 +780,8 @@ export default function ExecutePage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     style={{
-                      background: '#0a0a0a',
-                      border: '1px solid #1c1c1e',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-default)',
                       borderRadius: 14,
                       padding: 20,
                     }}
@@ -803,11 +803,11 @@ export default function ExecutePage() {
                       style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: 11,
-                        color: '#737373',
+                        color: 'var(--text-muted)',
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-all',
-                        background: '#111111',
-                        border: '1px solid #1c1c1e',
+                        background: 'var(--bg-control)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 8,
                         padding: 16,
                         maxHeight: 400,

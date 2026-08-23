@@ -17,8 +17,8 @@ function SkeletonCard() {
     <div
       style={{
         height: 190,
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 14,
         animation: 'pulse-soft 1.5s infinite',
       }}
@@ -66,7 +66,7 @@ export default function EntitiesPage() {
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
               fontSize: 24,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
               marginBottom: 6,
             }}
           >
@@ -77,7 +77,7 @@ export default function EntitiesPage() {
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 13,
-              color: '#525252',
+              color: 'var(--text-dim)',
             }}
           >
             {isLoading
@@ -137,7 +137,7 @@ export default function EntitiesPage() {
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 300,
                   fontSize: 11,
-                  color: '#525252',
+                  color: 'var(--text-dim)',
                 }}
               >
                 {error.message}
@@ -189,7 +189,7 @@ export default function EntitiesPage() {
               style={{
                 fontFamily: 'var(--font-sans)',
                 fontSize: 14,
-                color: '#525252',
+                color: 'var(--text-dim)',
               }}
             >
               No profiles found in vault.
@@ -208,7 +208,7 @@ export default function EntitiesPage() {
               style={{
                 fontFamily: 'var(--font-sans)',
                 fontSize: 13,
-                color: '#525252',
+                color: 'var(--text-dim)',
               }}
             >
               No entities matching &ldquo;{query}&rdquo;

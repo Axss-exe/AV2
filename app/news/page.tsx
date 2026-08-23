@@ -35,7 +35,7 @@ const CATEGORY_COLORS: Record<string, { fg: string; bg: string; border: string }
 };
 
 function categoryColor(cat: string) {
-  return CATEGORY_COLORS[cat] ?? { fg: '#737373', bg: 'rgba(115,115,115,0.1)', border: 'rgba(115,115,115,0.25)' };
+  return CATEGORY_COLORS[cat] ?? { fg: 'var(--text-muted)', bg: 'rgba(115,115,115,0.1)', border: 'rgba(115,115,115,0.25)' };
 }
 
 /* ─────────────────────────────── badges ─── */
@@ -51,7 +51,7 @@ function CategoryBadge({ label }: { label: string }) {
 
 function CountryBadge({ label }: { label: string }) {
   return (
-    <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: '#a1a1a6', background: '#1c1c1e', border: '1px solid #2c2c2e', borderRadius: 4, padding: '2px 8px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' as const }}>
+    <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: 'var(--text-tertiary)', background: 'var(--border-default)', border: '1px solid var(--border-hover)', borderRadius: 4, padding: '2px 8px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' as const }}>
       {label}
     </span>
   );
@@ -108,8 +108,8 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
     <div
       style={{
         position: 'relative',
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 16,
         overflow: 'hidden',
         marginBottom: 32,
@@ -122,7 +122,7 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
       <div style={{ height: 3, background: cc.fg, transition: 'background 0.4s ease' }} aria-hidden="true" />
 
       {/* Progress bar */}
-      <div style={{ height: 2, background: '#1c1c1e', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: 2, background: 'var(--border-default)', position: 'relative', overflow: 'hidden' }}>
         <div
           style={{
             position: 'absolute',
@@ -147,14 +147,14 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
               fontFamily: 'var(--font-mono)',
               fontSize: 9,
               fontWeight: 600,
-              color: '#525252',
+              color: 'var(--text-dim)',
               letterSpacing: '0.12em',
               textTransform: 'uppercase' as const,
             }}
           >
             FEATURED · {active + 1} / {top5.length}
           </span>
-          <div style={{ flex: 1, height: 1, background: '#1c1c1e' }} aria-hidden="true" />
+          <div style={{ flex: 1, height: 1, background: 'var(--border-default)' }} aria-hidden="true" />
           <CategoryBadge label={article.category} />
           <CountryBadge label={article.country_tag} />
         </div>
@@ -165,7 +165,7 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 700,
             fontSize: 'clamp(18px, 3vw, 26px)',
-            color: '#f5f5f7',
+            color: 'var(--text-primary)',
             lineHeight: 1.3,
             margin: '0 0 16px 0',
             letterSpacing: '-0.02em',
@@ -182,7 +182,7 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 13,
-              color: '#737373',
+              color: 'var(--text-muted)',
               lineHeight: 1.6,
               margin: '0 0 24px 0',
               maxWidth: 640,
@@ -199,11 +199,11 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
         {/* Footer row */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#525252', fontWeight: 400 }}>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-dim)', fontWeight: 400 }}>
               {article.source}
             </span>
-            <span style={{ color: '#2c2c2e' }} aria-hidden="true">·</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#333333' }}>
+            <span style={{ color: 'var(--border-hover)' }} aria-hidden="true">·</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>
               {relativeTime(article.published_at)}
             </span>
           </div>
@@ -222,7 +222,7 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
                     width: i === active ? 20 : 6,
                     height: 6,
                     borderRadius: 3,
-                    background: i === active ? cc.fg : '#2c2c2e',
+                    background: i === active ? cc.fg : 'var(--border-hover)',
                     border: 'none',
                     cursor: 'pointer',
                     padding: 0,
@@ -237,14 +237,14 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
               <button
                 onClick={() => goTo(active - 1)}
                 aria-label="Previous article"
-                style={{ width: 30, height: 30, borderRadius: 8, background: '#1c1c1e', border: '1px solid #2c2c2e', cursor: 'pointer', color: '#a1a1a6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--border-default)', border: '1px solid var(--border-hover)', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 <ChevronLeft size={14} aria-hidden="true" />
               </button>
               <button
                 onClick={() => goTo(active + 1)}
                 aria-label="Next article"
-                style={{ width: 30, height: 30, borderRadius: 8, background: '#1c1c1e', border: '1px solid #2c2c2e', cursor: 'pointer', color: '#a1a1a6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--border-default)', border: '1px solid var(--border-hover)', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 <ChevronRight size={14} aria-hidden="true" />
               </button>
@@ -258,7 +258,7 @@ function CarouselHero({ articles }: { articles: ArticleListItem[] }) {
                 alignItems: 'center',
                 gap: 5,
                 background: cc.fg,
-                color: '#000000',
+                color: 'var(--bg-primary)',
                 borderRadius: 8,
                 padding: '7px 14px',
                 fontFamily: 'var(--font-sans)',
@@ -290,7 +290,7 @@ function StatsBar({ articles }: { articles: ArticleListItem[] }) {
   return (
     <div
       className="grid grid-cols-3 gap-px mb-8"
-      style={{ background: '#1c1c1e', borderRadius: 12, overflow: 'hidden', border: '1px solid #1c1c1e' }}
+      style={{ background: 'var(--border-default)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-default)' }}
       aria-label="News summary statistics"
     >
       {[
@@ -300,12 +300,12 @@ function StatsBar({ articles }: { articles: ArticleListItem[] }) {
       ].map(({ label, value }) => (
         <div
           key={label}
-          style={{ background: '#0a0a0a', padding: '16px 20px' }}
+          style={{ background: 'var(--bg-surface)', padding: '16px 20px' }}
         >
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 26, color: '#f5f5f7', lineHeight: 1 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 26, color: 'var(--text-primary)', lineHeight: 1 }}>
             {value}
           </div>
-          <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 11, color: '#525252', marginTop: 4, letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>
+          <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 11, color: 'var(--text-dim)', marginTop: 4, letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>
             {label}
           </div>
         </div>
@@ -322,8 +322,8 @@ function ArticleCard({ article }: { article: ArticleListItem }) {
     <Link href={`/news/${article.id}`} style={{ textDecoration: 'none', display: 'block' }}>
       <article
         style={{
-          background: '#0a0a0a',
-          border: '1px solid #1c1c1e',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
           borderLeft: `3px solid ${cc.fg}`,
           borderRadius: 12,
           padding: '18px 20px',
@@ -332,18 +332,18 @@ function ArticleCard({ article }: { article: ArticleListItem }) {
           height: '100%',
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.background = '#111111';
-          (e.currentTarget as HTMLElement).style.borderColor = '#2c2c2e';
+          (e.currentTarget as HTMLElement).style.background = 'var(--bg-control)';
+          (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)';
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.background = '#0a0a0a';
-          (e.currentTarget as HTMLElement).style.borderColor = '#1c1c1e';
+          (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface)';
+          (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)';
         }}
       >
         <div className="flex flex-wrap items-center gap-2" style={{ marginBottom: 10 }}>
           <CategoryBadge label={article.category} />
           <CountryBadge label={article.country_tag} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', marginLeft: 'auto' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', marginLeft: 'auto' }}>
             {relativeTime(article.published_at)}
           </span>
         </div>
@@ -353,7 +353,7 @@ function ArticleCard({ article }: { article: ArticleListItem }) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             fontSize: 13,
-            color: '#f5f5f7',
+            color: 'var(--text-primary)',
             lineHeight: 1.45,
             margin: '0 0 8px 0',
           }}
@@ -362,10 +362,10 @@ function ArticleCard({ article }: { article: ArticleListItem }) {
         </h3>
 
         <div className="flex items-center justify-between" style={{ marginTop: 10 }}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#525252' }}>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-dim)' }}>
             {article.source}
           </span>
-          <ArrowUpRight size={12} color="#333333" aria-hidden="true" />
+          <ArrowUpRight size={12} color="var(--border-default)" aria-hidden="true" />
         </div>
       </article>
     </Link>
@@ -382,13 +382,13 @@ function FilterSelect({ label, value, options, onChange }: {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{ appearance: 'none', background: '#0a0a0a', border: '1px solid #2c2c2e', borderRadius: 8, padding: '7px 32px 7px 12px', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: value ? '#f5f5f7' : '#525252', cursor: 'pointer', outline: 'none' }}
+        style={{ appearance: 'none', background: 'var(--bg-surface)', border: '1px solid var(--border-hover)', borderRadius: 8, padding: '7px 32px 7px 12px', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: value ? 'var(--text-primary)' : 'var(--text-dim)', cursor: 'pointer', outline: 'none' }}
         aria-label={label}
       >
         <option value="">{label}</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
-      <ChevronDown size={12} color="#525252" style={{ position: 'absolute', right: 10, pointerEvents: 'none' }} aria-hidden="true" />
+      <ChevronDown size={12} color="var(--text-dim)" style={{ position: 'absolute', right: 10, pointerEvents: 'none' }} aria-hidden="true" />
     </div>
   );
 }
@@ -399,16 +399,16 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-3">
       {/* Carousel skeleton */}
-      <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 16, height: 260, animation: 'pulse-soft 1.5s ease-in-out infinite' }} />
+      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 16, height: 260, animation: 'pulse-soft 1.5s ease-in-out infinite' }} />
       {/* Stats skeleton */}
-      <div className="grid grid-cols-3 gap-px" style={{ borderRadius: 12, overflow: 'hidden', height: 72, background: '#1c1c1e' }}>
-        {[1, 2, 3].map((i) => <div key={i} style={{ background: '#0a0a0a', animation: 'pulse-soft 1.5s ease-in-out infinite' }} />)}
+      <div className="grid grid-cols-3 gap-px" style={{ borderRadius: 12, overflow: 'hidden', height: 72, background: 'var(--border-default)' }}>
+        {[1, 2, 3].map((i) => <div key={i} style={{ background: 'var(--bg-surface)', animation: 'pulse-soft 1.5s ease-in-out infinite' }} />)}
       </div>
       {/* Cards skeleton */}
       <div style={{ height: 24, marginTop: 12 }} />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, height: 120, animation: 'pulse-soft 1.5s ease-in-out infinite' }} />
+          <div key={i} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, height: 120, animation: 'pulse-soft 1.5s ease-in-out infinite' }} />
         ))}
       </div>
     </div>
@@ -465,16 +465,16 @@ export default function NewsPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
             <div
-              style={{ width: 32, height: 32, background: '#1c1c1e', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: 32, height: 32, background: 'var(--border-default)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               aria-hidden="true"
             >
-              <Rss size={14} color="#737373" />
+              <Rss size={14} color="var(--text-muted)" />
             </div>
             <div>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: '#f5f5f7', margin: 0, letterSpacing: '-0.01em' }}>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
                 News Dashboard
               </h1>
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252', margin: 0 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', margin: 0 }}>
                 Live intelligence from monitored markets
               </p>
             </div>
@@ -484,9 +484,9 @@ export default function NewsPage() {
             onClick={load}
             disabled={loading}
             className="flex items-center gap-2"
-            style={{ background: 'transparent', border: '1px solid #2c2c2e', borderRadius: 8, padding: '7px 14px', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#737373', transition: 'border-color 0.15s, color 0.15s' }}
-            onMouseEnter={(e) => { if (!loading) { (e.currentTarget as HTMLElement).style.borderColor = '#525252'; (e.currentTarget as HTMLElement).style.color = '#a1a1a6'; } }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#2c2c2e'; (e.currentTarget as HTMLElement).style.color = '#737373'; }}
+            style={{ background: 'transparent', border: '1px solid var(--border-hover)', borderRadius: 8, padding: '7px 14px', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-muted)', transition: 'border-color 0.15s, color 0.15s' }}
+            onMouseEnter={(e) => { if (!loading) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--text-dim)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)'; } }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
             aria-label="Refresh articles"
           >
             <RefreshCw size={12} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} aria-hidden="true" />
@@ -521,10 +521,10 @@ export default function NewsPage() {
             {/* Section header + filters */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
-                <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#a1a1a6', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.07em' }}>
+                <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-tertiary)', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.07em' }}>
                   All Articles
                 </h2>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#333333' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>
                   {filtered.length}
                 </span>
               </div>
@@ -535,7 +535,7 @@ export default function NewsPage() {
                 {hasFilters && (
                   <button
                     onClick={() => { setCountry(''); setCategory(''); }}
-                    style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#525252', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: '#333333', padding: '4px 0' }}
+                    style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-dim)', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'var(--border-default)', padding: '4px 0' }}
                   >
                     Clear
                   </button>
@@ -545,7 +545,7 @@ export default function NewsPage() {
 
             {/* Empty state */}
             {filtered.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '60px 0', fontFamily: 'var(--font-sans)', color: '#525252', fontSize: 13 }}>
+              <div style={{ textAlign: 'center', padding: '60px 0', fontFamily: 'var(--font-sans)', color: 'var(--text-dim)', fontSize: 13 }}>
                 No articles match the selected filters.
               </div>
             )}

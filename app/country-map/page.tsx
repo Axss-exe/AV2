@@ -20,7 +20,7 @@ const AfricaMap = dynamic(
         style={{
           width: '100%',
           height: '100%',
-          background: '#0a0a0a',
+          background: 'var(--bg-surface)',
           borderRadius: 16,
           display: 'flex',
           alignItems: 'center',
@@ -32,7 +32,7 @@ const AfricaMap = dynamic(
             fontFamily: 'var(--font-sans)',
             fontWeight: 300,
             fontSize: 13,
-            color: '#525252',
+            color: 'var(--text-dim)',
           }}
         >
           Loading map...
@@ -102,7 +102,7 @@ export default function CountryMapPage() {
                   fontFamily: 'var(--font-display)',
                   fontWeight: 700,
                   fontSize: 24,
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   marginBottom: 6,
                 }}
               >
@@ -113,7 +113,7 @@ export default function CountryMapPage() {
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 300,
                   fontSize: 13,
-                  color: '#737373',
+                  color: 'var(--text-muted)',
                 }}
               >
                 Intelligence profiles for {countries.length || 8} monitored African markets
@@ -124,8 +124,8 @@ export default function CountryMapPage() {
             <div
               className="flex"
               style={{
-                background: '#0a0a0a',
-                border: '1px solid #1c1c1e',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 8,
                 padding: 3,
               }}
@@ -144,8 +144,8 @@ export default function CountryMapPage() {
                     fontSize: 11,
                     textTransform: 'uppercase' as const,
                     letterSpacing: '0.06em',
-                    color: activeView === v ? '#ffffff' : '#737373',
-                    background: activeView === v ? '#1c1c1e' : 'transparent',
+                    color: activeView === v ? 'var(--text-primary)' : 'var(--text-muted)',
+                    background: activeView === v ? 'var(--border-default)' : 'transparent',
                     border: 'none',
                     borderRadius: 6,
                     padding: '6px 14px',
@@ -180,9 +180,9 @@ export default function CountryMapPage() {
                   fontSize: 11,
                   textTransform: 'uppercase' as const,
                   letterSpacing: '0.06em',
-                  color: isActive ? '#ffffff' : '#a1a1a6',
-                  background: isActive ? '#2c2c2e' : '#1c1c1e',
-                  border: `1px solid ${isActive ? '#333333' : 'transparent'}`,
+                  color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                  background: isActive ? 'var(--border-hover)' : 'var(--border-default)',
+                  border: `1px solid ${isActive ? 'var(--border-default)' : 'transparent'}`,
                   borderRadius: 8,
                   padding: '5px 14px',
                   cursor: 'pointer',
@@ -205,8 +205,8 @@ export default function CountryMapPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
             style={{
-              background: '#0a0a0a',
-              border: '1px solid #1c1c1e',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
               borderRadius: 16,
               overflow: 'hidden',
               height: 'clamp(300px, 50vw, 520px)',
@@ -218,8 +218,8 @@ export default function CountryMapPage() {
           /* ── CARD VIEW ── */
           <div
             style={{
-              background: '#0a0a0a',
-              border: '1px solid #1c1c1e',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
               borderRadius: 16,
               padding: 24,
             }}
@@ -233,8 +233,8 @@ export default function CountryMapPage() {
                     key={i}
                     style={{
                       height: 110,
-                      background: '#000000',
-                      border: '1px solid #1c1c1e',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-default)',
                       borderRadius: 12,
                       animation: 'pulse-soft 1.5s infinite',
                     }}
@@ -272,8 +272,8 @@ export default function CountryMapPage() {
                   width: 10,
                   height: 10,
                   borderRadius: '50%',
-                  background: '#ffffff',
-                  border: '1.5px solid #333333',
+                  background: 'var(--text-primary)',
+                  border: '1.5px solid var(--border-default)',
                 }}
                 aria-hidden="true"
               />
@@ -282,7 +282,7 @@ export default function CountryMapPage() {
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 500,
                   fontSize: 11,
-                  color: '#737373',
+                  color: 'var(--text-muted)',
                 }}
               >
                 Monitored Market — hover for summary, click for full profile

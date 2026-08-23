@@ -21,10 +21,10 @@ const NODE_W = 120;
 const NODE_H = 44;
 
 const nodeColors: Record<GraphNode['type'], { fill: string; stroke: string; text: string }> = {
-  hub: { fill: '#1c1c1e', stroke: '#ffffff', text: '#ffffff' },
-  entity: { fill: '#000000', stroke: '#333333', text: '#a1a1a6' },
-  partner: { fill: '#000000', stroke: '#333333', text: '#d1d1d6' },
-  risk: { fill: '#000000', stroke: '#ff453a', text: '#ff453a' },
+  hub: { fill: 'var(--border-default)', stroke: 'var(--text-primary)', text: 'var(--text-primary)' },
+  entity: { fill: 'var(--bg-primary)', stroke: 'var(--border-default)', text: 'var(--text-tertiary)' },
+  partner: { fill: 'var(--bg-primary)', stroke: 'var(--border-default)', text: 'var(--text-secondary)' },
+  risk: { fill: 'var(--bg-primary)', stroke: '#ff453a', text: '#ff453a' },
 };
 
 export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: EntityGraphProps) {
@@ -45,8 +45,8 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: Entit
   return (
     <div
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 14,
         padding: 20,
       }}
@@ -57,7 +57,7 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: Entit
             fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             fontSize: 10,
-            color: '#737373',
+            color: 'var(--text-muted)',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
             marginBottom: 16,
@@ -103,7 +103,7 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: Entit
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke={isRisk ? '#ff453a' : '#262626'}
+                  stroke={isRisk ? '#ff453a' : 'var(--border-hover)'}
                   strokeWidth="1.2"
                   strokeDasharray="4 2"
                   style={{
@@ -117,14 +117,14 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: Entit
                       y={my - 7}
                       width={48}
                       height={14}
-                      fill="#000000"
+                      fill="var(--bg-primary)"
                       rx={3}
                     />
                     <text
                       x={mx}
                       y={my + 4}
                       textAnchor="middle"
-                      fill="#525252"
+                      fill="var(--text-dim)"
                       fontSize="7"
                       fontFamily="var(--font-mono)"
                     >
@@ -200,13 +200,13 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: Entit
               left: `${(tooltip.x / 700) * 100}%`,
               top: tooltip.y - 10,
               transform: 'translate(-50%, -100%)',
-              background: '#1c1c1e',
-              border: '1px solid #333333',
+              background: 'var(--border-default)',
+              border: '1px solid var(--border-default)',
               borderRadius: 6,
               padding: '4px 10px',
               fontFamily: 'var(--font-sans)',
               fontSize: 11,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
               pointerEvents: 'none',
               whiteSpace: 'nowrap',
               zIndex: 10,

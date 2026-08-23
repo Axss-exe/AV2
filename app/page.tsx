@@ -190,12 +190,12 @@ function formatTime(iso: string): string {
 const SEVERITY_COLOR: Record<string, string> = {
   high:   '#ff453a',
   medium: '#ff9f0a',
-  low:    '#30d158',
+  low:    'var(--text-primary)',
 };
 const URGENCY_COLOR: Record<string, string> = {
   HIGH:   '#ff453a',
   MEDIUM: '#ff9f0a',
-  LOW:    '#30d158',
+  LOW:    'var(--text-primary)',
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -207,7 +207,7 @@ function Ticker() {
   return (
     <div
       className="overflow-hidden"
-      style={{ borderTop: '1px solid #1c1c1e', borderBottom: '1px solid #1c1c1e', padding: '7px 0' }}
+      style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)', padding: '7px 0' }}
       aria-label="Live intelligence ticker"
     >
       <style>{`
@@ -220,9 +220,9 @@ function Ticker() {
       `}</style>
       <div ref={track} className="ticker-track flex gap-0 whitespace-nowrap" style={{ width: 'max-content' }}>
         {items.map((item, i) => (
-          <span key={i} className="flex items-center" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', letterSpacing: '0.08em' }}>
+          <span key={i} className="flex items-center" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', letterSpacing: '0.08em' }}>
             <span style={{ padding: '0 18px' }}>{item}</span>
-            <span style={{ color: '#1c1c1e' }}>|</span>
+            <span style={{ color: 'var(--border-default)' }}>|</span>
           </span>
         ))}
       </div>
@@ -237,29 +237,29 @@ function StatCard({ stat, i }: { stat: typeof VITAL_STATS[0]; i: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.1 + i * 0.04 } }}
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 12,
         padding: '16px 18px',
         transition: 'border-color 0.2s, background 0.2s',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#333333';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
         (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#1c1c1e';
-        (e.currentTarget as HTMLDivElement).style.background = '#0a0a0a';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
+        (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-surface)';
       }}
     >
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: '#ffffff', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {stat.value}
       </div>
-      <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10, color: '#525252', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+      <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
         {stat.label}
       </div>
       <div className="flex items-center gap-2">
-        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: '#333333' }}>{stat.sub}</span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: 'var(--border-default)' }}>{stat.sub}</span>
         {stat.trend && (
           <span
             style={{
@@ -269,11 +269,11 @@ function StatCard({ stat, i }: { stat: typeof VITAL_STATS[0]; i: number }) {
               padding: '1px 5px',
               borderRadius: 3,
               background:
-                stat.trendDir === 'up'   ? 'rgba(48,209,88,0.12)' :
+                stat.trendDir === 'up'   ? 'var(--bg-control-active)' :
                 stat.trendDir === 'warn' ? 'rgba(255,159,10,0.12)' :
                                            'rgba(255,69,58,0.12)',
               color:
-                stat.trendDir === 'up'   ? '#30d158' :
+                stat.trendDir === 'up'   ? 'var(--text-primary)' :
                 stat.trendDir === 'warn' ? '#ff9f0a' :
                                            '#ff453a',
             }}
@@ -288,7 +288,7 @@ function StatCard({ stat, i }: { stat: typeof VITAL_STATS[0]; i: number }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, fontSize: 10, color: '#333333', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
+    <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, fontSize: 10, color: 'var(--border-default)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
       {children}
     </div>
   );
@@ -299,8 +299,8 @@ function EntityChip({ label, href }: { label: string; href?: string }) {
     display: 'inline-flex', alignItems: 'center',
     fontFamily: 'var(--font-mono)', fontSize: 10,
     padding: '3px 7px', borderRadius: 4,
-    background: '#111111', border: '1px solid #262626',
-    color: '#a1a1a6', textDecoration: 'none',
+    background: 'var(--bg-control)', border: '1px solid var(--border-hover)',
+    color: 'var(--text-tertiary)', textDecoration: 'none',
     transition: 'border-color 0.15s, color 0.15s',
     cursor: href ? 'pointer' : 'default',
     whiteSpace: 'nowrap',
@@ -309,7 +309,7 @@ function EntityChip({ label, href }: { label: string; href?: string }) {
     return (
       <Link href={href} style={base}
         onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#444'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#262626'; (e.currentTarget as HTMLAnchorElement).style.color = '#a1a1a6'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border-hover)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)'; }}
       >
         {label}
       </Link>
@@ -326,9 +326,9 @@ function CountryProfilePanel() {
   const [showAllMinerals, setShowAllMinerals] = useState(false);
 
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, overflow: 'hidden' }}>
+    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, overflow: 'hidden' }}>
       {/* Tab bar */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #1c1c1e' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border-default)' }}>
         {(['profile', 'institutional'] as const).map((t) => (
           <button
             key={t}
@@ -337,9 +337,9 @@ function CountryProfilePanel() {
               flex: 1, padding: '11px 16px',
               fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11,
               textTransform: 'uppercase', letterSpacing: '0.06em',
-              background: tab === t ? '#111111' : 'transparent',
-              color: tab === t ? '#ffffff' : '#525252',
-              borderBottom: tab === t ? '1px solid #ffffff' : '1px solid transparent',
+              background: tab === t ? 'var(--bg-control)' : 'transparent',
+              color: tab === t ? 'var(--text-primary)' : 'var(--text-dim)',
+              borderBottom: tab === t ? '1px solid var(--text-primary)' : '1px solid transparent',
               cursor: 'pointer', border: 'none',
               transition: 'color 0.15s, background 0.15s',
             }}
@@ -357,10 +357,10 @@ function CountryProfilePanel() {
               <div style={{ marginBottom: 14 }}>
                 {PROFILE_ROWS.map(([k, v, trend]) => (
                   <div key={k} className="flex items-start gap-3" style={{ marginBottom: 9 }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, fontSize: 10, color: '#333333', textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0, width: 76, paddingTop: 1 }}>{k}</span>
-                    <span className="flex items-center gap-2 flex-wrap" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: '#d1d1d6', lineHeight: 1.5 }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, fontSize: 10, color: 'var(--border-default)', textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0, width: 76, paddingTop: 1 }}>{k}</span>
+                    <span className="flex items-center gap-2 flex-wrap" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                       {v}
-                      {trend === 'up' && <TrendingUp size={11} color="#30d158" aria-label="Positive trend" />}
+                      {trend === 'up' && <TrendingUp size={11} color="var(--text-primary)" aria-label="Positive trend" />}
                     </span>
                   </div>
                 ))}
@@ -377,9 +377,9 @@ function CountryProfilePanel() {
                       style={{
                         fontFamily: 'var(--font-mono)', fontSize: 10,
                         padding: '3px 8px', borderRadius: 4,
-                        background: m.priority === 'HIGH' ? 'rgba(255,69,58,0.08)' : '#111111',
-                        border: `1px solid ${m.priority === 'HIGH' ? 'rgba(255,69,58,0.25)' : '#1c1c1e'}`,
-                        color: m.priority === 'HIGH' ? '#ff6b63' : '#737373',
+                        background: m.priority === 'HIGH' ? 'rgba(255,69,58,0.08)' : 'var(--bg-control)',
+                        border: `1px solid ${m.priority === 'HIGH' ? 'rgba(255,69,58,0.25)' : 'var(--border-default)'}`,
+                        color: m.priority === 'HIGH' ? '#ff6b63' : 'var(--text-muted)',
                         cursor: 'default',
                       }}
                     >
@@ -387,7 +387,7 @@ function CountryProfilePanel() {
                     </span>
                   ))}
                   {!showAllMinerals && (
-                    <button onClick={() => setShowAllMinerals(true)} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', background: 'none', border: '1px dashed #262626', borderRadius: 4, padding: '3px 8px', cursor: 'pointer' }}>
+                    <button onClick={() => setShowAllMinerals(true)} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'none', border: '1px dashed var(--border-hover)', borderRadius: 4, padding: '3px 8px', cursor: 'pointer' }}>
                       +{MINERALS.length - 4} more
                     </button>
                   )}
@@ -403,7 +403,7 @@ function CountryProfilePanel() {
                   aria-expanded={showProvinces}
                 >
                   <SectionLabel>10 Provinces</SectionLabel>
-                  {showProvinces ? <ChevronUp size={11} color="#333333" /> : <ChevronDown size={11} color="#333333" />}
+                  {showProvinces ? <ChevronUp size={11} color="var(--border-default)" /> : <ChevronDown size={11} color="var(--border-default)" />}
                 </button>
                 <AnimatePresence>
                   {showProvinces && (
@@ -420,13 +420,13 @@ function CountryProfilePanel() {
                             key={p}
                             title={p}
                             style={{
-                              fontFamily: 'var(--font-sans)', fontSize: 11, color: '#737373',
+                              fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)',
                               padding: '5px 8px', borderRadius: 6, background: '#0f0f0f',
-                              border: '1px solid #1c1c1e', transition: 'color 0.15s, background 0.15s',
+                              border: '1px solid var(--border-default)', transition: 'color 0.15s, background 0.15s',
                               cursor: 'default', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                             }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.color = '#d1d1d6'; (e.currentTarget as HTMLDivElement).style.background = '#161616'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = '#737373'; (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-secondary)'; (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
                           >
                             {p}
                           </div>
@@ -455,14 +455,14 @@ function CountryProfilePanel() {
                 <div className="flex flex-col gap-1.5">
                   {INSTITUTIONAL.soes.map((s) => (
                     <div key={s} className="flex items-center justify-between"
-                      style={{ padding: '6px 10px', borderRadius: 6, background: '#0f0f0f', border: '1px solid #1c1c1e', transition: 'background 0.15s' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#161616'; }}
+                      style={{ padding: '6px 10px', borderRadius: 6, background: '#0f0f0f', border: '1px solid var(--border-default)', transition: 'background 0.15s' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
                     >
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#d1d1d6' }}>{s}</span>
-                      <Link href="/entities" style={{ color: '#333333', transition: 'color 0.15s' }}
+                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-secondary)' }}>{s}</span>
+                      <Link href="/entities" style={{ color: 'var(--border-default)', transition: 'color 0.15s' }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#333333'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--border-default)'; }}
                       >
                         <ArrowRight size={12} aria-label={`View ${s}`} />
                       </Link>
@@ -477,9 +477,9 @@ function CountryProfilePanel() {
                 <div className="flex flex-col gap-1.5">
                   {INSTITUTIONAL.laws.map((l) => (
                     <div key={l}
-                      style={{ padding: '6px 10px', borderRadius: 6, background: '#0f0f0f', border: '1px solid #1c1c1e', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#737373', borderLeft: '2px solid #262626', transition: 'color 0.15s, border-left-color 0.15s', cursor: 'default' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.color = '#d1d1d6'; (e.currentTarget as HTMLDivElement).style.borderLeftColor = '#525252'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = '#737373'; (e.currentTarget as HTMLDivElement).style.borderLeftColor = '#262626'; }}
+                      style={{ padding: '6px 10px', borderRadius: 6, background: '#0f0f0f', border: '1px solid var(--border-default)', fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)', borderLeft: '2px solid var(--border-hover)', transition: 'color 0.15s, border-left-color 0.15s', cursor: 'default' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-secondary)'; (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--text-dim)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--border-hover)'; }}
                     >
                       {l}
                     </div>
@@ -498,12 +498,12 @@ function CountryProfilePanel() {
 
 function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loading: boolean }) {
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, overflow: 'hidden' }}>
-      <div className="flex items-center justify-between" style={{ padding: '11px 18px', borderBottom: '1px solid #1c1c1e' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#ffffff' }}>Active Signals</span>
-        <Link href="/history" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', textDecoration: 'none', transition: 'color 0.15s' }}
+    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, overflow: 'hidden' }}>
+      <div className="flex items-center justify-between" style={{ padding: '11px 18px', borderBottom: '1px solid var(--border-default)' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>Active Signals</span>
+        <Link href="/history" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', textDecoration: 'none', transition: 'color 0.15s' }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#333333'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--border-default)'; }}
         >
           VIEW ALL →
         </Link>
@@ -515,7 +515,7 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
           key={item.id}
           style={{
             padding: '12px 18px',
-            borderBottom: '1px solid #1c1c1e',
+            borderBottom: '1px solid var(--border-default)',
             transition: 'background 0.15s',
             cursor: 'default',
           }}
@@ -523,7 +523,7 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
           onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
         >
           <div className="flex items-start justify-between gap-3 mb-1">
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#d1d1d6', lineHeight: 1.4 }}>
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
               {item.title}
             </span>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -538,10 +538,10 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
               </span>
             </div>
           </div>
-          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252', marginBottom: 5, lineHeight: 1.5 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', marginBottom: 5, lineHeight: 1.5 }}>
             {item.summary}
           </p>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#333333' }}>{item.id} · {item.timestamp}</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--border-default)' }}>{item.id} · {item.timestamp}</span>
         </div>
       ))}
 
@@ -549,25 +549,25 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
       {loading ? (
         <div style={{ padding: 14 }}>
           {[...Array(2)].map((_, i) => (
-            <div key={i} style={{ height: 44, background: '#111111', borderRadius: 6, marginBottom: 8, animation: 'pulse-soft 1.5s infinite' }} />
+            <div key={i} style={{ height: 44, background: 'var(--bg-control)', borderRadius: 6, marginBottom: 8, animation: 'pulse-soft 1.5s infinite' }} />
           ))}
         </div>
       ) : history.length > 0 && (
         <>
-          <div style={{ padding: '8px 18px 4px', fontFamily: 'var(--font-mono)', fontSize: 9, color: '#262626', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <div style={{ padding: '8px 18px 4px', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--border-hover)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Recent Queries
           </div>
           {history.slice(0, 3).map((item) => (
             <div
               key={item.id}
-              style={{ padding: '10px 18px', borderTop: '1px solid #111111', transition: 'background 0.15s', cursor: 'pointer' }}
+              style={{ padding: '10px 18px', borderTop: '1px solid var(--bg-control)', transition: 'background 0.15s', cursor: 'pointer' }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
             >
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 11, color: '#737373', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>
                 {item.query}
               </p>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#262626' }}>{formatTime(item.created_at)}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--border-hover)' }}>{formatTime(item.created_at)}</span>
             </div>
           ))}
         </>
@@ -580,12 +580,12 @@ function IntelligenceFeed({ history, loading }: { history: QueryHistory[]; loadi
 
 function OpportunitiesSpotlight() {
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, overflow: 'hidden' }}>
-      <div className="flex items-center justify-between" style={{ padding: '11px 18px', borderBottom: '1px solid #1c1c1e' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#ffffff' }}>Investment Opportunities</span>
-        <Link href="/opportunities" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', textDecoration: 'none', transition: 'color 0.15s' }}
+    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, overflow: 'hidden' }}>
+      <div className="flex items-center justify-between" style={{ padding: '11px 18px', borderBottom: '1px solid var(--border-default)' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>Investment Opportunities</span>
+        <Link href="/opportunities" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', textDecoration: 'none', transition: 'color 0.15s' }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#333333'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--border-default)'; }}
         >
           DASHBOARD →
         </Link>
@@ -596,8 +596,8 @@ function OpportunitiesSpotlight() {
             key={opp.id}
             style={{
               padding: '14px 18px',
-              borderRight: i % 2 === 0 ? '1px solid #1c1c1e' : 'none',
-              borderBottom: i < 2 ? '1px solid #1c1c1e' : 'none',
+              borderRight: i % 2 === 0 ? '1px solid var(--border-default)' : 'none',
+              borderBottom: i < 2 ? '1px solid var(--border-default)' : 'none',
               transition: 'background 0.15s',
               cursor: 'default',
               borderLeft: `3px solid ${URGENCY_COLOR[opp.urgency]}`,
@@ -606,7 +606,7 @@ function OpportunitiesSpotlight() {
             onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
           >
             <div className="flex items-start justify-between gap-2 mb-1">
-              <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: '#ffffff' }}>{opp.title}</span>
+              <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>{opp.title}</span>
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600,
                 padding: '2px 5px', borderRadius: 3, flexShrink: 0,
@@ -616,12 +616,12 @@ function OpportunitiesSpotlight() {
                 {opp.urgency}
               </span>
             </div>
-            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252', lineHeight: 1.5, marginBottom: 8 }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: 8 }}>
               {opp.summary}
             </p>
             <div className="flex flex-wrap items-center gap-1.5">
               <EntityChip label={opp.regulator} href="/entities" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#333333' }}>↔</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--border-default)' }}>↔</span>
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 10,
                 padding: '3px 7px', borderRadius: 4,
@@ -642,17 +642,17 @@ function OpportunitiesSpotlight() {
 
 function StrategicAssessment() {
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, overflow: 'hidden' }}>
-      <div style={{ padding: '11px 18px', borderBottom: '1px solid #1c1c1e' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#ffffff' }}>Strategic Assessment</span>
-        <span style={{ marginLeft: 8, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333' }}>Assets vs. Constraints</span>
+    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ padding: '11px 18px', borderBottom: '1px solid var(--border-default)' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>Strategic Assessment</span>
+        <span style={{ marginLeft: 8, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)' }}>Assets vs. Constraints</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 0 }}>
         {/* Assets */}
-        <div style={{ padding: '14px 18px', borderRight: '1px solid #1c1c1e' }}>
+        <div style={{ padding: '14px 18px', borderRight: '1px solid var(--border-default)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Shield size={12} color="#30d158" aria-hidden="true" />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#30d158', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Strategic Assets</span>
+            <Shield size={12} color="var(--text-primary)" aria-hidden="true" />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-primary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Strategic Assets</span>
           </div>
           <div className="flex flex-col gap-2">
             {ASSETS.map((a) => (
@@ -661,22 +661,22 @@ function StrategicAssessment() {
                 title={a.detail}
                 style={{
                   padding: '9px 12px', borderRadius: 8,
-                  background: '#0f0f0f', border: '1px solid #1c1c1e',
-                  borderLeft: '3px solid rgba(48,209,88,0.4)',
+                  background: '#0f0f0f', border: '1px solid var(--border-default)',
+                  borderLeft: '3px solid var(--border-active)',
                   transition: 'border-left-color 0.2s, background 0.2s',
                   cursor: 'default',
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderLeftColor = '#30d158';
+                  (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--text-primary)';
                   (e.currentTarget as HTMLDivElement).style.background = '#141414';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'rgba(48,209,88,0.4)';
+                  (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--border-active)';
                   (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f';
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#d1d1d6', marginBottom: 2 }}>{a.name}</div>
-                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: '#525252', lineHeight: 1.4 }}>{a.detail}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{a.name}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: 'var(--text-dim)', lineHeight: 1.4 }}>{a.detail}</div>
               </div>
             ))}
           </div>
@@ -695,7 +695,7 @@ function StrategicAssessment() {
                 title={c.detail}
                 style={{
                   padding: '9px 12px', borderRadius: 8,
-                  background: '#0f0f0f', border: '1px solid #1c1c1e',
+                  background: '#0f0f0f', border: '1px solid var(--border-default)',
                   borderLeft: '3px solid rgba(255,69,58,0.4)',
                   transition: 'border-left-color 0.2s, background 0.2s',
                   cursor: 'default',
@@ -709,14 +709,14 @@ function StrategicAssessment() {
                   (e.currentTarget as HTMLDivElement).style.background = '#0f0f0f';
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#d1d1d6', marginBottom: 2 }}>{c.name}</div>
-                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: '#525252', lineHeight: 1.4 }}>{c.detail}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{c.name}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: 'var(--text-dim)', lineHeight: 1.4 }}>{c.detail}</div>
               </div>
             ))}
 
             {/* Balance note */}
-            <div style={{ padding: '8px 10px', borderRadius: 6, background: 'transparent', border: '1px dashed #1c1c1e', marginTop: 4 }}>
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: '#333333', lineHeight: 1.5 }}>
+            <div style={{ padding: '8px 10px', borderRadius: 6, background: 'transparent', border: '1px dashed var(--border-default)', marginTop: 4 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 10, color: 'var(--border-default)', lineHeight: 1.5 }}>
                 World-class mineral endowment is offset by energy and infrastructure headwinds. Constraint mitigation unlocks tier-1 opportunity conversion.
               </p>
             </div>
@@ -762,25 +762,25 @@ export default function HomePage() {
           {/* Top meta line */}
           <div className="flex items-center justify-between flex-wrap gap-2" style={{ marginBottom: 10 }}>
             <div className="flex items-center gap-3">
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 ATIS / Intelligence Desk
               </span>
-              <span style={{ width: 1, height: 10, background: '#1c1c1e', display: 'inline-block' }} />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#262626', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              <span style={{ width: 1, height: 10, background: 'var(--border-default)', display: 'inline-block' }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-hover)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                 {dateStr}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <CheckCircle2 size={10} color="#30d158" aria-hidden="true" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#30d158', letterSpacing: '0.06em' }}>FEEDS ACTIVE</span>
+              <CheckCircle2 size={10} color="var(--text-primary)" aria-hidden="true" />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-primary)', letterSpacing: '0.06em' }}>FEEDS ACTIVE</span>
             </div>
           </div>
 
           {/* Greeting + mission */}
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(22px, 3vw, 34px)', color: '#ffffff', lineHeight: 1.15, marginBottom: 6 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(22px, 3vw, 34px)', color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 6 }}>
             {greeting || 'Welcome back'}, Analyst
           </h1>
-          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#525252', marginBottom: 14, maxWidth: 560 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-dim)', marginBottom: 14, maxWidth: 560 }}>
             Zimbabwe macro briefing — population, economy, minerals, and strategic constraints.
           </p>
         </motion.div>

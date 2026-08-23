@@ -12,7 +12,7 @@ export function RiskBanner({ text, strong }: RiskBannerProps) {
     <div
       className="flex items-start gap-3"
       style={{
-        background: '#000000',
+        background: 'var(--bg-primary)',
         border: '1px solid rgba(255, 69, 58, 0.2)',
         borderRadius: 10,
         padding: '14px 18px',
@@ -30,7 +30,7 @@ export function RiskBanner({ text, strong }: RiskBannerProps) {
           fontFamily: 'var(--font-sans)',
           fontWeight: 400,
           fontSize: 12,
-          color: '#a1a1a6',
+          color: 'var(--text-tertiary)',
           lineHeight: 1.5,
           margin: 0,
         }}

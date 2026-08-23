@@ -1,7 +1,7 @@
 import type { IntelTableRow } from '@/lib/types';
 
 const statusStyles: Record<string, { color: string; border: string }> = {
-  Validated: { color: '#a1a1a6', border: '#333333' },
+  Validated: { color: 'var(--text-tertiary)', border: 'var(--border-default)' },
   Gap: { color: '#ff453a', border: '#ff453a' },
   External: { color: '#ff9f0a', border: '#ff9f0a' },
 };
@@ -15,8 +15,8 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
   return (
     <div
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 14,
         overflow: 'hidden',
       }}
@@ -24,11 +24,11 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
       <div
         style={{
           padding: '16px 20px',
-          borderBottom: '1px solid #1c1c1e',
+          borderBottom: '1px solid var(--border-default)',
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: 10,
-          color: '#737373',
+          color: 'var(--text-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
         }}
@@ -48,10 +48,10 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 600,
                     fontSize: 11,
-                    color: '#737373',
+                    color: 'var(--text-muted)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
-                    borderBottom: '1px solid #1c1c1e',
+                    borderBottom: '1px solid var(--border-default)',
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -71,7 +71,7 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 300,
                     fontSize: 12,
-                    color: '#525252',
+                    color: 'var(--text-dim)',
                     fontStyle: 'italic',
                   }}
                 >
@@ -85,19 +85,19 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
                 <tr
                   key={i}
                   style={{
-                    borderBottom: i < rows.length - 1 ? '1px solid #1c1c1e' : 'none',
+                    borderBottom: i < rows.length - 1 ? '1px solid var(--border-default)' : 'none',
                     transition: 'background 0.15s',
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = '#111111'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-control)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}
                 >
-                  <td style={{ padding: '10px', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#d1d1d6' }}>
+                  <td style={{ padding: '10px', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)' }}>
                     {row.source}
                   </td>
-                  <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 10, color: '#525252', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 10, color: 'var(--text-dim)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.relationship}
                   </td>
-                  <td style={{ padding: '10px', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: '#ffffff' }}>
+                  <td style={{ padding: '10px', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
                     {row.confidence}
                   </td>
                   <td style={{ padding: '10px' }}>
@@ -106,7 +106,7 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
                         padding: '2px 8px',
                         borderRadius: 4,
                         border: `1px solid ${ss.border}`,
-                        background: '#1c1c1e',
+                        background: 'var(--border-default)',
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 600,
                         fontSize: 10,
@@ -119,7 +119,7 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
                       {row.status}
                     </span>
                   </td>
-                  <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 10, color: '#525252', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 10, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
                     {row.last_updated}
                   </td>
                 </tr>

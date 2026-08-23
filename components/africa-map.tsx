@@ -68,29 +68,29 @@ export function AfricaMap({ onCountryClick }: AfricaMapProps) {
       MONITORED_COUNTRIES.forEach((country) => {
         const circle = L.circleMarker([country.lat, country.lng], {
           radius: 8,
-          fillColor: '#ffffff',
+          fillColor: 'var(--text-primary)',
           fillOpacity: 0.9,
-          color: '#333333',
+          color: 'var(--border-default)',
           weight: 1.5,
         }).addTo(map);
 
         const popupContent = `
-          <div style="font-family: Poppins, sans-serif; min-width: 180px; background: #0a0a0a; padding: 0; border-radius: 8px; overflow: hidden;">
-            <div style="padding: 12px 14px; border-bottom: 1px solid #1c1c1e;">
-              <div style="font-size: 10px; font-weight: 600; color: #525252; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">
+          <div style="font-family: var(--font-sans); min-width: 180px; background: var(--bg-surface); padding: 0; border-radius: 8px; overflow: hidden;">
+            <div style="padding: 12px 14px; border-bottom: 1px solid var(--border-default);">
+              <div style="font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">
                 ${country.flag} Monitored Country
               </div>
-              <div style="font-size: 15px; font-weight: 700; color: #ffffff;">${country.name}</div>
-              <div style="font-size: 11px; color: #737373; margin-top: 2px;">Capital: ${country.capital}</div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--text-primary);">${country.name}</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Capital: ${country.capital}</div>
             </div>
             <div style="padding: 10px 14px; display: flex; gap: 20px;">
               <div>
-                <div style="font-size: 13px; font-weight: 700; color: #ffffff;">${country.gdp}</div>
-                <div style="font-size: 9px; font-weight: 600; color: #525252; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;">GDP</div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">${country.gdp}</div>
+                <div style="font-size: 9px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;">GDP</div>
               </div>
               <div>
-                <div style="font-size: 13px; font-weight: 700; color: #30d158;">${country.gdp_growth}</div>
-                <div style="font-size: 9px; font-weight: 600; color: #525252; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;">Growth</div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">${country.gdp_growth}</div>
+                <div style="font-size: 9px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;">Growth</div>
               </div>
             </div>
           </div>
@@ -133,8 +133,8 @@ export function AfricaMap({ onCountryClick }: AfricaMapProps) {
     <>
       <style>{`
         .atis-popup .leaflet-popup-content-wrapper {
-          background: #0a0a0a !important;
-          border: 1px solid #1c1c1e !important;
+          background: var(--bg-surface) !important;
+          border: 1px solid var(--border-default) !important;
           border-radius: 10px !important;
           box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
           padding: 0 !important;
@@ -149,32 +149,32 @@ export function AfricaMap({ onCountryClick }: AfricaMapProps) {
           background: transparent !important;
           border: none !important;
           box-shadow: none !important;
-          font-family: Poppins, sans-serif !important;
+          font-family: var(--font-sans) !important;
           font-size: 10px !important;
           font-weight: 600 !important;
-          color: #a1a1a6 !important;
+          color: var(--text-tertiary) !important;
           letter-spacing: 0.04em !important;
           text-transform: uppercase !important;
           pointer-events: none !important;
         }
         .leaflet-control-attribution {
           background: rgba(10,10,10,0.8) !important;
-          color: #525252 !important;
+          color: var(--text-dim) !important;
           font-size: 9px !important;
         }
         .leaflet-control-attribution a {
-          color: #737373 !important;
+          color: var(--text-muted) !important;
         }
         .leaflet-control-zoom a {
-          background: #0a0a0a !important;
-          color: #ffffff !important;
-          border-color: #1c1c1e !important;
+          background: var(--bg-surface) !important;
+          color: var(--text-primary) !important;
+          border-color: var(--border-default) !important;
         }
         .leaflet-control-zoom a:hover {
-          background: #1c1c1e !important;
+          background: var(--border-default) !important;
         }
         .leaflet-container {
-          background: #000000 !important;
+          background: var(--bg-primary) !important;
         }
       `}</style>
       <div

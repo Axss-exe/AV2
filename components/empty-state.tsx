@@ -8,7 +8,7 @@ export function EmptyState({ message, description, icon }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
       {icon && (
-        <div style={{ color: '#333333', marginBottom: 16 }} aria-hidden="true">
+        <div style={{ color: 'var(--border-default)', marginBottom: 16 }} aria-hidden="true">
           {icon}
         </div>
       )}
@@ -17,7 +17,7 @@ export function EmptyState({ message, description, icon }: EmptyStateProps) {
           fontFamily: 'var(--font-sans)',
           fontWeight: 500,
           fontSize: 14,
-          color: '#525252',
+          color: 'var(--text-dim)',
           marginBottom: description ? 6 : 0,
         }}
       >
@@ -29,7 +29,7 @@ export function EmptyState({ message, description, icon }: EmptyStateProps) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 300,
             fontSize: 12,
-            color: '#333333',
+            color: 'var(--border-default)',
           }}
         >
           {description}

@@ -128,18 +128,15 @@ export function Sidebar() {
           justifyContent: sidebarCollapsed ? 'center' : 'space-between',
         }}
       >
-        <div className="flex items-center gap-3 min-w-0" style={{ color: 'var(--text-primary)' }}>
-          <AtisSymbol size={26} />
+        <div className="flex items-center gap-2.5 min-w-0" style={{ color: 'var(--text-primary)' }}>
+          <AtisSymbol size={28} />
           <motion.div
             animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
             transition={{ duration: 0.18 }}
-            className="flex flex-col overflow-hidden"
-            style={{ minWidth: 0, gap: 3 }}
+            className="flex items-center overflow-hidden"
+            style={{ minWidth: 0 }}
           >
-            <AtisWordmark height={13} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 8, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', lineHeight: 1.3, whiteSpace: 'nowrap' }}>
-              Africa Trade &amp; Intelligence
-            </span>
+            <AtisWordmark height={26} />
           </motion.div>
         </div>
         {!sidebarCollapsed && (
@@ -233,12 +230,9 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
           >
             {/* Header */}
             <div className="flex items-center justify-between flex-shrink-0" style={{ height: 64, borderBottom: '1px solid var(--border-default)', padding: '0 16px' }}>
-              <div className="flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
-                <AtisSymbol size={24} />
-                <div className="flex flex-col" style={{ gap: 3 }}>
-                  <AtisWordmark height={13} />
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 8, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Africa Trade &amp; Intelligence</span>
-                </div>
+              <div className="flex items-center gap-2.5" style={{ color: 'var(--text-primary)' }}>
+                <AtisSymbol size={26} />
+                <AtisWordmark height={24} />
               </div>
               <button onClick={onClose} aria-label="Close menu" style={{ width: 32, height: 32, borderRadius: 6, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={16} strokeWidth={1.5} aria-hidden="true" />

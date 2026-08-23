@@ -23,14 +23,14 @@ function urgencyColor(score: number): string {
   if (score >= 9.0) return '#ff453a';
   if (score >= 7.0) return '#ff9f0a';
   if (score >= 5.0) return '#ffd60a';
-  return '#30d158';
+  return 'var(--text-primary)';
 }
 
 function typeColor(type: string): string {
   if (type === 'Primary') return '#007aff';
   if (type === 'Secondary') return '#5ac8fa';
-  if (type === 'Tertiary') return '#737373';
-  return '#525252';
+  if (type === 'Tertiary') return 'var(--text-muted)';
+  return 'var(--text-dim)';
 }
 
 function UrgencyBar({ score }: { score: number }) {
@@ -43,7 +43,7 @@ function UrgencyBar({ score }: { score: number }) {
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: 10,
-            color: '#525252',
+            color: 'var(--text-dim)',
             textTransform: 'uppercase' as const,
             letterSpacing: '0.06em',
           }}
@@ -59,11 +59,11 @@ function UrgencyBar({ score }: { score: number }) {
           }}
         >
           {score.toFixed(1)}
-          <span style={{ fontWeight: 400, fontSize: 10, color: '#525252', marginLeft: 2 }}>/10</span>
+          <span style={{ fontWeight: 400, fontSize: 10, color: 'var(--text-dim)', marginLeft: 2 }}>/10</span>
         </span>
       </div>
       <div
-        style={{ height: 3, background: '#1c1c1e', borderRadius: 2, overflow: 'hidden' }}
+        style={{ height: 3, background: 'var(--border-default)', borderRadius: 2, overflow: 'hidden' }}
         role="meter"
         aria-valuenow={score}
         aria-valuemin={0}
@@ -131,9 +131,9 @@ function EntityChip({ name }: { name: string }) {
         fontFamily: 'var(--font-sans)',
         fontWeight: 400,
         fontSize: 11,
-        color: '#525252',
+        color: 'var(--text-dim)',
         background: 'transparent',
-        border: '1px dashed #2c2c2e',
+        border: '1px dashed var(--border-hover)',
         borderRadius: 5,
         padding: '3px 8px',
       }}
@@ -233,8 +233,8 @@ export function OpportunityCard({
   return (
     <article
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderLeft: `4px solid ${uColor}`,
         borderRadius: 12,
         padding: '20px 22px',
@@ -251,7 +251,7 @@ export function OpportunityCard({
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: 10,
-                color: '#333333',
+                color: 'var(--border-default)',
                 letterSpacing: '0.06em',
               }}
             >
@@ -279,7 +279,7 @@ export function OpportunityCard({
               fontFamily: 'var(--font-sans)',
               fontWeight: 600,
               fontSize: 14,
-              color: '#f5f5f7',
+              color: 'var(--text-primary)',
               margin: 0,
               lineHeight: 1.35,
             }}
@@ -292,8 +292,8 @@ export function OpportunityCard({
           {/* Feasibility badge */}
           <div
             style={{
-              background: '#1c1c1e',
-              border: '1px solid #2c2c2e',
+              background: 'var(--border-default)',
+              border: '1px solid var(--border-hover)',
               borderRadius: 8,
               padding: '6px 10px',
               textAlign: 'center' as const,
@@ -304,7 +304,7 @@ export function OpportunityCard({
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 700,
                 fontSize: 14,
-                color: '#a1a1a6',
+                color: 'var(--text-tertiary)',
                 lineHeight: 1,
               }}
             >
@@ -314,7 +314,7 @@ export function OpportunityCard({
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: 9,
-                color: '#333333',
+                color: 'var(--border-default)',
                 textTransform: 'uppercase' as const,
                 letterSpacing: '0.05em',
                 marginTop: 3,
@@ -331,8 +331,8 @@ export function OpportunityCard({
             aria-label={saved ? 'Remove from saved opportunities' : 'Save to Opportunities'}
             title={saved ? 'Unsave' : 'Save'}
             style={{
-              background: saved ? 'rgba(48,209,88,0.1)' : 'transparent',
-              border: `1px solid ${saved ? 'rgba(48,209,88,0.3)' : '#2c2c2e'}`,
+              background: saved ? 'var(--bg-control-active)' : 'transparent',
+              border: `1px solid ${saved ? 'var(--border-active)' : 'var(--border-hover)'}`,
               borderRadius: 8,
               width: 36,
               height: 36,
@@ -340,20 +340,20 @@ export function OpportunityCard({
               alignItems: 'center',
               justifyContent: 'center',
               cursor: saving || unsaving ? 'wait' : 'pointer',
-              color: saved ? '#30d158' : '#525252',
+              color: saved ? 'var(--text-primary)' : 'var(--text-dim)',
               transition: 'all 0.2s',
               flexShrink: 0,
             }}
             onMouseEnter={(e) => {
               if (!saving && !unsaving && !saved) {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = '#525252';
-                (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--text-dim)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)';
               }
             }}
             onMouseLeave={(e) => {
               if (!saved) {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = '#2c2c2e';
-                (e.currentTarget as HTMLButtonElement).style.color = '#525252';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-hover)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-dim)';
               }
             }}
           >
@@ -375,8 +375,8 @@ export function OpportunityCard({
         style={{
           margin: 0,
           padding: '10px 14px',
-          background: '#111111',
-          borderLeft: '2px solid #2c2c2e',
+          background: 'var(--bg-control)',
+          borderLeft: '2px solid var(--border-hover)',
           borderRadius: '0 6px 6px 0',
         }}
       >
@@ -385,7 +385,7 @@ export function OpportunityCard({
             fontFamily: 'var(--font-sans)',
             fontWeight: 300,
             fontSize: 12,
-            color: '#737373',
+            color: 'var(--text-muted)',
             lineHeight: 1.6,
             margin: 0,
           }}
@@ -402,7 +402,7 @@ export function OpportunityCard({
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: 10,
-                color: '#525252',
+                color: 'var(--text-dim)',
                 textTransform: 'uppercase' as const,
                 letterSpacing: '0.08em',
                 margin: '0 0 8px 0',
@@ -425,7 +425,7 @@ export function OpportunityCard({
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: 10,
-              color: '#525252',
+              color: 'var(--text-dim)',
               textTransform: 'uppercase' as const,
               letterSpacing: '0.08em',
               margin: '0 0 8px 0',
@@ -436,8 +436,8 @@ export function OpportunityCard({
           <div
             className="flex items-center gap-2"
             style={{
-              background: '#111111',
-              border: '1px solid #1c1c1e',
+              background: 'var(--bg-control)',
+              border: '1px solid var(--border-default)',
               borderRadius: 8,
               padding: '8px 12px',
               display: 'inline-flex',
@@ -448,18 +448,18 @@ export function OpportunityCard({
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 500,
                 fontSize: 12,
-                color: '#a1a1a6',
+                color: 'var(--text-tertiary)',
               }}
             >
               {opportunity.capital_flow.likely_funder}
             </span>
-            <ArrowRight size={12} color="#333333" aria-hidden="true" />
+            <ArrowRight size={12} color="var(--border-default)" aria-hidden="true" />
             <span
               style={{
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 12,
-                color: '#f5f5f7',
+                color: 'var(--text-primary)',
               }}
             >
               {opportunity.capital_flow.beneficiary}

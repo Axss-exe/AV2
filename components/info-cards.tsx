@@ -24,8 +24,8 @@ function InfoCard({
   return (
     <div
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 14,
         padding: 18,
       }}
@@ -35,7 +35,7 @@ function InfoCard({
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: 11,
-          color: '#737373',
+          color: 'var(--text-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           marginBottom: 12,
@@ -52,7 +52,7 @@ function InfoCard({
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 300,
                 fontSize: 12,
-                color: '#a1a1a6',
+                color: 'var(--text-tertiary)',
                 lineHeight: 1.5,
                 marginBottom: 6,
                 paddingLeft: 12,
@@ -67,7 +67,7 @@ function InfoCard({
                   width: 4,
                   height: 4,
                   borderRadius: '50%',
-                  background: '#333333',
+                  background: 'var(--border-default)',
                 }}
                 aria-hidden="true"
               />
@@ -80,7 +80,7 @@ function InfoCard({
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 12,
-              color: '#525252',
+              color: 'var(--text-dim)',
               fontStyle: 'italic',
             }}
           >
@@ -94,7 +94,7 @@ function InfoCard({
           fontFamily: 'var(--font-sans)',
           fontWeight: 500,
           fontSize: 11,
-          color: '#ffffff',
+          color: 'var(--text-primary)',
           background: 'none',
           border: 'none',
           padding: 0,
@@ -127,8 +127,8 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
       {hasEntities && (
         <div
           style={{
-            background: '#0a0a0a',
-            border: '1px solid #1c1c1e',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-default)',
             borderRadius: 14,
             padding: 18,
           }}
@@ -138,7 +138,7 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
               fontFamily: 'var(--font-sans)',
               fontWeight: 600,
               fontSize: 11,
-              color: '#737373',
+              color: 'var(--text-muted)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: 12,
@@ -153,7 +153,7 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
                 style={{
                   marginBottom: 10,
                   paddingBottom: 10,
-                  borderBottom: i < Math.min(safeEntities.length, 5) - 1 ? '1px solid #1c1c1e' : 'none',
+                  borderBottom: i < Math.min(safeEntities.length, 5) - 1 ? '1px solid var(--border-default)' : 'none',
                 }}
               >
                 <div
@@ -161,7 +161,7 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 600,
                     fontSize: 12,
-                    color: '#d1d1d6',
+                    color: 'var(--text-secondary)',
                     marginBottom: 2,
                   }}
                 >
@@ -174,9 +174,9 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 500,
                         fontSize: 10,
-                        color: '#737373',
-                        background: '#1c1c1e',
-                        border: '1px solid #333333',
+                        color: 'var(--text-muted)',
+                        background: 'var(--border-default)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 4,
                         padding: '1px 6px',
                         textTransform: 'uppercase',
@@ -191,7 +191,7 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
                       style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: 10,
-                        color: '#525252',
+                        color: 'var(--text-dim)',
                       }}
                     >
                       Score: {ke.significance_score}
@@ -204,7 +204,7 @@ export function InfoCards({ findings, opportunities, riskFactors, keyEntities }:
                       fontFamily: 'var(--font-sans)',
                       fontWeight: 300,
                       fontSize: 11,
-                      color: '#525252',
+                      color: 'var(--text-dim)',
                       lineHeight: 1.4,
                       margin: 0,
                       overflow: 'hidden',

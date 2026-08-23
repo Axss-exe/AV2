@@ -100,7 +100,7 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
       <div ref={containerRef} style={{ position: 'relative', flex: '1 1 320px', maxWidth: 440 }}>
         <Search
           size={13}
-          color="#525252"
+          color="var(--text-dim)"
           aria-hidden="true"
           style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
         />
@@ -109,10 +109,10 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onFocus={(e) => {
-            (e.target as HTMLInputElement).style.borderColor = '#333333';
+            (e.target as HTMLInputElement).style.borderColor = 'var(--border-default)';
             if (results.length > 0) setOpen(true);
           }}
-          onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = '#1c1c1e'; }}
+          onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = 'var(--border-default)'; }}
           onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}
           placeholder={placeholder}
           aria-label="Search entities"
@@ -122,15 +122,15 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
           style={{
             width: '100%',
             height: 38,
-            background: '#111111',
-            border: '1px solid #1c1c1e',
+            background: 'var(--bg-control)',
+            border: '1px solid var(--border-default)',
             borderRadius: 9,
             paddingLeft: 34,
             paddingRight: value ? 60 : 12,
             fontFamily: 'var(--font-sans)',
             fontWeight: 300,
             fontSize: 12,
-            color: '#ffffff',
+            color: 'var(--text-primary)',
             outline: 'none',
             transition: 'border-color 0.18s',
           }}
@@ -138,12 +138,12 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
 
         {/* Spinner + clear */}
         <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          {searching && <Loader2 size={13} color="#525252" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />}
+          {searching && <Loader2 size={13} color="var(--text-dim)" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />}
           {value && (
             <button
               onClick={clear}
               aria-label="Clear search"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#525252', display: 'flex', alignItems: 'center', padding: 2 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', padding: 2 }}
             >
               <X size={12} aria-hidden="true" />
             </button>
@@ -161,8 +161,8 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
               left: 0,
               right: 0,
               zIndex: 50,
-              background: '#0a0a0a',
-              border: '1px solid #262626',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-hover)',
               borderRadius: 12,
               boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
               overflow: 'hidden',
@@ -171,16 +171,16 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
             }}
           >
             {searching && results.length === 0 ? (
-              <div style={{ padding: '18px 16px', fontFamily: 'var(--font-sans)', fontSize: 12, color: '#525252' }}>
+              <div style={{ padding: '18px 16px', fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-dim)' }}>
                 Searching vault...
               </div>
             ) : results.length === 0 ? (
-              <div style={{ padding: '18px 16px', fontFamily: 'var(--font-sans)', fontSize: 12, color: '#525252' }}>
+              <div style={{ padding: '18px 16px', fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-dim)' }}>
                 No entities matching &ldquo;{value}&rdquo;
               </div>
             ) : (
               <>
-                <div style={{ padding: '8px 14px', borderBottom: '1px solid #1c1c1e', fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <div style={{ padding: '8px 14px', borderBottom: '1px solid var(--border-default)', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   {count} result{count === 1 ? '' : 's'}
                 </div>
                 {results.slice(0, 20).map((r) => {
@@ -195,7 +195,7 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
                       onClick={() => setOpen(false)}
                       role="option"
                       aria-selected={false}
-                      style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '10px 14px', textDecoration: 'none', borderBottom: '1px solid #111111', transition: 'background 0.12s' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '10px 14px', textDecoration: 'none', borderBottom: '1px solid var(--bg-control)', transition: 'background 0.12s' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = '#141414'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
                     >
@@ -206,11 +206,11 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
                         <Icon size={13} />
                       </span>
                       <span style={{ minWidth: 0, flex: 1 }}>
-                        <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#f5f5f7', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {r.name}
                         </span>
                         {snippet && (
-                          <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ display: 'block', fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {snippet}
                           </span>
                         )}
@@ -226,15 +226,15 @@ export function EntitySearch({ total, resultCount, onSearch, placeholder = 'Sear
 
       {/* Result count badge (grid filter) */}
       <div
-        style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: isFiltered ? '#a1a1a6' : '#525252', whiteSpace: 'nowrap' }}
+        style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: isFiltered ? 'var(--text-tertiary)' : 'var(--text-dim)', whiteSpace: 'nowrap' }}
         aria-live="polite"
         aria-atomic="true"
       >
         {isFiltered ? (
           <>
-            <span style={{ color: '#ffffff', fontWeight: 600 }}>{resultCount}</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{resultCount}</span>
             {' of '}
-            <span style={{ color: '#525252' }}>{total}</span>
+            <span style={{ color: 'var(--text-dim)' }}>{total}</span>
             {' shown'}
           </>
         ) : (

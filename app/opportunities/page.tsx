@@ -46,7 +46,7 @@ function urgencyColor(score: number): string {
   if (score >= 9.0) return '#ff453a';
   if (score >= 7.0) return '#ff9f0a';
   if (score >= 5.0) return '#ffd60a';
-  return '#30d158';
+  return 'var(--text-primary)';
 }
 
 function formatRelative(iso: string): string {
@@ -69,10 +69,10 @@ function formatTimestamp(ts: string) {
 
 function SkeletonCard() {
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderLeft: '4px solid #1c1c1e', borderRadius: 12, padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ height: 14, width: '70%', background: '#1c1c1e', borderRadius: 4, animation: 'pulse-soft 1.5s infinite' }} />
-      <div style={{ height: 3, width: '100%', background: '#1c1c1e', borderRadius: 2, animation: 'pulse-soft 1.5s infinite' }} />
-      <div style={{ height: 48, width: '100%', background: '#111111', borderRadius: 6, animation: 'pulse-soft 1.5s infinite' }} />
+    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderLeft: '4px solid var(--border-default)', borderRadius: 12, padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ height: 14, width: '70%', background: 'var(--border-default)', borderRadius: 4, animation: 'pulse-soft 1.5s infinite' }} />
+      <div style={{ height: 3, width: '100%', background: 'var(--border-default)', borderRadius: 2, animation: 'pulse-soft 1.5s infinite' }} />
+      <div style={{ height: 48, width: '100%', background: 'var(--bg-control)', borderRadius: 6, animation: 'pulse-soft 1.5s infinite' }} />
     </div>
   );
 }
@@ -213,27 +213,27 @@ export default function OpportunitiesPage() {
             role="status"
             aria-live="polite"
           >
-            <div style={{ width: 56, height: 56, background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Loader2 size={26} color="#30d158" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />
+            <div style={{ width: 56, height: 56, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Loader2 size={26} color="var(--text-primary)" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true" />
             </div>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#30d158', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
                 Running Intelligence Pipeline
               </p>
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: '#f5f5f7', margin: 0, maxWidth: 340, lineHeight: 1.4 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: 'var(--text-primary)', margin: 0, maxWidth: 340, lineHeight: 1.4 }}>
                 {saved.find((r) => r.opportunity_id === executingId)?.title ?? executingId}
               </p>
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#525252', marginTop: 8 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-dim)', marginTop: 8 }}>
                 Generating strategic roadmap &amp; lineage traces…
               </p>
             </div>
             {/* Animated progress bar */}
-            <div style={{ width: 240, height: 2, background: '#1c1c1e', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: 240, height: 2, background: 'var(--border-default)', borderRadius: 2, overflow: 'hidden' }}>
               <motion.div
                 initial={{ x: '-100%' }}
                 animate={{ x: '100%' }}
                 transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
-                style={{ width: '60%', height: '100%', background: 'linear-gradient(90deg,transparent,#30d158,transparent)', borderRadius: 2 }}
+                style={{ width: '60%', height: '100%', background: 'linear-gradient(90deg,transparent,var(--text-primary),transparent)', borderRadius: 2 }}
               />
             </div>
           </motion.div>
@@ -247,35 +247,35 @@ export default function OpportunitiesPage() {
           <div className="flex flex-wrap items-start justify-between gap-4" style={{ marginBottom: 28 }}>
             <div>
               <div className="flex items-center gap-3" style={{ marginBottom: 6 }}>
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252', textDecoration: 'none', transition: 'color 0.15s' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#a1a1a6'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#525252'; }}>
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-dim)'; }}>
                   <ChevronLeft size={12} aria-hidden="true" /> Home
                 </Link>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#1c1c1e' }}>/</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#333333' }}>Opportunities</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>/</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>Opportunities</span>
               </div>
-              <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 22, color: '#f5f5f7', margin: 0, letterSpacing: '-0.01em' }}>
+              <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
                 Opportunities
               </h1>
               {!loadingSaved && saved.length > 0 && (
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252', margin: '6px 0 0' }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', margin: '6px 0 0' }}>
                   {saved.length} saved &middot; sort: {sortBy === 'urgency_score' ? 'urgency' : 'date'}
                 </p>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              <div style={{ display: 'flex', background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 8, padding: 3, gap: 2 }}>
+              <div style={{ display: 'flex', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 3, gap: 2 }}>
                 {(['urgency_score', 'saved_at'] as const).map((opt) => (
-                  <button key={opt} onClick={() => setSortBy(opt)} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.05em', textTransform: 'uppercase', padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: sortBy === opt ? '#1c1c1e' : 'transparent', color: sortBy === opt ? '#f5f5f7' : '#525252', transition: 'all 0.15s' }}>
+                  <button key={opt} onClick={() => setSortBy(opt)} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.05em', textTransform: 'uppercase', padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: sortBy === opt ? 'var(--border-default)' : 'transparent', color: sortBy === opt ? 'var(--text-primary)' : 'var(--text-dim)', transition: 'all 0.15s' }}>
                     {opt === 'urgency_score' ? 'Urgency' : 'Recent'}
                   </button>
                 ))}
               </div>
-              <button onClick={load} aria-label="Refresh" style={{ background: 'transparent', border: '1px solid #1c1c1e', borderRadius: 8, width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#525252', transition: 'color 0.15s' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#525252'; }}>
+              <button onClick={load} aria-label="Refresh" style={{ background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 8, width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-dim)', transition: 'color 0.15s' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-dim)'; }}>
                 <RefreshCw size={13} aria-hidden="true" />
               </button>
             </div>
@@ -285,17 +285,17 @@ export default function OpportunitiesPage() {
           {currentDashboard && (
             <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 40 }}>
               {/* Analysis header card */}
-              <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, padding: '20px 24px', marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, padding: '20px 24px', marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,#007aff,#5ac8fa)' }} aria-hidden="true" />
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>
                       Current Analysis &middot; {currentDashboard.intelligence_id as string}
                     </span>
-                    <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 16, color: '#f5f5f7', margin: '0 0 6px', lineHeight: 1.3 }}>
+                    <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)', margin: '0 0 6px', lineHeight: 1.3 }}>
                       {currentDashboard.trigger_event as string}
                     </h2>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#525252', margin: 0, lineHeight: 1.5 }}>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-dim)', margin: 0, lineHeight: 1.5 }}>
                       {(currentDashboard.market_equilibrium_shift as string)?.slice(0, 160)}...
                     </p>
                   </div>
@@ -305,7 +305,7 @@ export default function OpportunitiesPage() {
                         <Newspaper size={10} aria-hidden="true" /> Source
                       </Link>
                     )}
-                    <button onClick={() => { clearAnalysis(); }} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', background: 'transparent', border: '1px solid #1c1c1e', borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>
+                    <button onClick={() => { clearAnalysis(); }} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>
                       Clear
                     </button>
                   </div>
@@ -315,12 +315,12 @@ export default function OpportunitiesPage() {
                 {currentDashboard.pipeline_metadata && (
                   <div className="flex flex-wrap items-center gap-3 mt-4">
                     {(currentDashboard.pipeline_metadata as Record<string, unknown>).extracted_entities_count != null && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', background: '#111111', border: '1px solid #1c1c1e', borderRadius: 5, padding: '3px 8px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 8px' }}>
                         <Hash size={9} aria-hidden="true" /> {(currentDashboard.pipeline_metadata as Record<string, unknown>).extracted_entities_count as number} entities
                       </span>
                     )}
                     {(currentDashboard.pipeline_metadata as Record<string, unknown>).processed_at && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', background: '#111111', border: '1px solid #1c1c1e', borderRadius: 5, padding: '3px 8px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 8px' }}>
                         <Clock size={9} aria-hidden="true" /> {formatTimestamp((currentDashboard.pipeline_metadata as Record<string, unknown>).processed_at as string)}
                       </span>
                     )}
@@ -353,19 +353,19 @@ export default function OpportunitiesPage() {
           {/* ── Saved from DB ─────────────────────────────────────────────── */}
           {!currentDashboard && saved.length > 0 && (
             <div className="flex items-center gap-3 mb-5">
-              <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: '#a1a1a6', margin: 0 }}>
+              <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: 'var(--text-tertiary)', margin: 0 }}>
                 Saved Pipeline
               </h2>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#333333' }}>{saved.length} opportunities</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>{saved.length} opportunities</span>
             </div>
           )}
 
           {currentDashboard && saved.length > 0 && (
             <div className="flex items-center gap-3 mb-5">
-              <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: '#a1a1a6', margin: 0 }}>
+              <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: 'var(--text-tertiary)', margin: 0 }}>
                 Saved Pipeline
               </h2>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#333333' }}>{saved.length} saved</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>{saved.length} saved</span>
             </div>
           )}
 
@@ -373,13 +373,13 @@ export default function OpportunitiesPage() {
           {!loadingSaved && saved.length > 0 && (
             <div className="grid grid-cols-3 gap-3" style={{ marginBottom: 20 }}>
               {[
-                { label: 'Total Saved', value: saved.length, color: '#a1a1a6' },
+                { label: 'Total Saved', value: saved.length, color: 'var(--text-tertiary)' },
                 { label: 'Avg Urgency', value: (saved.reduce((s, r) => s + r.urgency_score, 0) / saved.length).toFixed(1), color: urgencyColor(saved.reduce((s, r) => s + r.urgency_score, 0) / saved.length) },
-                { label: 'With Roadmap', value: saved.filter((r) => r.latest_roadmap_id).length, color: '#30d158' },
+                { label: 'With Roadmap', value: saved.filter((r) => r.latest_roadmap_id).length, color: 'var(--text-primary)' },
               ].map(({ label, value, color }) => (
-                <div key={label} style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 10, padding: '12px 16px' }}>
+                <div key={label} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 10, padding: '12px 16px' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 20, color, lineHeight: 1, marginBottom: 5 }}>{value}</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -412,16 +412,16 @@ export default function OpportunitiesPage() {
           {/* Empty state */}
           {showEmpty && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 16, textAlign: 'center', padding: '40px 24px' }}>
-              <div style={{ width: 52, height: 52, background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BookmarkX size={22} color="#333333" aria-hidden="true" />
+              <div style={{ width: 52, height: 52, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <BookmarkX size={22} color="var(--border-default)" aria-hidden="true" />
               </div>
               <div>
-                <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: '#525252', margin: '0 0 6px' }}>No saved opportunities</p>
-                <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#333333', margin: 0, maxWidth: 320, lineHeight: 1.6 }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: 'var(--text-dim)', margin: '0 0 6px' }}>No saved opportunities</p>
+                <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--border-default)', margin: 0, maxWidth: 320, lineHeight: 1.6 }}>
                   Run an ATIS analysis on a news article, then bookmark the opportunities you want to track here.
                 </p>
               </div>
-              <Link href="/news" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#a1a1a6', background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 8, padding: '8px 16px', textDecoration: 'none', marginTop: 4 }}>
+              <Link href="/news" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-tertiary)', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '8px 16px', textDecoration: 'none', marginTop: 4 }}>
                 Browse news &rarr; run analysis
               </Link>
             </motion.div>
@@ -453,24 +453,24 @@ export default function OpportunitiesPage() {
                       style={{ opacity: deletingId === row.id ? 0.4 : 1, transition: 'opacity 0.2s' }}>
                       {/* Row toolbar */}
                       <div className="flex items-center justify-between" style={{ marginBottom: 6, paddingLeft: 3 }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)' }}>
                           Saved {formatRelative(row.saved_at)}
                         </span>
                         <div className="flex items-center gap-2">
                           {row.latest_roadmap_id && (
-                            <Link href={`/execute/roadmap/${row.latest_roadmap_id}`} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#30d158', background: 'rgba(48,209,88,0.08)', border: '1px solid rgba(48,209,88,0.2)', borderRadius: 5, padding: '3px 8px', textDecoration: 'none' }}>
+                            <Link href={`/execute/roadmap/${row.latest_roadmap_id}`} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-primary)', background: 'var(--bg-control)', border: '1px solid var(--border-active)', borderRadius: 5, padding: '3px 8px', textDecoration: 'none' }}>
                               <BookmarkCheck size={9} style={{ display: 'inline', marginRight: 4 }} aria-hidden="true" />Roadmap
                             </Link>
                           )}
                           <button onClick={() => router.push(`/execute?opportunity_id=${encodeURIComponent(row.opportunity_id)}&saved_id=${row.id}`)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#a1a1a6', background: 'transparent', border: '1px solid #1c1c1e', borderRadius: 5, padding: '3px 8px', cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-tertiary)', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 8px', cursor: 'pointer' }}>
                             <Zap size={10} aria-hidden="true" /> Execute
                           </button>
                           <button onClick={() => handleDelete(row.id)} disabled={deletingId === row.id}
                             aria-label={`Remove ${row.title}`} title="Remove from saved"
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid #1c1c1e', borderRadius: 5, width: 26, height: 26, cursor: 'pointer', color: '#525252', transition: 'color 0.15s, border-color 0.15s' }}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 5, width: 26, height: 26, cursor: 'pointer', color: 'var(--text-dim)', transition: 'color 0.15s, border-color 0.15s' }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#ff453a'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,69,58,0.3)'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#525252'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#1c1c1e'; }}>
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-dim)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; }}>
                             <Trash2 size={11} aria-hidden="true" />
                           </button>
                         </div>

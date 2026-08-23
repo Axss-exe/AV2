@@ -117,18 +117,18 @@ function CompactCard({ entity, onClick }: Pick<EntityCardProps, 'entity' | 'onCl
         alignItems: 'center',
         gap: 10,
         padding: '10px 14px',
-        background: '#111111',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-control)',
+        border: '1px solid var(--border-default)',
         borderRadius: 10,
         cursor: 'pointer',
         transition: 'border-color 0.18s, transform 0.18s',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#2c2c2e';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-hover)';
         (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#1c1c1e';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
         (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
       }}
     >
@@ -162,7 +162,7 @@ function CompactCard({ entity, onClick }: Pick<EntityCardProps, 'entity' | 'onCl
           fontFamily: 'var(--font-sans)',
           fontWeight: 500,
           fontSize: 12,
-          color: '#d1d1d6',
+          color: 'var(--text-secondary)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -177,7 +177,7 @@ function CompactCard({ entity, onClick }: Pick<EntityCardProps, 'entity' | 'onCl
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: 10,
-            color: '#525252',
+            color: 'var(--text-dim)',
             flexShrink: 0,
           }}
         >
@@ -218,8 +218,8 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
   const inner = (
     <div
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 14,
         padding: '18px 20px',
         cursor: 'pointer',
@@ -230,12 +230,12 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
         height: '100%',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#2c2c2e';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-hover)';
         (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.4)';
         (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#1c1c1e';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
         (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
         (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
       }}
@@ -292,7 +292,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: 13,
-          color: '#ffffff',
+          color: 'var(--text-primary)',
           lineHeight: 1.4,
           display: '-webkit-box',
           WebkitLineClamp: 2,
@@ -308,7 +308,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
         style={{
           fontFamily: 'var(--font-mono)',
           fontSize: 10,
-          color: '#333333',
+          color: 'var(--border-default)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -325,7 +325,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 300,
             fontSize: 11,
-            color: '#525252',
+            color: 'var(--text-dim)',
             lineHeight: 1.6,
             display: '-webkit-box',
             WebkitLineClamp: 3,
@@ -345,7 +345,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: '1px solid #1c1c1e',
+          borderTop: '1px solid var(--border-default)',
         }}
       >
         {size ? (
@@ -353,7 +353,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: 10,
-              color: '#333333',
+              color: 'var(--border-default)',
             }}
           >
             {size}
@@ -366,7 +366,7 @@ function FullCard({ entity, onClick, searchQuery, asLink }: EntityCardProps) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             fontSize: 10,
-            color: '#30d158',
+            color: 'var(--text-primary)',
             letterSpacing: '0.04em',
             textTransform: 'uppercase' as const,
           }}

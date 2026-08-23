@@ -16,8 +16,8 @@ export function QueryHero({ result }: QueryHeroProps) {
   return (
     <div
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 16,
         padding: 32,
         marginBottom: 16,
@@ -28,7 +28,7 @@ export function QueryHero({ result }: QueryHeroProps) {
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: 11,
-          color: '#525252',
+          color: 'var(--text-dim)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           marginBottom: 8,
@@ -41,7 +41,7 @@ export function QueryHero({ result }: QueryHeroProps) {
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: 18,
-          color: '#ffffff',
+          color: 'var(--text-primary)',
           marginBottom: 16,
           lineHeight: 1.4,
         }}
@@ -50,8 +50,8 @@ export function QueryHero({ result }: QueryHeroProps) {
       </h2>
       <div
         style={{
-          background: '#000000',
-          border: '1px solid #1c1c1e',
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--border-default)',
           borderRadius: 10,
           padding: 16,
           marginBottom: 24,
@@ -62,7 +62,7 @@ export function QueryHero({ result }: QueryHeroProps) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 400,
             fontSize: 13,
-            color: '#a1a1a6',
+            color: 'var(--text-secondary)',
             lineHeight: 1.6,
             margin: 0,
           }}
@@ -80,7 +80,7 @@ export function QueryHero({ result }: QueryHeroProps) {
                 fontFamily: 'var(--font-display)',
                 fontWeight: 700,
                 fontSize: 22,
-                color: '#ffffff',
+                color: 'var(--text-primary)',
               }}
             >
               {stat.value}
@@ -90,7 +90,7 @@ export function QueryHero({ result }: QueryHeroProps) {
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 500,
                 fontSize: 10,
-                color: '#737373',
+                color: 'var(--text-muted)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
               }}

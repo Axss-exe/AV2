@@ -18,20 +18,20 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
       transition={{ duration: 0.35, delay: index * 0.05, ease: [0.4, 0, 0.2, 1] }}
       onClick={onClick}
       style={{
-        background: '#000000',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-default)',
         borderRadius: 12,
         padding: 16,
         cursor: 'pointer',
         transition: 'border-color 0.2s, background 0.2s',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = '#262626';
-        (e.currentTarget as HTMLElement).style.background = '#0a0a0a';
+        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)';
+        (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface)';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = '#1c1c1e';
-        (e.currentTarget as HTMLElement).style.background = '#000000';
+        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)';
+        (e.currentTarget as HTMLElement).style.background = 'var(--bg-primary)';
       }}
     >
       {/* Flag + Name Row */}
@@ -40,7 +40,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
           style={{
             width: 36,
             height: 24,
-            background: '#1c1c1e',
+            background: 'var(--border-default)',
             borderRadius: 4,
             display: 'flex',
             alignItems: 'center',
@@ -58,7 +58,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 600,
               fontSize: 13,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
             }}
           >
             {country.name}
@@ -68,7 +68,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 400,
               fontSize: 11,
-              color: '#737373',
+              color: 'var(--text-muted)',
             }}
           >
             {country.region}
@@ -84,7 +84,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 400,
               fontSize: 10,
-              color: '#737373',
+              color: 'var(--text-muted)',
               marginBottom: 2,
             }}
           >
@@ -95,7 +95,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 600,
               fontSize: 12,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
             }}
           >
             {country.gdp}
@@ -107,7 +107,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 400,
               fontSize: 10,
-              color: '#737373',
+              color: 'var(--text-muted)',
               marginBottom: 2,
             }}
           >
@@ -118,7 +118,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 600,
               fontSize: 12,
-              color: '#30d158',
+              color: 'var(--text-primary)',
             }}
           >
             {country.gdp_growth}
@@ -130,7 +130,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 400,
               fontSize: 10,
-              color: '#737373',
+              color: 'var(--text-muted)',
               marginBottom: 2,
             }}
           >
@@ -141,7 +141,7 @@ export function CountryCard({ country, index, onClick }: CountryCardProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 600,
               fontSize: 12,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
             }}
           >
             {country.population}

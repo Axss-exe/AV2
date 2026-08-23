@@ -51,8 +51,8 @@ export function AnalysisLoader({
     >
       <div
         style={{
-          background: '#0a0a0a',
-          border: '1px solid #1c1c1e',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
           borderRadius: 16,
           padding: '36px 40px',
           width: '100%',
@@ -71,15 +71,15 @@ export function AnalysisLoader({
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
-            color: '#525252',
+            color: 'var(--text-dim)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: 4,
             borderRadius: 6,
           }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#a1a1a6')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = '#525252')}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)')}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-dim)')}
           aria-label="Cancel analysis"
         >
           <X size={16} aria-hidden="true" />
@@ -94,7 +94,7 @@ export function AnalysisLoader({
                 fontWeight: 700,
                 fontSize: 11,
                 letterSpacing: '0.14em',
-                color: '#333333',
+                color: 'var(--border-default)',
                 textTransform: 'uppercase',
                 marginBottom: 20,
               }}
@@ -108,7 +108,7 @@ export function AnalysisLoader({
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
-                color: '#f5f5f7',
+                color: 'var(--text-primary)',
                 margin: '0 0 6px 0',
                 minHeight: 22,
                 transition: 'opacity 0.3s',
@@ -122,7 +122,7 @@ export function AnalysisLoader({
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 300,
                 fontSize: 12,
-                color: '#525252',
+                color: 'var(--text-dim)',
                 margin: '0 0 24px 0',
               }}
             >
@@ -133,7 +133,7 @@ export function AnalysisLoader({
             <div
               style={{
                 height: 4,
-                background: '#1c1c1e',
+                background: 'var(--border-default)',
                 borderRadius: 2,
                 overflow: 'hidden',
                 marginBottom: 10,
@@ -147,7 +147,7 @@ export function AnalysisLoader({
                 style={{
                   height: '100%',
                   width: `${displayProgress}%`,
-                  background: displayProgress >= 100 ? '#30d158' : '#007aff',
+                  background: displayProgress >= 100 ? 'var(--text-primary)' : '#007aff',
                   borderRadius: 2,
                   transition: 'width 0.08s linear, background 0.4s',
                 }}
@@ -160,7 +160,7 @@ export function AnalysisLoader({
                 justifyContent: 'space-between',
                 fontFamily: 'var(--font-mono)',
                 fontSize: 10,
-                color: '#333333',
+                color: 'var(--border-default)',
               }}
             >
               <span>Analysis in progress</span>
@@ -189,7 +189,7 @@ export function AnalysisLoader({
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 300,
                     fontSize: 12,
-                    color: '#737373',
+                    color: 'var(--text-muted)',
                     margin: 0,
                     lineHeight: 1.5,
                   }}
@@ -204,19 +204,19 @@ export function AnalysisLoader({
                 onClick={onRetry}
                 style={{
                   flex: 1,
-                  background: '#ffffff',
+                  background: 'var(--text-primary)',
                   border: 'none',
                   borderRadius: 8,
                   padding: '10px 0',
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 600,
                   fontSize: 13,
-                  color: '#000000',
+                  color: 'var(--bg-primary)',
                   cursor: 'pointer',
                   transition: 'background 0.15s',
                 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#d1d1d6')}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = '#ffffff')}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--text-secondary)')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--text-primary)')}
               >
                 Retry
               </button>
@@ -225,23 +225,23 @@ export function AnalysisLoader({
                 style={{
                   flex: 1,
                   background: 'transparent',
-                  border: '1px solid #2c2c2e',
+                  border: '1px solid var(--border-hover)',
                   borderRadius: 8,
                   padding: '10px 0',
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 500,
                   fontSize: 13,
-                  color: '#737373',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
                   transition: 'border-color 0.15s, color 0.15s',
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#525252';
-                  (e.currentTarget as HTMLElement).style.color = '#a1a1a6';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--text-dim)';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#2c2c2e';
-                  (e.currentTarget as HTMLElement).style.color = '#737373';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
                 }}
               >
                 Dismiss

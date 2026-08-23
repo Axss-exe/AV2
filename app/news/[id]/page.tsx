@@ -99,8 +99,8 @@ export default function ArticleDetailPage({
   };
 
   const categoryColor = article
-    ? (CATEGORY_COLORS[article.category] ?? '#737373')
-    : '#737373';
+    ? (CATEGORY_COLORS[article.category] ?? 'var(--text-muted)')
+    : 'var(--text-muted)';
 
   return (
     <AppShell>
@@ -136,34 +136,34 @@ export default function ArticleDetailPage({
               fontFamily: 'var(--font-sans)',
               fontWeight: 500,
               fontSize: 12,
-              color: '#525252',
+              color: 'var(--text-dim)',
               textDecoration: 'none',
             }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#a1a1a6')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = '#525252')}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-dim)')}
           >
             News
           </Link>
           {article && (
             <>
-              <ChevronRight size={12} color="#333333" aria-hidden="true" />
+              <ChevronRight size={12} color="var(--border-default)" aria-hidden="true" />
               <span
                 style={{
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 500,
                   fontSize: 12,
-                  color: '#525252',
+                  color: 'var(--text-dim)',
                 }}
               >
                 {article.category}
               </span>
-              <ChevronRight size={12} color="#333333" aria-hidden="true" />
+              <ChevronRight size={12} color="var(--border-default)" aria-hidden="true" />
               <span
                 style={{
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 500,
                   fontSize: 12,
-                  color: '#737373',
+                  color: 'var(--text-muted)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -183,7 +183,7 @@ export default function ArticleDetailPage({
               style={{
                 height: 32,
                 width: '85%',
-                background: '#1c1c1e',
+                background: 'var(--border-default)',
                 borderRadius: 6,
                 marginBottom: 14,
               }}
@@ -192,7 +192,7 @@ export default function ArticleDetailPage({
               style={{
                 height: 32,
                 width: '60%',
-                background: '#1c1c1e',
+                background: 'var(--border-default)',
                 borderRadius: 6,
                 marginBottom: 24,
               }}
@@ -201,7 +201,7 @@ export default function ArticleDetailPage({
               {[80, 55, 70, 60].map((w, i) => (
                 <div
                   key={i}
-                  style={{ height: 20, width: w, background: '#1c1c1e', borderRadius: 4 }}
+                  style={{ height: 20, width: w, background: 'var(--border-default)', borderRadius: 4 }}
                 />
               ))}
             </div>
@@ -211,7 +211,7 @@ export default function ArticleDetailPage({
                 style={{
                   height: 13,
                   width: `${w}%`,
-                  background: '#1c1c1e',
+                  background: 'var(--border-default)',
                   borderRadius: 3,
                   marginBottom: 8,
                 }}
@@ -250,7 +250,7 @@ export default function ArticleDetailPage({
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 300,
                   fontSize: 12,
-                  color: '#737373',
+                  color: 'var(--text-muted)',
                   margin: 0,
                 }}
               >
@@ -271,7 +271,7 @@ export default function ArticleDetailPage({
                 fontSize: 26,
                 lineHeight: 1.3,
                 letterSpacing: '-0.02em',
-                color: '#f5f5f7',
+                color: 'var(--text-primary)',
                 margin: '0 0 16px 0',
               }}
             >
@@ -285,22 +285,22 @@ export default function ArticleDetailPage({
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 500,
                   fontSize: 12,
-                  color: '#525252',
+                  color: 'var(--text-dim)',
                 }}
               >
                 {article.source}
               </span>
-              <span style={{ color: '#2c2c2e', fontSize: 12 }}>•</span>
+              <span style={{ color: 'var(--border-hover)', fontSize: 12 }}>•</span>
               <span
                 style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: 11,
-                  color: '#525252',
+                  color: 'var(--text-dim)',
                 }}
               >
                 {formatDate(article.published_at)}
               </span>
-              <Badge label={article.country_tag} color="#a1a1a6" />
+              <Badge label={article.country_tag} color="var(--text-tertiary)" />
               <Badge label={article.category} color={categoryColor} />
             </div>
 
@@ -311,7 +311,7 @@ export default function ArticleDetailPage({
                 fontWeight: 300,
                 fontSize: 14,
                 lineHeight: 1.75,
-                color: '#a1a1a6',
+                color: 'var(--text-tertiary)',
                 marginBottom: 48,
                 whiteSpace: 'pre-wrap',
               }}
@@ -322,8 +322,8 @@ export default function ArticleDetailPage({
             {/* ATIS Analysis CTA */}
             <div
               style={{
-                background: '#0a0a0a',
-                border: '1px solid #1c1c1e',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 14,
                 padding: '24px 26px',
                 position: 'relative',
@@ -366,7 +366,7 @@ export default function ArticleDetailPage({
                       fontFamily: 'var(--font-sans)',
                       fontWeight: 600,
                       fontSize: 15,
-                      color: '#f5f5f7',
+                      color: 'var(--text-primary)',
                       margin: '0 0 6px 0',
                     }}
                   >
@@ -377,7 +377,7 @@ export default function ArticleDetailPage({
                       fontFamily: 'var(--font-sans)',
                       fontWeight: 300,
                       fontSize: 12,
-                      color: '#525252',
+                      color: 'var(--text-dim)',
                       margin: 0,
                       maxWidth: 380,
                       lineHeight: 1.55,
@@ -402,7 +402,7 @@ export default function ArticleDetailPage({
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 600,
                     fontSize: 13,
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     cursor: analysisLoading ? 'not-allowed' : 'pointer',
                     opacity: analysisLoading ? 0.5 : 1,
                     whiteSpace: 'nowrap',

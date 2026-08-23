@@ -130,7 +130,7 @@ export default function HistoryPage() {
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
               fontSize: 24,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
               marginBottom: 6,
             }}
           >
@@ -141,7 +141,7 @@ export default function HistoryPage() {
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 13,
-              color: '#737373',
+              color: 'var(--text-muted)',
             }}
           >
             All past intelligence queries and results
@@ -157,8 +157,8 @@ export default function HistoryPage() {
                 key={i}
                 style={{
                   height: 80,
-                  background: '#0a0a0a',
-                  border: '1px solid #1c1c1e',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-default)',
                   borderRadius: 12,
                   animation: 'pulse-soft 1.5s infinite',
                 }}
@@ -175,8 +175,8 @@ export default function HistoryPage() {
         ) : (
           <div
             style={{
-              background: '#0a0a0a',
-              border: '1px solid #1c1c1e',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
               borderRadius: 14,
               overflow: 'hidden',
             }}
@@ -187,7 +187,7 @@ export default function HistoryPage() {
               style={{
                 gridTemplateColumns: '3fr 2fr 160px 100px',
                 padding: '10px 20px',
-                borderBottom: '1px solid #1c1c1e',
+                borderBottom: '1px solid var(--border-default)',
               }}
             >
               {['Query', 'Summary', 'Date', 'Actions'].map((h) => (
@@ -197,7 +197,7 @@ export default function HistoryPage() {
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 600,
                     fontSize: 11,
-                    color: '#737373',
+                    color: 'var(--text-muted)',
                     textTransform: 'uppercase' as const,
                     letterSpacing: '0.06em',
                   }}
@@ -218,33 +218,33 @@ export default function HistoryPage() {
                   exit="exit"
                   variants={cardVariants}
                   style={{
-                    borderBottom: i < allHistory.length - 1 ? '1px solid #1c1c1e' : 'none',
+                    borderBottom: i < allHistory.length - 1 ? '1px solid var(--border-default)' : 'none',
                     cursor: 'pointer',
                     transition: 'background 0.2s',
                     opacity: deletingId === item.id ? 0.4 : 1,
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#111111'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-control)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
                   onClick={() => handleView(item)}
                 >
                   {/* Mobile card layout */}
                   <div className="sm:hidden flex items-start justify-between gap-3" style={{ padding: '14px 16px' }}>
                     <div className="flex flex-col gap-1 min-w-0 flex-1">
-                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {item.query}
                       </p>
-                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {item.summary.slice(0, 80)}...
                       </p>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)' }}>
                         {formatDate(item.created_at)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => handleView(item)} aria-label={`View: ${item.query}`} style={{ background: 'transparent', border: '1px solid #262626', borderRadius: 6, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#a1a1a6' }}>
+                      <button onClick={() => handleView(item)} aria-label={`View: ${item.query}`} style={{ background: 'transparent', border: '1px solid var(--border-hover)', borderRadius: 6, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-tertiary)' }}>
                         <ExternalLink size={13} aria-hidden="true" />
                       </button>
-                      <button onClick={() => handleDelete(item)} aria-label={`Delete: ${item.query}`} style={{ background: 'transparent', border: '1px solid #262626', borderRadius: 6, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#a1a1a6' }}>
+                      <button onClick={() => handleDelete(item)} aria-label={`Delete: ${item.query}`} style={{ background: 'transparent', border: '1px solid var(--border-hover)', borderRadius: 6, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-tertiary)' }}>
                         <Trash2 size={13} aria-hidden="true" />
                       </button>
                     </div>
@@ -255,13 +255,13 @@ export default function HistoryPage() {
                     className="hidden sm:grid"
                     style={{ gridTemplateColumns: '3fr 2fr 160px 100px', padding: '14px 20px', alignItems: 'center' }}
                   >
-                    <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 16 }}>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 16 }}>
                       {item.query}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#525252', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 16 }}>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 16 }}>
                       {item.summary.slice(0, 90)}...
                     </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>
                       {formatDate(item.created_at)}
                     </div>
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -269,9 +269,9 @@ export default function HistoryPage() {
                         onClick={() => handleView(item)}
                         aria-label={`View query: ${item.query}`}
                         title="View result"
-                        style={{ background: 'transparent', border: '1px solid #262626', borderRadius: 6, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#a1a1a6', transition: 'background 0.2s, color 0.2s' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6'; }}
+                        style={{ background: 'transparent', border: '1px solid var(--border-hover)', borderRadius: 6, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-tertiary)', transition: 'background 0.2s, color 0.2s' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)'; }}
                       >
                         <ExternalLink size={13} aria-hidden="true" />
                       </button>
@@ -279,9 +279,9 @@ export default function HistoryPage() {
                         onClick={() => handleDelete(item)}
                         aria-label={`Delete query: ${item.query}`}
                         title="Delete"
-                        style={{ background: 'transparent', border: '1px solid #262626', borderRadius: 6, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#a1a1a6', transition: 'background 0.2s, color 0.2s' }}
+                        style={{ background: 'transparent', border: '1px solid var(--border-hover)', borderRadius: 6, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-tertiary)', transition: 'background 0.2s, color 0.2s' }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,69,58,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = '#ff453a'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,69,58,0.3)'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#262626'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-hover)'; }}
                       >
                         <Trash2 size={13} aria-hidden="true" />
                       </button>

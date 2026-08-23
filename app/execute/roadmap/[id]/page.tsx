@@ -159,7 +159,7 @@ function MdText({ text }: { text: string }) {
     <>
       {parts.map((p, i) =>
         p.startsWith('**') && p.endsWith('**')
-          ? <strong key={i} style={{ color: '#f5f5f7', fontWeight: 600 }}>{p.slice(2, -2)}</strong>
+          ? <strong key={i} style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{p.slice(2, -2)}</strong>
           : <span key={i}>{p}</span>
       )}
     </>
@@ -171,12 +171,12 @@ function MdText({ text }: { text: string }) {
 function SectionTitle({ icon, title, count }: { icon: React.ReactNode; title: string; count?: string }) {
   return (
     <div className="flex items-center gap-2" style={{ marginBottom: 14 }}>
-      <span style={{ color: '#525252', display: 'flex' }} aria-hidden="true">{icon}</span>
-      <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: '#f5f5f7', margin: 0 }}>
+      <span style={{ color: 'var(--text-dim)', display: 'flex' }} aria-hidden="true">{icon}</span>
+      <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', margin: 0 }}>
         {title}
       </h2>
       {count && (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#333333', marginLeft: 'auto' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', marginLeft: 'auto' }}>
           {count}
         </span>
       )}
@@ -197,19 +197,19 @@ function TimelineCard({ step, index, total }: { step: TimelineStep; index: numbe
       <div className="flex flex-col items-center" style={{ flexShrink: 0 }}>
         <div style={{
           width: 32, height: 32, borderRadius: '50%',
-          background: '#111111', border: '1px solid #30d158',
+          background: 'var(--bg-control)', border: '1px solid var(--text-primary)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 12, color: '#30d158',
+          fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)',
         }} aria-hidden="true">
           {step.number}
         </div>
-        {!isLast && <div style={{ width: 1, flex: 1, background: '#1c1c1e', marginTop: 4, minHeight: 24 }} />}
+        {!isLast && <div style={{ width: 1, flex: 1, background: 'var(--border-default)', marginTop: 4, minHeight: 24 }} />}
       </div>
 
       {/* Body */}
       <div style={{ flex: 1, paddingBottom: isLast ? 0 : 18, minWidth: 0 }}>
-        <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, padding: '14px 16px' }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#f5f5f7', margin: 0, lineHeight: 1.5 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '14px 16px' }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', margin: 0, lineHeight: 1.5 }}>
             {step.description}
           </p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2" style={{ marginTop: 10 }}>
@@ -219,9 +219,9 @@ function TimelineCard({ step, index, total }: { step: TimelineStep; index: numbe
               </span>
             )}
             {step.verification && (
-              <span className="flex items-center gap-1.5" style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#30d158', flex: 1, minWidth: 180 }}>
+              <span className="flex items-center gap-1.5" style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-primary)', flex: 1, minWidth: 180 }}>
                 <CheckCircle2 size={11} aria-hidden="true" style={{ flexShrink: 0 }} />
-                <span style={{ color: '#a1a1a6' }}>{step.verification}</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>{step.verification}</span>
               </span>
             )}
           </div>
@@ -240,10 +240,10 @@ function MatrixCard({ row, index }: { row: MatrixRow; index: number }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.25 }}
-      style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, padding: '16px 18px' }}
+      style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '16px 18px' }}
     >
       <div className="flex items-start justify-between gap-3" style={{ marginBottom: 10 }}>
-        <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#f5f5f7', margin: 0, lineHeight: 1.4 }}>
+        <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', margin: 0, lineHeight: 1.4 }}>
           {row.node}
         </h3>
         {row.role && (
@@ -253,24 +253,24 @@ function MatrixCard({ row, index }: { row: MatrixRow; index: number }) {
         )}
       </div>
       {row.leverage && (
-        <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#a1a1a6', lineHeight: 1.6, margin: '0 0 12px' }}>
+        <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.6, margin: '0 0 12px' }}>
           <MdText text={row.leverage} />
         </p>
       )}
       {(phone || email || row.contact) && (
-        <div style={{ borderTop: '1px solid #1c1c1e', paddingTop: 10 }}>
+        <div style={{ borderTop: '1px solid var(--border-default)', paddingTop: 10 }}>
           {phone && (
-            <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#737373', marginBottom: email ? 4 : 0 }}>
+            <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', marginBottom: email ? 4 : 0 }}>
               <Phone size={11} aria-hidden="true" /> {phone}
             </div>
           )}
           {email && (
-            <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#737373' }}>
+            <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
               <Mail size={11} aria-hidden="true" /> {email}
             </div>
           )}
           {!phone && !email && (
-            <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#737373' }}>
+            <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
               <MdText text={row.contact} />
             </div>
           )}
@@ -287,7 +287,7 @@ function TraceCard({ trace, index }: { trace: LineageTrace; index: number }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: index * 0.035 }}
-      style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}
+      style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}
     >
       <button
         onClick={() => setExpanded((p) => !p)}
@@ -296,21 +296,21 @@ function TraceCard({ trace, index }: { trace: LineageTrace; index: number }) {
         aria-expanded={expanded}
       >
         <div className="flex items-center gap-3 flex-wrap">
-          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#f5f5f7' }}>
+          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-primary)' }}>
             {trace.source_node ?? `Trace ${index + 1}`}
           </span>
-          <ArrowRight size={13} color="#525252" aria-hidden="true" />
+          <ArrowRight size={13} color="var(--text-dim)" aria-hidden="true" />
           <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#007aff', flex: 1, minWidth: 120 }}>
             {trace.target_concept}
           </span>
           {trace.relationship_type && (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#737373', background: '#1c1c1e', borderRadius: 4, padding: '3px 7px', flexShrink: 0 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', background: 'var(--border-default)', borderRadius: 4, padding: '3px 7px', flexShrink: 0 }}>
               {trace.relationship_type}
             </span>
           )}
           {expanded
-            ? <ChevronUp size={14} color="#525252" aria-hidden="true" style={{ flexShrink: 0 }} />
-            : <ChevronDown size={14} color="#525252" aria-hidden="true" style={{ flexShrink: 0 }} />}
+            ? <ChevronUp size={14} color="var(--text-dim)" aria-hidden="true" style={{ flexShrink: 0 }} />
+            : <ChevronDown size={14} color="var(--text-dim)" aria-hidden="true" style={{ flexShrink: 0 }} />}
         </div>
       </button>
 
@@ -320,23 +320,23 @@ function TraceCard({ trace, index }: { trace: LineageTrace; index: number }) {
             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}
           >
-            <div style={{ padding: '0 16px 16px', borderTop: '1px solid #1c1c1e' }}>
+            <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-default)' }}>
               {trace.extracted_fact && (
                 <div style={{ marginTop: 12 }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#525252', marginBottom: 4 }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 4 }}>
                     Extracted Fact
                   </div>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#a1a1a6', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.6, margin: 0 }}>
                     {trace.extracted_fact}
                   </p>
                 </div>
               )}
               {trace.logic_justification && (
                 <div style={{ marginTop: 12 }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#525252', marginBottom: 4 }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 4 }}>
                     Logic Justification
                   </div>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#a1a1a6', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.6, margin: 0 }}>
                     {trace.logic_justification}
                   </p>
                 </div>
@@ -412,7 +412,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
         @media print {
           .atis-sidebar, .atis-topbar, .atis-bottomnav, nav, header { display: none !important; }
           .atis-content { margin-left: 0 !important; }
-          body { background: #ffffff !important; color: #000000 !important; }
+          body { background: var(--text-primary) !important; color: var(--bg-primary) !important; }
           pre { white-space: pre-wrap !important; word-break: break-word !important; }
           button { display: none !important; }
           a[href]::after { content: none !important; }
@@ -423,17 +423,17 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
         <main className="pt-6 md:pt-8 px-4 sm:px-6 lg:px-8" style={{ maxWidth: 1000, margin: '0 auto' }}>
 
           {/* Back link */}
-          <Link href="/opportunities" className="inline-flex items-center gap-1.5" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#525252', textDecoration: 'none', marginBottom: 20 }}>
+          <Link href="/opportunities" className="inline-flex items-center gap-1.5" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-dim)', textDecoration: 'none', marginBottom: 20 }}>
             <ChevronLeft size={14} aria-hidden="true" /> Opportunities
           </Link>
 
           {/* Loading */}
           {loading && (
             <div className="flex flex-col items-center justify-center" style={{ padding: '80px 0', gap: 14 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: '#0a0a0a', border: '1px solid #1c1c1e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Zap size={18} color="#30d158" style={{ animation: 'spin 1.4s linear infinite' }} aria-hidden="true" />
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Zap size={18} color="var(--text-primary)" style={{ animation: 'spin 1.4s linear infinite' }} aria-hidden="true" />
               </div>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#525252' }}>Loading roadmap…</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-dim)' }}>Loading roadmap…</p>
             </div>
           )}
 
@@ -449,26 +449,26 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
 
               {/* ── Header card ── */}
-              <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 16, padding: '22px 24px', marginBottom: 28 }}>
+              <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 16, padding: '22px 24px', marginBottom: 28 }}>
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div style={{ flex: 1, minWidth: 240 }}>
                     <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#30d158', textTransform: 'uppercase', letterSpacing: '0.1em', background: 'rgba(48,209,88,0.1)', border: '1px solid rgba(48,209,88,0.2)', borderRadius: 5, padding: '3px 8px' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--bg-control-active)', border: '1px solid var(--border-active)', borderRadius: 5, padding: '3px 8px' }}>
                         {pipelineError ? 'Pipeline Error' : 'Roadmap Ready'}
                       </span>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)' }}>
                         {record.opportunity_id}
                       </span>
                     </div>
-                    <h1 style={{ fontFamily: 'var(--font-display, var(--font-sans))', fontWeight: 700, fontSize: 22, color: '#f5f5f7', margin: 0, lineHeight: 1.25 }}>
+                    <h1 style={{ fontFamily: 'var(--font-display, var(--font-sans))', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)', margin: 0, lineHeight: 1.25 }}>
                       {record.opportunity_title ?? 'Strategic Execution Roadmap'}
                     </h1>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1" style={{ marginTop: 8 }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>
                         {formatDate(record.executed_at)}
                       </span>
                       {elapsed != null && (
-                        <span className="flex items-center gap-1" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252' }}>
+                        <span className="flex items-center gap-1" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>
                           <Clock size={10} aria-hidden="true" /> {elapsed.toFixed(1)}s
                         </span>
                       )}
@@ -478,18 +478,18 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                   <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => window.print()}
-                      style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f5f5f7', background: '#1c1c1e', border: '1px solid #333333', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2c2c2e'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e'; }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-primary)', background: 'var(--border-default)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-hover)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)'; }}
                     >
                       <Download size={12} aria-hidden="true" /> Download PDF
                     </button>
                     {record.saved_opportunity_id && (
-                      <Link href="/opportunities" style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: '#30d158', background: 'rgba(48,209,88,0.08)', border: '1px solid rgba(48,209,88,0.2)', borderRadius: 8, padding: '7px 12px', textDecoration: 'none' }}>
+                      <Link href="/opportunities" style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-primary)', background: 'var(--bg-control)', border: '1px solid var(--border-active)', borderRadius: 8, padding: '7px 12px', textDecoration: 'none' }}>
                         <BookmarkCheck size={12} aria-hidden="true" /> Saved
                       </Link>
                     )}
-                    <Link href="/execute" style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: '#a1a1a6', background: '#111111', border: '1px solid #1c1c1e', borderRadius: 8, padding: '7px 12px', textDecoration: 'none' }}>
+                    <Link href="/execute" style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-tertiary)', background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '7px 12px', textDecoration: 'none' }}>
                       <Zap size={12} aria-hidden="true" /> New
                     </Link>
                   </div>
@@ -502,7 +502,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                   <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#ff453a', margin: '0 0 6px' }}>
                     The pipeline returned an error
                   </p>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#a1a1a6', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.6, margin: 0 }}>
                     {String(raw.detail ?? raw.error ?? 'Unknown error')}
                   </p>
                 </div>
@@ -512,11 +512,11 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
               {Object.keys(metrics).length > 0 && (
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ marginBottom: 28 }}>
                   {Object.entries(metrics).map(([key, val]) => (
-                    <div key={key} style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, padding: '16px 18px' }}>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 24, color: '#f5f5f7', lineHeight: 1 }}>
+                    <div key={key} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '16px 18px' }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 24, color: 'var(--text-primary)', lineHeight: 1 }}>
                         {val}
                       </div>
-                      <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#525252', marginTop: 6 }}>
+                      <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-dim)', marginTop: 6 }}>
                         {METRIC_LABELS[key] ?? key.replace(/_/g, ' ')}
                       </div>
                     </div>
@@ -530,16 +530,16 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                 {flow && (
                   <section>
                     <SectionTitle icon={<GitBranch size={15} />} title="Convergence Flow" />
-                    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 14, padding: '20px 22px' }}>
+                    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, padding: '20px 22px' }}>
                       {/* Tier 1 */}
                       {flow.tier_1_anchors?.length ? (
                         <div style={{ marginBottom: 16 }}>
-                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#30d158', marginBottom: 8 }}>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-primary)', marginBottom: 8 }}>
                             Tier 1 · Anchors
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {flow.tier_1_anchors.map((a, i) => (
-                              <span key={i} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#f5f5f7', background: 'rgba(48,209,88,0.1)', border: '1px solid rgba(48,209,88,0.25)', borderRadius: 7, padding: '6px 12px' }}>
+                              <span key={i} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-primary)', background: 'var(--bg-control-active)', border: '1px solid var(--border-active)', borderRadius: 7, padding: '6px 12px' }}>
                                 {a}
                               </span>
                             ))}
@@ -549,7 +549,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
 
                       {/* Connector */}
                       <div className="flex justify-center" style={{ marginBottom: 16 }}>
-                        <ChevronDown size={16} color="#333333" aria-hidden="true" />
+                        <ChevronDown size={16} color="var(--border-default)" aria-hidden="true" />
                       </div>
 
                       {/* Tier 2 */}
@@ -560,7 +560,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {flow.tier_2_processing_chunks.map((c, i) => (
-                              <span key={i} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#f5f5f7', background: 'rgba(0,122,255,0.1)', border: '1px solid rgba(0,122,255,0.25)', borderRadius: 7, padding: '6px 12px' }}>
+                              <span key={i} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-primary)', background: 'rgba(0,122,255,0.1)', border: '1px solid rgba(0,122,255,0.25)', borderRadius: 7, padding: '6px 12px' }}>
                                 {c}
                               </span>
                             ))}
@@ -570,7 +570,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
 
                       {/* Connector */}
                       <div className="flex justify-center" style={{ marginBottom: 16 }}>
-                        <ChevronDown size={16} color="#333333" aria-hidden="true" />
+                        <ChevronDown size={16} color="var(--border-default)" aria-hidden="true" />
                       </div>
 
                       {/* Tier 3 */}
@@ -579,7 +579,7 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ff9f0a', marginBottom: 8 }}>
                             Tier 3 · Synthesis Logic
                           </div>
-                          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#a1a1a6', lineHeight: 1.7, margin: 0, background: '#111111', border: '1px solid #1c1c1e', borderRadius: 10, padding: '14px 16px' }}>
+                          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-tertiary)', lineHeight: 1.7, margin: 0, background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 10, padding: '14px 16px' }}>
                             {flow.tier_3_synthesis_logic}
                           </p>
                         </div>
@@ -599,14 +599,14 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.04, duration: 0.25 }}
-                          style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, padding: '16px 18px', borderLeft: '3px solid #007aff' }}
+                          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '16px 18px', borderLeft: '3px solid #007aff' }}
                         >
                           {b.label && (
-                            <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12.5, color: '#f5f5f7', marginBottom: 6 }}>
+                            <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12.5, color: 'var(--text-primary)', marginBottom: 6 }}>
                               {b.label}
                             </div>
                           )}
-                          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12.5, color: '#a1a1a6', lineHeight: 1.65, margin: 0 }}>
+                          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12.5, color: 'var(--text-tertiary)', lineHeight: 1.65, margin: 0 }}>
                             <MdText text={b.text} />
                           </p>
                         </motion.div>
@@ -653,8 +653,8 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                 {!hasStructured && finalRoadmap && (
                   <section>
                     <SectionTitle icon={<FileText size={15} />} title="Strategic Roadmap" />
-                    <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, padding: '20px 22px' }}>
-                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#a1a1a6', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
+                    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '20px 22px' }}>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-tertiary)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
                         {finalRoadmap}
                       </p>
                     </div>
@@ -667,9 +667,9 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                 <button
                   onClick={() => setShowRaw((p) => !p)}
                   className="flex items-center gap-2"
-                  style={{ background: 'transparent', border: '1px solid #1c1c1e', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252', transition: 'border-color 0.15s, color 0.15s', marginBottom: 12 }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#333333'; (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#1c1c1e'; (e.currentTarget as HTMLButtonElement).style.color = '#525252'; }}
+                  style={{ background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', transition: 'border-color 0.15s, color 0.15s', marginBottom: 12 }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-dim)'; }}
                 >
                   <Code2 size={12} aria-hidden="true" />
                   {showRaw ? 'Hide' : 'Show'} Raw Pipeline Output
@@ -689,9 +689,9 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
                         style={{
                           fontFamily: 'var(--font-mono)',
                           fontSize: 11,
-                          color: '#525252',
-                          background: '#0a0a0a',
-                          border: '1px solid #1c1c1e',
+                          color: 'var(--text-dim)',
+                          background: 'var(--bg-surface)',
+                          border: '1px solid var(--border-default)',
                           borderRadius: 12,
                           padding: '18px 20px',
                           overflowX: 'auto',

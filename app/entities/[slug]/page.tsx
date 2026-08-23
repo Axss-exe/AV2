@@ -117,7 +117,7 @@ function isMeaningful(values: string[]): boolean {
 
 function Bar({ width, height }: { width?: number | string; height: number }) {
   return (
-    <div style={{ width: width ?? '100%', height, background: '#1c1c1e', borderRadius: 6, animation: 'pulse-soft 1.5s infinite' }} />
+    <div style={{ width: width ?? '100%', height, background: 'var(--border-default)', borderRadius: 6, animation: 'pulse-soft 1.5s infinite' }} />
   );
 }
 
@@ -172,23 +172,23 @@ function RelationCard({ rel }: { rel: RelatedEntity }) {
           display: 'flex',
           gap: 11,
           padding: '12px 14px',
-          background: '#0a0a0a',
-          border: '1px solid #1c1c1e',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
           borderLeft: `2px solid ${accent}`,
           borderRadius: 10,
           transition: 'border-color 0.15s, transform 0.15s, background 0.15s',
         }}
         onMouseEnter={(e) => {
           const el = e.currentTarget as HTMLDivElement;
-          el.style.background = '#111111';
-          el.style.borderColor = '#2c2c2e';
+          el.style.background = 'var(--bg-control)';
+          el.style.borderColor = 'var(--border-hover)';
           el.style.borderLeftColor = accent;
           el.style.transform = 'translateX(2px)';
         }}
         onMouseLeave={(e) => {
           const el = e.currentTarget as HTMLDivElement;
-          el.style.background = '#0a0a0a';
-          el.style.borderColor = '#1c1c1e';
+          el.style.background = 'var(--bg-surface)';
+          el.style.borderColor = 'var(--border-default)';
           el.style.borderLeftColor = accent;
           el.style.transform = 'translateX(0)';
         }}
@@ -200,11 +200,11 @@ function RelationCard({ rel }: { rel: RelatedEntity }) {
           <Icon size={14} />
         </span>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12.5, color: '#f5f5f7', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12.5, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {rel.name}
           </p>
           {snippet && (
-            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
               {snippet}
             </p>
           )}
@@ -224,10 +224,10 @@ function RelationColumn({
     <section aria-label={title}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
         <span style={{ color: accent, display: 'flex' }}>{icon}</span>
-        <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: '#d1d1d6', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           {title}
         </h2>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252' }}>{rels.length}</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>{rels.length}</span>
       </div>
       {rels.length === 0 ? (
         <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 12, color: '#3a3a3a', fontStyle: 'italic', padding: '8px 0' }}>
@@ -316,9 +316,9 @@ export default function EntityProfilePage({ params }: PageProps) {
         <nav aria-label="Breadcrumb" style={{ marginBottom: 24 }}>
           <Link
             href="/entities"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: '#525252', textDecoration: 'none', transition: 'color 0.15s' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#a1a1a6'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#525252'; }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-dim)'; }}
           >
             <ChevronLeft size={13} aria-hidden="true" />
             Entity Directory
@@ -330,18 +330,18 @@ export default function EntityProfilePage({ params }: PageProps) {
         ) : notFound ? (
           /* 404 */
           <div style={{ textAlign: 'center', padding: '80px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 18, color: '#d1d1d6' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 18, color: 'var(--text-secondary)' }}>
               Entity not found in vault
             </p>
-            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#525252' }}>
-              <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#737373', background: '#1c1c1e', padding: '2px 6px', borderRadius: 4 }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-dim)' }}>
+              <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', background: 'var(--border-default)', padding: '2px 6px', borderRadius: 4 }}>
                 {slug}
               </code>{' '}
               does not exist.
             </p>
             <Link
               href="/entities"
-              style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: '#30d158', textDecoration: 'none', border: '1px solid rgba(48,209,88,0.25)', borderRadius: 7, padding: '8px 16px', background: 'rgba(48,209,88,0.06)' }}
+              style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-primary)', textDecoration: 'none', border: '1px solid var(--border-active)', borderRadius: 7, padding: '8px 16px', background: 'var(--bg-control)' }}
             >
               Back to directory
             </Link>
@@ -351,7 +351,7 @@ export default function EntityProfilePage({ params }: PageProps) {
           <div style={{ background: 'rgba(255,69,58,0.07)', border: '1px solid rgba(255,69,58,0.18)', borderRadius: 12, padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
             <div>
               <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: '#ff453a', marginBottom: 4 }}>Failed to load profile</p>
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: '#525252' }}>{error}</p>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)' }}>{error}</p>
             </div>
             <button
               onClick={loadProfile}
@@ -373,7 +373,7 @@ export default function EntityProfilePage({ params }: PageProps) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
-                  <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: '#ffffff', lineHeight: 1.25, wordBreak: 'break-word' }}>
+                  <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--text-primary)', lineHeight: 1.25, wordBreak: 'break-word' }}>
                     {displayName}
                   </h1>
                   <span
@@ -385,7 +385,7 @@ export default function EntityProfilePage({ params }: PageProps) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   {(profile?.path ?? listEntity?.path) && (
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#525252', background: '#141414', border: '1px solid #262626', borderRadius: 5, padding: '3px 8px', wordBreak: 'break-all' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: '#141414', border: '1px solid var(--border-hover)', borderRadius: 5, padding: '3px 8px', wordBreak: 'break-all' }}>
                       {profile?.path ?? listEntity?.path}
                     </span>
                   )}
@@ -406,7 +406,7 @@ export default function EntityProfilePage({ params }: PageProps) {
 
             {/* Lead summary */}
             {summary && (
-              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 15, color: '#d1d1d6', lineHeight: 1.65, marginBottom: 28, borderLeft: `2px solid ${meta.color}`, paddingLeft: 16 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 28, borderLeft: `2px solid ${meta.color}`, paddingLeft: 16 }}>
                 {summary}
               </p>
             )}
@@ -416,39 +416,39 @@ export default function EntityProfilePage({ params }: PageProps) {
               {/* Content */}
               <main style={{ minWidth: 0 }}>
                 {bodyMarkdown ? (
-                  <article style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#a1a1a6', lineHeight: 1.75 }}>
+                  <article style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-tertiary)', lineHeight: 1.75 }}>
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       rehypePlugins={[rehypeHighlight]}
                       components={{
-                        h1: ({ children }) => <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 16, color: '#ffffff', marginTop: 26, marginBottom: 10, lineHeight: 1.3 }}>{children}</h2>,
-                        h2: ({ children }) => <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: '#d1d1d6', marginTop: 24, marginBottom: 8, lineHeight: 1.3, borderBottom: '1px solid #1c1c1e', paddingBottom: 6 }}>{children}</h2>,
-                        h3: ({ children }) => <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: '#a1a1a6', marginTop: 18, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{children}</h3>,
+                        h1: ({ children }) => <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)', marginTop: 26, marginBottom: 10, lineHeight: 1.3 }}>{children}</h2>,
+                        h2: ({ children }) => <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: 'var(--text-secondary)', marginTop: 24, marginBottom: 8, lineHeight: 1.3, borderBottom: '1px solid var(--border-default)', paddingBottom: 6 }}>{children}</h2>,
+                        h3: ({ children }) => <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-tertiary)', marginTop: 18, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{children}</h3>,
                         p: ({ children }) => <p style={{ marginBottom: 14, lineHeight: 1.75 }}>{children}</p>,
                         ul: ({ children }) => <ul style={{ paddingLeft: 18, marginBottom: 14 }}>{children}</ul>,
                         ol: ({ children }) => <ol style={{ paddingLeft: 18, marginBottom: 14 }}>{children}</ol>,
                         li: ({ children }) => <li style={{ marginBottom: 5, lineHeight: 1.6 }}>{children}</li>,
-                        blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid #333333', paddingLeft: 14, margin: '14px 0', color: '#737373', fontStyle: 'italic' }}>{children}</blockquote>,
+                        blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid var(--border-default)', paddingLeft: 14, margin: '14px 0', color: 'var(--text-muted)', fontStyle: 'italic' }}>{children}</blockquote>,
                         code: ({ children, className }) => {
                           const isBlock = className?.includes('language-');
                           return isBlock
                             ? <code className={className} style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{children}</code>
-                            : <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#64d2ff', background: '#1c1c1e', borderRadius: 4, padding: '1px 5px' }}>{children}</code>;
+                            : <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#64d2ff', background: 'var(--border-default)', borderRadius: 4, padding: '1px 5px' }}>{children}</code>;
                         },
-                        pre: ({ children }) => <pre style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 8, padding: '14px 16px', overflow: 'auto', marginBottom: 14 }}>{children}</pre>,
+                        pre: ({ children }) => <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '14px 16px', overflow: 'auto', marginBottom: 14 }}>{children}</pre>,
                         table: ({ children }) => <div style={{ overflowX: 'auto', marginBottom: 14 }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>{children}</table></div>,
-                        th: ({ children }) => <th style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#525252', padding: '8px 12px', borderBottom: '1px solid #1c1c1e', textAlign: 'left' }}>{children}</th>,
-                        td: ({ children }) => <td style={{ padding: '8px 12px', borderBottom: '1px solid #111111', color: '#a1a1a6' }}>{children}</td>,
+                        th: ({ children }) => <th style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-dim)', padding: '8px 12px', borderBottom: '1px solid var(--border-default)', textAlign: 'left' }}>{children}</th>,
+                        td: ({ children }) => <td style={{ padding: '8px 12px', borderBottom: '1px solid var(--bg-control)', color: 'var(--text-tertiary)' }}>{children}</td>,
                         a: ({ children, href }) => <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: '#64d2ff', textDecoration: 'underline', textDecorationColor: 'rgba(100,210,255,0.3)' }}>{children}</a>,
-                        strong: ({ children }) => <strong style={{ fontWeight: 600, color: '#d1d1d6' }}>{children}</strong>,
-                        hr: () => <hr style={{ border: 'none', borderTop: '1px solid #1c1c1e', margin: '22px 0' }} />,
+                        strong: ({ children }) => <strong style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{children}</strong>,
+                        hr: () => <hr style={{ border: 'none', borderTop: '1px solid var(--border-default)', margin: '22px 0' }} />,
                       }}
                     >
                       {bodyMarkdown}
                     </ReactMarkdown>
                   </article>
                 ) : !summary ? (
-                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: '#525252', fontStyle: 'italic' }}>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-dim)', fontStyle: 'italic' }}>
                     No additional content available for this entity.
                   </p>
                 ) : null}
@@ -457,21 +457,21 @@ export default function EntityProfilePage({ params }: PageProps) {
               {/* Metadata table */}
               <aside>
                 {displayFields.length > 0 && (
-                  <div style={{ background: '#0a0a0a', border: '1px solid #1c1c1e', borderRadius: 12, padding: '16px 16px 4px', position: 'sticky', top: 20 }}>
-                    <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: '#525252', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
+                  <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '16px 16px 4px', position: 'sticky', top: 20 }}>
+                    <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
                       Metadata
                     </h2>
                     <dl style={{ margin: 0 }}>
                       {displayFields.map(([key, values]) => (
                         <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 14 }}>
-                          <dt style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10, color: '#525252', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          <dt style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                             {humanizeKey(key)}
                           </dt>
                           <dd style={{ margin: 0, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                             {values
                               .filter((v) => v && v.toLowerCase() !== 'unknown')
                               .map((v, idx) => (
-                                <span key={idx} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#a1a1a6', background: '#141414', border: '1px solid #1f1f1f', borderRadius: 5, padding: '3px 7px', wordBreak: 'break-word' }}>
+                                <span key={idx} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-tertiary)', background: '#141414', border: '1px solid #1f1f1f', borderRadius: 5, padding: '3px 7px', wordBreak: 'break-word' }}>
                                   {v}
                                 </span>
                               ))}
@@ -488,10 +488,10 @@ export default function EntityProfilePage({ params }: PageProps) {
             {(backlinks.length > 0 || outbound.length > 0) && (
               <div style={{ marginTop: 40 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: '#ffffff' }}>
+                  <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
                     Relationships
                   </h2>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#525252' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>
                     {backlinks.length + outbound.length} linked
                   </span>
                 </div>
