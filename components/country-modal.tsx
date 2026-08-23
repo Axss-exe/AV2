@@ -44,13 +44,14 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
             aria-hidden="true"
           />
 
-          {/* Modal */}
-          <motion.div
-            key="modal"
-            initial={{ opacity: 0, scale: 0.98, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          {/*
+            Centering wrapper: plain (non-motion) element so its `transform:
+            translate(-50%, -50%)` centering trick is never clobbered by
+            framer-motion, which manages `transform` itself for the enter/exit
+            animation on the inner motion.div (scale/y values compile to
+            `transform` too, and would otherwise overwrite the centering).
+          */}
+          <div
             style={{
               position: 'fixed',
               top: '50%',
@@ -59,19 +60,30 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
               width: '90vw',
               maxWidth: 720,
               maxHeight: '85vh',
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-default)',
-              borderRadius: 16,
               zIndex: 51,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
             }}
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${country.name} intelligence profile`}
           >
-            {/* Modal Header */}
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                width: '100%',
+                maxHeight: '85vh',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
+                borderRadius: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${country.name} intelligence profile`}
+            >
+              {/* Modal Header */}
             <div
               className="flex items-center justify-between flex-shrink-0"
               style={{
@@ -425,7 +437,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                 </div>
               )}
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
