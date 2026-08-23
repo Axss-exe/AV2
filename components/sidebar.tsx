@@ -130,14 +130,6 @@ export function Sidebar() {
       >
         <div className="flex items-center gap-2.5 min-w-0" style={{ color: 'var(--text-primary)' }}>
           <AtisSymbol size={28} />
-          <motion.div
-            animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
-            transition={{ duration: 0.18 }}
-            className="flex items-center overflow-hidden"
-            style={{ minWidth: 0 }}
-          >
-            <AtisWordmark height={26} />
-          </motion.div>
         </div>
         {!sidebarCollapsed && (
           <button
