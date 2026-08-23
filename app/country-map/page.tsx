@@ -129,7 +129,7 @@ export default function CountryMapPage() {
                   color: 'var(--text-muted)',
                 }}
               >
-                Intelligence profiles for {countries.length || 8} monitored African markets
+                Intelligence profiles for {countries.length || 19} monitored African markets
               </p>
             </div>
 
@@ -485,7 +485,7 @@ export default function CountryMapPage() {
               <div
                 className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
               >
-                {[...Array(7)].map((_, i) => (
+                {[...Array(19)].map((_, i) => (
                   <div
                     key={i}
                     style={{
