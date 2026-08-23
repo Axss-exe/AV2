@@ -1,9 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Article, Opportunity, QueryResult } from './types';
 import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
+import { DEFAULT_PERSPECTIVE, getCountryCode } from './perspective';
 
 interface ATISContextType {
   // Existing state
@@ -24,6 +25,10 @@ interface ATISContextType {
   removeQueryFromHistory: (query: string) => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  // Perspective context — the country the user is analysing FROM (not a filter)
+  perspectiveCountry: string;
+  perspectiveCountryCode: string;
+  setPerspectiveCountry: (name: string) => void;
   // News analysis state
   currentNewsArticle: NewsArticle | null;
   analysisLoading: boolean;
@@ -53,6 +58,33 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [currentQueryResult, setCurrentQueryResult] = useState<QueryResult | null>(null);
   const [queryHistory, setQueryHistory] = useState<QueryResult[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Perspective context (single source of truth). Defaults to Zimbabwe.
+  const [perspectiveCountry, setPerspectiveCountryState] = useState<string>(DEFAULT_PERSPECTIVE.name);
+  const [perspectiveCountryCode, setPerspectiveCountryCode] = useState<string>(DEFAULT_PERSPECTIVE.code);
+
+  // Restore the last-selected perspective from localStorage on mount.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('atis_perspective_country');
+      if (saved) {
+        setPerspectiveCountryState(saved);
+        setPerspectiveCountryCode(getCountryCode(saved) || DEFAULT_PERSPECTIVE.code);
+      }
+    } catch {
+      // localStorage unavailable — keep defaults
+    }
+  }, []);
+
+  const setPerspectiveCountry = useCallback((name: string) => {
+    setPerspectiveCountryState(name);
+    setPerspectiveCountryCode(getCountryCode(name));
+    try {
+      localStorage.setItem('atis_perspective_country', name);
+    } catch {
+      // ignore persistence failure
+    }
+  }, []);
 
   // News analysis
   const [currentNewsArticle, setCurrentNewsArticle] = useState<NewsArticle | null>(null);
@@ -103,7 +135,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         const res = await fetch('/api/news', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ article_text: article.article_text }),
+          body: JSON.stringify({
+            article_text: article.article_text,
+            perspective_country: perspectiveCountry,
+            perspective_country_code: perspectiveCountryCode,
+          }),
         });
 
         const json = await res.json();
@@ -140,7 +176,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setAnalysisLoading(false);
     }
-  }, []);
+  }, [perspectiveCountry, perspectiveCountryCode]);
 
   const clearAnalysis = useCallback(() => {
     setCurrentNewsArticle(null);
@@ -171,6 +207,9 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         removeQueryFromHistory,
         sidebarCollapsed,
         setSidebarCollapsed,
+        perspectiveCountry,
+        perspectiveCountryCode,
+        setPerspectiveCountry,
         currentNewsArticle,
         analysisLoading,
         analysisProgress,

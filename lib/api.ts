@@ -3,6 +3,8 @@
  * All requests go through this module so base URL is never scattered.
  */
 
+import type { PerspectiveContext } from './perspective';
+
 // Client-side requests go through the Next.js proxy routes (/api/*)
 // to avoid CORS issues. The proxy routes (lib/proxy.ts) forward to
 // the real backend server-side.
@@ -77,6 +79,9 @@ async function parseJSON<T>(res: Response): Promise<T> {
 
 export interface QueryRequest {
   question?: string;
+  // Analytical perspective context (added, does not change the question)
+  perspective_country?: string;
+  perspective_country_code?: string;
 }
 
 export interface KeyEntity {
@@ -115,6 +120,8 @@ export interface QueryAPIResponse {
   // legacy field name fallback
   statistics?: Record<string, string | number>;
   entity_graph?: EntityGraphData;
+  // Perspective echoed back by the backend (optional — backward compatible)
+  perspective?: PerspectiveContext;
 }
 
 export interface IntelligenceRow {
@@ -196,6 +203,9 @@ export async function queryAPI(body: QueryRequest): Promise<QueryAPIResponse> {
 
 export interface NewsRequest {
   article_text: string;
+  // Analytical perspective context (augments the article payload)
+  perspective_country?: string;
+  perspective_country_code?: string;
 }
 
 export interface NewsOpportunity {
@@ -235,6 +245,10 @@ export async function processNewsArticle(body: NewsRequest): Promise<NewsAPIResp
 export interface ExecuteRequest {
   dashboard_json: Record<string, unknown>;
   opportunity_id: string;
+  // Request-level perspective. Does NOT overwrite any perspective already
+  // present inside dashboard_json (the backend opportunity is authoritative).
+  perspective_country?: string;
+  perspective_country_code?: string;
 }
 
 export interface ExecuteAPIResponse {

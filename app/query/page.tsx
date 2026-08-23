@@ -108,7 +108,13 @@ function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<type
 }
 
 export default function QueryPage() {
-  const { currentQueryResult, setCurrentQueryResult, addQueryToHistory } = useATIS();
+  const {
+    currentQueryResult,
+    setCurrentQueryResult,
+    addQueryToHistory,
+    perspectiveCountry,
+    perspectiveCountryCode,
+  } = useATIS();
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasResult, setHasResult] = useState(!!currentQueryResult);
@@ -126,7 +132,11 @@ export default function QueryPage() {
     setApiError(null);
 
     try {
-      const res = await queryAPI({ question: query || undefined });
+      const res = await queryAPI({
+        question: query || undefined,
+        perspective_country: perspectiveCountry,
+        perspective_country_code: perspectiveCountryCode,
+      });
       const result = mapAPIResponseToQueryResult(query, res);
       setCurrentQueryResult(result);
       addQueryToHistory(result);

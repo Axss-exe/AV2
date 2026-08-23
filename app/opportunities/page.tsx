@@ -81,7 +81,13 @@ function SkeletonCard() {
 
 export default function OpportunitiesPage() {
   const router = useRouter();
-  const { currentDashboard, currentNewsArticle, clearAnalysis } = useATIS();
+  const {
+    currentDashboard,
+    currentNewsArticle,
+    clearAnalysis,
+    perspectiveCountry,
+    perspectiveCountryCode,
+  } = useATIS();
 
   // Saved opportunities from DB
   const [saved, setSaved] = useState<SavedRow[]>([]);
@@ -145,10 +151,18 @@ export default function OpportunitiesPage() {
       ? savedRow.dashboard_json
       : currentDashboard ?? {};
 
+    // The opportunity's own perspective (from the backend) is authoritative.
+    // Fall back to the user's currently selected perspective only if absent.
+    const oppPerspective = (dashboardJson as Record<string, unknown>)?.perspective_country as string | undefined;
+
     try {
       const res = await executeOpportunity({
         dashboard_json: dashboardJson,
         opportunity_id: opportunityId,
+        perspective_country: oppPerspective ?? perspectiveCountry,
+        perspective_country_code:
+          ((dashboardJson as Record<string, unknown>)?.perspective_country_code as string | undefined)
+          ?? perspectiveCountryCode,
       });
 
       // Auto-save roadmap and navigate to its dashboard
@@ -175,7 +189,7 @@ export default function OpportunitiesPage() {
       setExecuteError(msg);
       setExecutingId(null);
     }
-  }, [executingId, saved, currentDashboard, router]);
+  }, [executingId, saved, currentDashboard, router, perspectiveCountry, perspectiveCountryCode]);
 
   // ── View: no analysis and no saved items ──────────────────────────────────
   const showEmpty = !loadingSaved && saved.length === 0 && !currentDashboard;

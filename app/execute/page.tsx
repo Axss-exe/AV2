@@ -8,6 +8,7 @@ import { AppShell } from '@/components/app-shell';
 import { AnalystLoading } from '@/components/analyst-loading';
 import { executeOpportunity, APIError } from '@/lib/api';
 import type { ExecuteAPIResponse, LineageTrace } from '@/lib/api';
+import { useATIS } from '@/lib/context';
 
 // Predefined opportunity choices for the analyst
 const OPPORTUNITIES = [
@@ -209,6 +210,7 @@ function TraceRow({ trace, index }: { trace: LineageTrace; index: number }) {
 }
 
 export default function ExecutePage() {
+  const { perspectiveCountry, perspectiveCountryCode } = useATIS();
   const [selectedOpportunity, setSelectedOpportunity] = useState<typeof OPPORTUNITIES[0] | null>(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<ExecuteAPIResponse | null>(null);
@@ -231,6 +233,9 @@ export default function ExecutePage() {
           markets: selectedOpportunity.markets,
         },
         opportunity_id: selectedOpportunity.id,
+        // Request-level perspective (dashboard_json is left untouched)
+        perspective_country: perspectiveCountry,
+        perspective_country_code: perspectiveCountryCode,
       });
       setResult(res);
 
