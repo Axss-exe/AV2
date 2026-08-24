@@ -89,6 +89,55 @@ export interface KeyEntity {
   source_node?: string;
 }
 
+/** A finding or risk string with the entity ids that support it. */
+export interface CitedStatement {
+  text: string;
+  sourceNodes: string[];
+}
+
+/** Real structured opportunity object from `opportunities_cited`. */
+export interface OpportunityCited {
+  opportunityId?: string;
+  title?: string;
+  type?: string;
+  perspectiveCountry?: string;
+  perspectiveCountryCode?: string;
+  sourceCountry?: string;
+  eventCountry?: string;
+  opportunityCountry?: string;
+  crossBorder?: boolean;
+  crossBorderCountries?: string[];
+  perspectiveActor?: string;
+  perspectiveCapability?: string;
+  pathway?: string;
+  urgencyScore?: number;
+  feasibilityScore?: number;
+  requiredMissingNodes?: string[];
+  capitalFlow?: {
+    beneficiary?: string;
+    likelyFunder?: string;
+  };
+  justification?: string;
+  sourceNodes: string[];
+  status?: string;
+}
+
+export interface QueryIntent {
+  type?: string;
+  entities: string[];
+  entityTypes: string[];
+  countries: string[];
+  sectors: string[];
+  perspectiveCountry?: string;
+  perspectiveCountryCode?: string;
+}
+
+export interface FilterStats {
+  vaultTotal?: number;
+  candidatesAfterBroadFilter?: number;
+  rankedByLlm?: number;
+}
+
 export interface QueryResult {
   query: string;
   summary: string;
@@ -106,6 +155,17 @@ export interface QueryResult {
   opportunities: string[];
   riskFactors: string[];
   keyEntities: KeyEntity[];
+  // Additive real-data fields (optional so existing consumers, e.g.
+  // app/history/page.tsx, keep working untouched).
+  findingsCited?: CitedStatement[];
+  opportunitiesCited?: OpportunityCited[];
+  risksCited?: CitedStatement[];
+  perspective?: { country?: string; countryCode?: string };
+  intent?: QueryIntent;
+  filterStats?: FilterStats;
+  cached?: boolean;
+  elapsedSeconds?: number;
+  entityGraphRaw?: unknown;
 }
 
 export interface GraphNode {

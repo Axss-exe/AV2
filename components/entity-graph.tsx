@@ -13,6 +13,8 @@ interface EntityGraphProps {
   nodes: GraphNode[];
   edges: GraphEdge[];
   title?: string;
+  /** Optional — when provided, nodes become clickable and pass their label. */
+  onNodeClick?: (label: string) => void;
 }
 
 const NODE_W_HUB = 140;
@@ -27,7 +29,7 @@ const nodeColors: Record<GraphNode['type'], { fill: string; stroke: string; text
   risk: { fill: 'var(--bg-primary)', stroke: '#ff453a', text: '#ff453a' },
 };
 
-export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: EntityGraphProps) {
+export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title, onNodeClick }: EntityGraphProps) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -146,7 +148,17 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title }: Entit
             return (
               <g
                 key={node.id}
+                role={onNodeClick ? 'button' : undefined}
+                tabIndex={onNodeClick ? 0 : undefined}
+                aria-label={onNodeClick ? `View entity ${node.label}` : undefined}
                 style={{ cursor: 'pointer' }}
+                onClick={() => onNodeClick?.(node.label)}
+                onKeyDown={(e) => {
+                  if (onNodeClick && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onNodeClick(node.label);
+                  }
+                }}
                 onMouseEnter={(e) => {
                   const rect = (e.currentTarget as SVGGElement).querySelector('rect');
                   if (rect) rect.style.filter = 'brightness(1.4)';

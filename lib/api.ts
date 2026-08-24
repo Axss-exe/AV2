@@ -108,6 +108,63 @@ export interface QueryStats {
   validated?: string | number;
 }
 
+/** A finding or risk string with the entity ids that support it. */
+export interface CitedStatement {
+  text?: string;
+  source_nodes?: string[];
+}
+
+/** Real structured opportunity object (do NOT use the legacy `opportunities: string[]`
+ *  field — those are stringified Python dicts, a backend bug). */
+export interface OpportunityCited {
+  opportunity_id?: string;
+  title?: string;
+  type?: string;
+  perspective_country?: string;
+  perspective_country_code?: string;
+  source_country?: string;
+  event_country?: string;
+  opportunity_country?: string;
+  cross_border?: boolean;
+  cross_border_countries?: string[];
+  perspective_actor?: string;
+  perspective_capability?: string;
+  pathway?: string;
+  urgency_score?: number;
+  feasibility_score?: number;
+  required_missing_nodes?: string[];
+  capital_flow?: {
+    beneficiary?: string;
+    likely_funder?: string;
+  };
+  justification?: string;
+  source_nodes?: string[];
+  status?: string;
+}
+
+export interface SourceNode {
+  id?: string;
+  type?: string;
+}
+
+/** Backend's own query classification — authoritative signal for query type. */
+export interface QueryIntent {
+  type?: string;
+  entities?: string[];
+  entity_types?: string[];
+  countries?: string[];
+  sectors?: string[];
+  perspective_country?: string;
+  perspective_country_code?: string;
+}
+
+/** How much of the vault was searched to produce this response. */
+export interface FilterStats {
+  vault_total?: number;
+  candidates_after_broad_filter?: number;
+  ranked_by_llm?: number;
+}
+
 export interface QueryAPIResponse {
   executive_summary?: string;
   summary?: string;
@@ -122,6 +179,13 @@ export interface QueryAPIResponse {
   entity_graph?: EntityGraphData;
   // Perspective echoed back by the backend (optional — backward compatible)
   perspective?: PerspectiveContext;
+  // Real cited/structured fields (additive — see audit notes in the plan)
+  findings_cited?: CitedStatement[];
+  opportunities_cited?: OpportunityCited[];
+  risks_cited?: CitedStatement[];
+  source_nodes?: SourceNode[];
+  intent?: QueryIntent;
+  filter_stats?: FilterStats;
 }
 
 export interface IntelligenceRow {
@@ -185,16 +249,28 @@ interface QueryEnvelope {
   entity_graph?: EntityGraphData;
 }
 
-export async function queryAPI(body: QueryRequest): Promise<QueryAPIResponse> {
+/** Same fields as QueryAPIResponse, plus the envelope-level metadata that
+ *  queryAPI() used to discard (cached / elapsed_seconds). Additive: every
+ *  existing consumer that destructures the QueryAPIResponse fields still
+ *  works, since this type extends it. */
+export interface QueryAPIResult extends QueryAPIResponse {
+  cached?: boolean;
+  elapsed_seconds?: number;
+}
+
+export async function queryAPI(body: QueryRequest): Promise<QueryAPIResult> {
   const res = await fetchWithTimeout(`${API_BASE}/api/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
   const json = await parseJSON<QueryEnvelope>(res);
-  // Unwrap { status, data: {...} } envelope if present
-  if (json.data && typeof json.data === 'object') return json.data;
-  return json as QueryAPIResponse;
+  // Unwrap { status, data: {...} } envelope if present, but keep the
+  // envelope-level cached/elapsed_seconds metadata alongside it.
+  if (json.data && typeof json.data === 'object') {
+    return { ...json.data, cached: json.cached, elapsed_seconds: json.elapsed_seconds };
+  }
+  return json as QueryAPIResult;
 }
 
 // ---------------------------------------------------------------------------

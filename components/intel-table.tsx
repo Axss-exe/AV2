@@ -8,9 +8,11 @@ const statusStyles: Record<string, { color: string; border: string }> = {
 
 interface IntelTableProps {
   rows: IntelTableRow[];
+  /** Optional — when provided, rows become clickable and pass their source name. */
+  onRowClick?: (source: string) => void;
 }
 
-export function IntelTable({ rows: rowsProp }: IntelTableProps) {
+export function IntelTable({ rows: rowsProp, onRowClick }: IntelTableProps) {
   const rows = Array.isArray(rowsProp) ? rowsProp : [];
   return (
     <div
@@ -84,9 +86,19 @@ export function IntelTable({ rows: rowsProp }: IntelTableProps) {
               return (
                 <tr
                   key={i}
+                  role={onRowClick ? 'button' : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
                   style={{
                     borderBottom: i < rows.length - 1 ? '1px solid var(--border-default)' : 'none',
                     transition: 'background 0.15s',
+                    cursor: onRowClick ? 'pointer' : 'default',
+                  }}
+                  onClick={() => onRowClick?.(row.source)}
+                  onKeyDown={(e) => {
+                    if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onRowClick(row.source);
+                    }
                   }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-control)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}
