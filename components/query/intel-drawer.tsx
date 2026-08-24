@@ -264,6 +264,20 @@ function DetailRow({ label, value, inline }: { label: string; value: string; inl
   );
 }
 
+/** Some vault entries have an empty frontmatter summary, so the API backfills
+ *  it with a raw "## Core Information **Type:** ..." markdown block instead
+ *  of prose. Strip markdown/wikilink syntax so the drawer never renders
+ *  raw syntax characters (matches the sanitization already used for
+ *  relation snippets on the entity profile page). */
+function cleanSummary(raw: string): string {
+  return raw
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+    .replace(/\*\*/g, '')
+    .replace(/\n+/g, ' · ')
+    .trim();
+}
+
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -412,7 +426,7 @@ function EntityView({ name, onPush }: { name: string; onPush: (v: DrawerView) =>
 
       {profile.summary && (
         <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>
-          {profile.summary}
+          {cleanSummary(profile.summary)}
         </p>
       )}
 
