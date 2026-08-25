@@ -12,6 +12,7 @@ import {
   Zap,
   TrendingUp,
   Rss,
+  GitBranch,
   PanelLeftClose,
   PanelLeftOpen,
   X,
@@ -22,6 +23,7 @@ import { AtisSymbol, AtisWordmark } from '@/components/brand';
 export const navItems = [
   { label: 'Home',         href: '/atis-dashboard', icon: Home },
   { label: 'Query',        href: '/query',        icon: Search },
+  { label: 'Investigations', href: '/investigations', icon: GitBranch },
   { label: 'History',      href: '/history',      icon: Clock },
   { label: 'Entities',     href: '/entities',     icon: Network },
   { label: 'News',         href: '/news',         icon: Rss },

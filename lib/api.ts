@@ -4,6 +4,8 @@
  */
 
 import type { PerspectiveContext } from './perspective';
+import type { QueryResult } from './types';
+import type { Investigation, InvestigationSummary, InvestigationReport } from './investigation-types';
 
 // Client-side requests go through the Next.js proxy routes (/api/*)
 // to avoid CORS issues. The proxy routes (lib/proxy.ts) forward to
@@ -493,4 +495,66 @@ export interface EntityAPIItem {
   relationships?: { entity: string; type: string }[];
   summary?: string;
   connected_entities?: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Investigations — Next.js/Neon-backed (no matching backend endpoint exists;
+// each query within an investigation still goes through the real /api/query
+// pipeline via queryAPI() + mapAPIResponseToQueryResult()).
+// ---------------------------------------------------------------------------
+
+export async function createInvestigation(body: {
+  question: string;
+  result: QueryResult;
+  perspectiveCountry?: string;
+  perspectiveCountryCode?: string;
+}): Promise<{ id: number }> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/investigations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await parseJSON<{ status: string; id: number }>(res);
+  return { id: json.id };
+}
+
+export async function fetchInvestigations(): Promise<InvestigationSummary[]> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/investigations`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const json = await parseJSON<{ status: string; data: InvestigationSummary[] }>(res);
+  return json.data;
+}
+
+export async function fetchInvestigation(id: number): Promise<Investigation> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/investigations/${id}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const json = await parseJSON<{ status: string; data: Investigation }>(res);
+  return json.data;
+}
+
+export async function addInvestigationQuery(
+  id: number,
+  body: { question: string; result: QueryResult }
+): Promise<Investigation> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/investigations/${id}/queries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await parseJSON<{ status: string; data: Investigation }>(res);
+  return json.data;
+}
+
+export async function generateInvestigationReport(id: number): Promise<InvestigationReport> {
+  const res = await fetchWithTimeout(
+    `${API_BASE}/api/investigations/${id}/report`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' } },
+    120_000
+  );
+  const json = await parseJSON<{ status: string; data: InvestigationReport }>(res);
+  return json.data;
 }

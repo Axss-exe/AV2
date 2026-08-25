@@ -16,9 +16,9 @@ import { RelatedNewsPanel } from '@/components/query/related-news-panel';
 import { RisksPanel } from '@/components/query/risks-panel';
 import { IntelDrawer, type DrawerView } from '@/components/query/intel-drawer';
 import { useATIS } from '@/lib/context';
-import { queryAPI, APIError } from '@/lib/api';
+import { queryAPI, APIError, createInvestigation } from '@/lib/api';
+import { mapAPIResponseToQueryResult } from '@/lib/query-mapping';
 import { buildIntelligenceViewModel } from '@/lib/intelligence-view-model';
-import type { QueryResult, IntelTableRow, GraphNode, GraphEdge, KeyEntity } from '@/lib/types';
 
 const SUGGESTIONS = [
   'What are the opportunities in Zimbabwe?',
@@ -27,162 +27,6 @@ const SUGGESTIONS = [
   'Cross-border logistics opportunities',
   'Zimbabwe mining sector intelligence',
 ];
-
-// Map backend API response to the existing QueryResult type.
-// The backend returns { status, elapsed_seconds, data: { ... } } — the
-// queryAPI() function in lib/api.ts already unwraps this so `res` is the
-// flat `data` object here.
-function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<typeof queryAPI>>): QueryResult {
-  // Derive stats from res.stats (real) or res.statistics (legacy fallback)
-  const s = res.stats ?? {};
-  const leg = res.statistics ?? {};
-  const stats = {
-    traces:    typeof s.traces === 'number'    ? s.traces    : typeof leg.traces === 'number'    ? leg.traces    : 0,
-    nodes:     typeof s.total_entities === 'number' ? s.total_entities : typeof leg.nodes === 'number' ? leg.nodes : 0,
-    concepts:  typeof s.commodities_tracked === 'number' ? s.commodities_tracked : typeof leg.concepts === 'number' ? leg.concepts : 0,
-    entities:  typeof s.total_entities === 'number' ? s.total_entities : typeof leg.entities === 'number' ? leg.entities : 0,
-    validated: typeof s.validated === 'string'   ? s.validated
-             : typeof s.validated === 'number'   ? `${s.validated}%`
-             : typeof leg.validated === 'string' ? leg.validated
-             : typeof leg.validated === 'number' ? `${leg.validated}%`
-             : '—',
-  };
-
-  // Map structured intelligence rows (real fields: entity, type, relationship, status, priority, insight, source_node)
-  const intelRows = Array.isArray(res.structured_intelligence) ? res.structured_intelligence : [];
-  const tableRows: IntelTableRow[] = intelRows.map((row) => {
-    // Normalise status: backend sends e.g. "Operational", map to badge values
-    const rawStatus = row.status ?? '';
-    const status: IntelTableRow['status'] =
-      rawStatus === 'Validated' ? 'Validated'
-      : rawStatus === 'Gap' ? 'Gap'
-      : 'External';
-    return {
-      source:       row.entity ?? row.source ?? 'Unknown',
-      relationship: row.relationship ?? row.type ?? '',
-      confidence:   row.priority ?? row.confidence ?? '—',
-      status,
-      last_updated: row.insight ?? row.last_updated ?? row.source_node ?? '',
-    };
-  });
-
-  // Map entity graph nodes — use x/y from backend if provided, otherwise distribute
-  const graphNodeData = Array.isArray(res.entity_graph?.nodes) ? res.entity_graph!.nodes : [];
-  const FALLBACK_X = [280, 50, 520, 50, 520, 280, 160, 420];
-  const FALLBACK_Y = [114, 50, 50, 180, 180, 10,  230, 230];
-  const graphNodes: GraphNode[] = graphNodeData.map((n, i) => ({
-    id:    n.id    ?? `n${i}`,
-    label: n.label ?? n.id ?? `Node ${i}`,
-    type:  (['hub', 'entity', 'risk', 'partner'].includes(n.type ?? '') ? n.type : 'entity') as GraphNode['type'],
-    x:     typeof n.x === 'number' ? n.x : FALLBACK_X[i % FALLBACK_X.length],
-    y:     typeof n.y === 'number' ? n.y : FALLBACK_Y[i % FALLBACK_Y.length],
-  }));
-
-  // Map entity graph edges
-  const graphEdgeData = Array.isArray(res.entity_graph?.edges) ? res.entity_graph!.edges : [];
-  const graphEdges: GraphEdge[] = graphEdgeData.map((e) => ({
-    from:  e.from ?? e.source ?? '',
-    to:    e.to   ?? e.target ?? '',
-    label: e.label ?? '',
-  }));
-
-  // Map key_entities (new field in real response)
-  const keyEntities: KeyEntity[] = Array.isArray(res.key_entities)
-    ? res.key_entities.map((ke) => ({
-        entity_name:       ke.entity_name ?? 'Unknown',
-        entity_type:       ke.entity_type,
-        country:           ke.country,
-        sector:            ke.sector,
-        significance_score: ke.significance_score,
-        related_count:     ke.related_count,
-        summary:           ke.summary,
-        source_node:       ke.source_node,
-      }))
-    : [];
-
-  // Real cited fields — see lib/intelligence-view-model.ts for how these are
-  // consumed. Additive; camelCase mirrors the rest of QueryResult.
-  const findingsCited = Array.isArray(res.findings_cited)
-    ? res.findings_cited
-        .filter((f) => typeof f.text === 'string')
-        .map((f) => ({ text: f.text as string, sourceNodes: Array.isArray(f.source_nodes) ? f.source_nodes : [] }))
-    : undefined;
-
-  const risksCited = Array.isArray(res.risks_cited)
-    ? res.risks_cited
-        .filter((r) => typeof r.text === 'string')
-        .map((r) => ({ text: r.text as string, sourceNodes: Array.isArray(r.source_nodes) ? r.source_nodes : [] }))
-    : undefined;
-
-  const opportunitiesCited = Array.isArray(res.opportunities_cited)
-    ? res.opportunities_cited.map((o) => ({
-        opportunityId: o.opportunity_id,
-        title: o.title,
-        type: o.type,
-        perspectiveCountry: o.perspective_country,
-        perspectiveCountryCode: o.perspective_country_code,
-        sourceCountry: o.source_country,
-        eventCountry: o.event_country,
-        opportunityCountry: o.opportunity_country,
-        crossBorder: o.cross_border,
-        crossBorderCountries: o.cross_border_countries,
-        perspectiveActor: o.perspective_actor,
-        perspectiveCapability: o.perspective_capability,
-        pathway: o.pathway,
-        urgencyScore: o.urgency_score,
-        feasibilityScore: o.feasibility_score,
-        requiredMissingNodes: o.required_missing_nodes,
-        capitalFlow: o.capital_flow
-          ? { beneficiary: o.capital_flow.beneficiary, likelyFunder: o.capital_flow.likely_funder }
-          : undefined,
-        justification: o.justification,
-        sourceNodes: Array.isArray(o.source_nodes) ? o.source_nodes : [],
-        status: o.status,
-      }))
-    : undefined;
-
-  const intent = res.intent
-    ? {
-        type: res.intent.type,
-        entities: res.intent.entities ?? [],
-        entityTypes: res.intent.entity_types ?? [],
-        countries: res.intent.countries ?? [],
-        sectors: res.intent.sectors ?? [],
-        perspectiveCountry: res.intent.perspective_country,
-        perspectiveCountryCode: res.intent.perspective_country_code,
-      }
-    : undefined;
-
-  const filterStats = res.filter_stats
-    ? {
-        vaultTotal: res.filter_stats.vault_total,
-        candidatesAfterBroadFilter: res.filter_stats.candidates_after_broad_filter,
-        rankedByLlm: res.filter_stats.ranked_by_llm,
-      }
-    : undefined;
-
-  return {
-    query,
-    summary:      res.executive_summary ?? res.summary ?? 'Intelligence analysis complete.',
-    stats,
-    graphNodes,
-    graphEdges,
-    tableRows,
-    findings:     Array.isArray(res.findings)     ? res.findings     : [],
-    opportunities: Array.isArray(res.opportunities) ? res.opportunities : [],
-    riskFactors:  Array.isArray(res.risks)        ? res.risks        : [],
-    keyEntities,
-    findingsCited,
-    opportunitiesCited,
-    risksCited,
-    perspective: res.perspective ? { country: res.perspective.country, countryCode: res.perspective.country_code } : undefined,
-    intent,
-    filterStats,
-    cached: res.cached,
-    elapsedSeconds: res.elapsed_seconds,
-    entityGraphRaw: res.entity_graph,
-  };
-}
 
 export default function QueryPage() {
   const router = useRouter();
@@ -198,6 +42,8 @@ export default function QueryPage() {
   const [hasResult, setHasResult] = useState(!!currentQueryResult);
   const [apiError, setApiError] = useState<string | null>(null);
   const [drawerStack, setDrawerStack] = useState<DrawerView[]>([]);
+  const [startingInvestigation, setStartingInvestigation] = useState(false);
+  const [investigationError, setInvestigationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const pushDrawer = (view: DrawerView) => setDrawerStack((prev) => [...prev, view]);
@@ -233,6 +79,27 @@ export default function QueryPage() {
       setApiError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStartInvestigation = async () => {
+    if (!currentQueryResult || startingInvestigation) return;
+    setStartingInvestigation(true);
+    setInvestigationError(null);
+    try {
+      const { id } = await createInvestigation({
+        question: currentQueryResult.query,
+        result: currentQueryResult,
+        perspectiveCountry,
+        perspectiveCountryCode,
+      });
+      router.push(`/investigations/${id}`);
+    } catch (err: unknown) {
+      setInvestigationError(
+        err instanceof APIError ? err.message : 'Failed to start the investigation. Please try again.'
+      );
+    } finally {
+      setStartingInvestigation(false);
     }
   };
 
@@ -560,6 +427,63 @@ export default function QueryPage() {
                         />
                       </div>
                     </motion.div>
+
+                    {!vm.research.isResearchRequired && (
+                      <motion.div custom={5} initial="hidden" animate="visible" variants={cardVariants}>
+                        <div
+                          className="flex items-center justify-between gap-4 flex-wrap"
+                          style={{
+                            border: '1px solid var(--border-default)',
+                            borderRadius: 10,
+                            padding: '16px 20px',
+                          }}
+                        >
+                          <div>
+                            <div
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontWeight: 500,
+                                fontSize: 10,
+                                color: 'var(--text-dim)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.12em',
+                                marginBottom: 4,
+                              }}
+                            >
+                              This question may lead somewhere
+                            </div>
+                            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 13, color: 'var(--text-tertiary)' }}>
+                              Track this line of inquiry across follow-up queries and synthesize a knowledge report.
+                            </p>
+                          </div>
+                          <button
+                            onClick={handleStartInvestigation}
+                            disabled={startingInvestigation}
+                            style={{
+                              fontFamily: 'var(--font-sans)',
+                              fontWeight: 500,
+                              fontSize: 12,
+                              color: 'var(--bg-primary)',
+                              background: 'var(--text-primary)',
+                              border: 'none',
+                              borderRadius: 8,
+                              padding: '10px 18px',
+                              cursor: startingInvestigation ? 'not-allowed' : 'pointer',
+                              opacity: startingInvestigation ? 0.6 : 1,
+                              whiteSpace: 'nowrap',
+                              minHeight: 40,
+                            }}
+                          >
+                            {startingInvestigation ? 'Starting…' : 'Start Investigation'}
+                          </button>
+                        </div>
+                        {investigationError && (
+                          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 12, color: '#ff453a', marginTop: 8 }} role="alert">
+                            {investigationError}
+                          </p>
+                        )}
+                      </motion.div>
+                    )}
                   </div>
                 );
               })()}
