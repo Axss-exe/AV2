@@ -247,7 +247,7 @@ export default function OpportunitiesPage() {
           <div className="flex flex-wrap items-start justify-between gap-4" style={{ marginBottom: 28 }}>
             <div>
               <div className="flex items-center gap-3" style={{ marginBottom: 6 }}>
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
+                <Link href="/atis-dashboard" style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-dim)'; }}>
                   <ChevronLeft size={12} aria-hidden="true" /> Home

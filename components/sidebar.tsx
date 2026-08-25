@@ -20,7 +20,7 @@ import { useATIS } from '@/lib/context';
 import { AtisSymbol, AtisWordmark } from '@/components/brand';
 
 export const navItems = [
-  { label: 'Home',         href: '/',            icon: Home },
+  { label: 'Home',         href: '/atis-dashboard', icon: Home },
   { label: 'Query',        href: '/query',        icon: Search },
   { label: 'History',      href: '/history',      icon: Clock },
   { label: 'Entities',     href: '/entities',     icon: Network },
@@ -160,7 +160,7 @@ export function Sidebar() {
 
       <nav className="flex-1 flex flex-col gap-1" style={{ padding: '8px 10px' }} role="navigation">
         {navItems.map(({ label, href, icon }) => {
-          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+          const isActive = pathname.startsWith(href);
           return (
             <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={sidebarCollapsed} />
           );
@@ -234,7 +234,7 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
             {/* Nav */}
             <nav className="flex-1 flex flex-col gap-1 overflow-y-auto" style={{ padding: '10px 10px' }}>
               {navItems.map(({ label, href, icon }) => {
-                const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+                const isActive = pathname.startsWith(href);
                 return (
                   <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={false} onClick={onClose} />
                 );

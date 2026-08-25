@@ -74,7 +74,7 @@ export function AppShell({ children }: AppShellProps) {
         aria-label="Mobile navigation"
       >
         {BOTTOM_NAV.map(({ href, label, icon: Icon }) => {
-          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+          const isActive = pathname.startsWith(href);
           return (
             <Link
               key={href}
