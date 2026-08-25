@@ -55,9 +55,15 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title, onNodeC
   const dragState = useRef<{ id: string; sx: number; sy: number } | null>(null);
   const panState = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
 
-  // Defensive guards — never call .map() on undefined
-  const nodes = Array.isArray(nodesProp) ? nodesProp : [];
-  const edges = Array.isArray(edgesProp) ? edgesProp : [];
+  // Defensive guards — never call .map() on undefined, and strip out any
+  // null/malformed entries (e.g. a graph API response with holes) before
+  // touching .id/.from/.to on them.
+  const nodes = (Array.isArray(nodesProp) ? nodesProp : []).filter(
+    (n): n is GraphNode => !!n && typeof n.id === 'string' && n.id.length > 0
+  );
+  const edges = (Array.isArray(edgesProp) ? edgesProp : []).filter(
+    (e): e is GraphEdge => !!e && typeof e.from === 'string' && typeof e.to === 'string'
+  );
 
   const connectionSet = useMemo(() => {
     const map = new Map<string, Set<string>>();

@@ -543,12 +543,14 @@ export default function QueryPage() {
                       </div>
                       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
                         <EntityGraph
-                          nodes={currentQueryResult.graphNodes ?? []}
-                          edges={(currentQueryResult.graphEdges ?? []).map((e) => ({
-                            from: e.from,
-                            to: e.to,
-                            label: e.label ?? '',
-                          }))}
+                          nodes={(currentQueryResult.graphNodes ?? []).filter(Boolean)}
+                          edges={(currentQueryResult.graphEdges ?? [])
+                            .filter((e): e is NonNullable<typeof e> => !!e)
+                            .map((e) => ({
+                              from: e.from,
+                              to: e.to,
+                              label: e.label ?? '',
+                            }))}
                           title="Entity Network"
                           onNodeClick={(name) => pushDrawer({ type: 'entity', name })}
                         />
