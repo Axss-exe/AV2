@@ -21,15 +21,15 @@ function formatDate(iso: string): string {
 function getGradientStyle(heroImage: string, categoryCountry: string): string {
   // Each country gets a unique direction/hue shift
   const gradients: Record<string, string> = {
-    Kenya: 'linear-gradient(145deg, #0f1f0f 0%, #1a2e1a 50%, #0a0a0a 100%)',
-    Tanzania: 'linear-gradient(135deg, #0a0f1e 0%, #111a2c 50%, #0a0a0a 100%)',
-    Nigeria: 'linear-gradient(150deg, #1e1500 0%, #2c2000 50%, #0a0a0a 100%)',
-    Ghana: 'linear-gradient(125deg, #1a0e00 0%, #261400 50%, #0a0a0a 100%)',
-    Ethiopia: 'linear-gradient(160deg, #0a0a14 0%, #111122 50%, #0a0a0a 100%)',
-    Rwanda: 'linear-gradient(140deg, #0f0a1e 0%, #1a1130 50%, #0a0a0a 100%)',
-    Uganda: 'linear-gradient(130deg, #1e0a00 0%, #2c1000 50%, #0a0a0a 100%)',
+    Kenya: 'linear-gradient(145deg, #0f1f0f 0%, #1a2e1a 50%, var(--bg-surface) 100%)',
+    Tanzania: 'linear-gradient(135deg, #0a0f1e 0%, #111a2c 50%, var(--bg-surface) 100%)',
+    Nigeria: 'linear-gradient(150deg, #1e1500 0%, #2c2000 50%, var(--bg-surface) 100%)',
+    Ghana: 'linear-gradient(125deg, #1a0e00 0%, #261400 50%, var(--bg-surface) 100%)',
+    Ethiopia: 'linear-gradient(160deg, #0a0a14 0%, #111122 50%, var(--bg-surface) 100%)',
+    Rwanda: 'linear-gradient(140deg, #0f0a1e 0%, #1a1130 50%, var(--bg-surface) 100%)',
+    Uganda: 'linear-gradient(130deg, #1e0a00 0%, #2c1000 50%, var(--bg-surface) 100%)',
   };
-  return gradients[categoryCountry] ?? heroImage ?? 'linear-gradient(135deg, #1c1c1e 0%, #0a0a0a 100%)';
+  return gradients[categoryCountry] ?? heroImage ?? 'linear-gradient(135deg, var(--border-default) 0%, var(--bg-surface) 100%)';
 }
 
 export function ArticleCard({ article, index, onClick }: ArticleCardProps) {
@@ -43,19 +43,19 @@ export function ArticleCard({ article, index, onClick }: ArticleCardProps) {
       transition={{ duration: 0.35, delay: index * 0.05, ease: [0.4, 0, 0.2, 1] }}
       onClick={onClick}
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 14,
         overflow: 'hidden',
         cursor: 'pointer',
         transition: 'border-color 0.2s, transform 0.2s',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = '#333333';
+        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)';
         (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = '#1c1c1e';
+        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)';
         (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
       }}
     >
@@ -91,8 +91,8 @@ export function ArticleCard({ article, index, onClick }: ArticleCardProps) {
               fontSize: 10,
               textTransform: 'uppercase' as const,
               letterSpacing: '0.06em',
-              color: '#a1a1a6',
-              background: '#1c1c1e',
+              color: 'var(--text-tertiary)',
+              background: 'var(--border-default)',
               borderRadius: 4,
               padding: '2px 8px',
             }}
@@ -107,7 +107,7 @@ export function ArticleCard({ article, index, onClick }: ArticleCardProps) {
               textTransform: 'uppercase' as const,
               letterSpacing: '0.06em',
               color: '#ff9f0a',
-              background: '#1c1c1e',
+              background: 'var(--border-default)',
               borderRadius: 4,
               padding: '2px 8px',
             }}
@@ -122,7 +122,7 @@ export function ArticleCard({ article, index, onClick }: ArticleCardProps) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             fontSize: 13,
-            color: '#ffffff',
+            color: 'var(--text-primary)',
             lineHeight: 1.4,
             marginBottom: 8,
             display: '-webkit-box',
@@ -140,7 +140,7 @@ export function ArticleCard({ article, index, onClick }: ArticleCardProps) {
             fontFamily: 'var(--font-sans)',
             fontWeight: 300,
             fontSize: 11,
-            color: '#737373',
+            color: 'var(--text-muted)',
           }}
         >
           {formatDate(article.published_at)}

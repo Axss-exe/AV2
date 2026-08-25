@@ -83,8 +83,8 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             style={{
-              background: '#0a0a0a',
-              border: '1px solid #1c1c1e',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
               borderRadius: 16,
               padding: 48,
               maxWidth: 480,
@@ -98,7 +98,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 600,
                   fontSize: 11,
-                  color: '#525252',
+                  color: 'var(--text-dim)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   marginBottom: 8,
@@ -111,7 +111,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                   fontFamily: 'var(--font-display)',
                   fontWeight: 700,
                   fontSize: 18,
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                 }}
               >
                 Analyst Breakdown
@@ -129,8 +129,8 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                     <div className="relative flex-shrink-0" style={{ width: 20, height: 20 }}>
                       <motion.div
                         animate={{
-                          background: isDone ? '#ffffff' : isActive ? '#ffffff' : '#1c1c1e',
-                          borderColor: isDone ? '#ffffff' : isActive ? '#ffffff' : '#333333',
+                          background: isDone ? 'var(--text-primary)' : isActive ? 'var(--text-primary)' : 'var(--border-default)',
+                          borderColor: isDone ? 'var(--text-primary)' : isActive ? 'var(--text-primary)' : 'var(--border-default)',
                         }}
                         transition={{ duration: 0.3 }}
                         style={{
@@ -149,13 +149,13 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                             animate={{ scale: 1 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                           >
-                            <Check size={10} color="#000000" strokeWidth={3} aria-hidden="true" />
+                            <Check size={10} color="var(--bg-primary)" strokeWidth={3} aria-hidden="true" />
                           </motion.div>
                         ) : isActive ? (
                           <motion.div
                             animate={{ opacity: [1, 0.3, 1] }}
                             transition={{ duration: 1.2, repeat: Infinity }}
-                            style={{ width: 6, height: 6, borderRadius: '50%', background: '#000000' }}
+                            style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--bg-primary)' }}
                           />
                         ) : null}
                       </motion.div>
@@ -164,7 +164,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                     {/* Step text */}
                     <div>
                       <motion.div
-                        animate={{ color: isDone || isActive ? '#ffffff' : '#525252' }}
+                        animate={{ color: isDone || isActive ? 'var(--text-primary)' : 'var(--text-dim)' }}
                         transition={{ duration: 0.3 }}
                         style={{
                           fontFamily: 'var(--font-sans)',
@@ -179,7 +179,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 300,
                           fontSize: 11,
-                          color: '#525252',
+                          color: 'var(--text-dim)',
                           marginTop: 1,
                         }}
                       >
@@ -195,7 +195,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
             <div
               style={{
                 height: 2,
-                background: '#1c1c1e',
+                background: 'var(--border-default)',
                 borderRadius: 1,
                 overflow: 'hidden',
               }}
@@ -207,7 +207,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
               <motion.div
                 style={{
                   height: '100%',
-                  background: '#ffffff',
+                  background: 'var(--text-primary)',
                   borderRadius: 1,
                   width: `${progress}%`,
                   transition: 'width 0.5s ease',
@@ -220,7 +220,7 @@ export function AnalystLoading({ isVisible, onComplete, durationMs = 3200 }: Ana
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 300,
                 fontSize: 11,
-                color: '#525252',
+                color: 'var(--text-dim)',
                 textAlign: 'right',
               }}
             >

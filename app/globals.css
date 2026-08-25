@@ -1,52 +1,101 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import 'leaflet/dist/leaflet.css';
 
 @custom-variant dark (&:is(.dark *));
 
+/* ===========================================================================
+   ATIS BRAND SYSTEM — monochrome, dual-theme (Obsidian dark / Paper light)
+   Palette: Obsidian #0A0A0A · White #FFFFFF · Paper #F4F3EF
+            Signal Gray #A6A6A0 · Deep Gray #666660
+   =========================================================================== */
+
+/* ── Default = Paper (light) ── */
+:root {
+  --bg-primary: #f4f3ef;        /* Paper */
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-control: #e8e7e1;
+  --bg-control-active: #deded5;
+  --border-default: #deded5;
+  --border-hover: #cfcec4;
+  --border-active: #a6a6a0;     /* Signal Gray */
+  --text-primary: #0a0a0a;      /* Obsidian */
+  --text-secondary: rgba(10, 10, 10, 0.9);
+  --text-tertiary: rgba(10, 10, 10, 0.75);
+  --text-muted: rgba(10, 10, 10, 0.6);
+  --text-dim: rgba(10, 10, 10, 0.45);
+  --accent-fg: #0a0a0a;         /* monochrome "accent" = Obsidian */
+  --accent-on: #ffffff;
+  --accent-danger: #b3261e;
+  --accent-warning: #8a6d1f;
+}
+
+/* ── Obsidian (dark) ── */
+.dark {
+  --bg-primary: #0a0a0a;        /* Obsidian */
+  --bg-surface: #121211;
+  --bg-elevated: #171716;
+  --bg-control: #1f1f1d;
+  --bg-control-active: #2c2c2a;
+  --border-default: #232322;
+  --border-hover: #2e2e2c;
+  --border-active: #3a3a37;
+  --text-primary: #ffffff;      /* White */
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-tertiary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-dim: rgba(255, 255, 255, 0.45);
+  --accent-fg: #ffffff;         /* monochrome "accent" = White */
+  --accent-on: #0a0a0a;
+  --accent-danger: #ff6b60;
+  --accent-warning: #e0a83a;
+}
+
 @theme inline {
-  /* ATIS Color System */
-  --color-bg-primary: #000000;
-  --color-bg-surface: #0a0a0a;
-  --color-bg-elevated: #111111;
-  --color-bg-control: #1c1c1e;
-  --color-bg-control-active: #2c2c2e;
-  --color-border-default: #1c1c1e;
-  --color-border-hover: #262626;
-  --color-border-active: #333333;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #d1d1d6;
-  --color-text-tertiary: #a1a1a6;
-  --color-text-muted: #737373;
-  --color-text-dim: #525252;
-  --color-accent-danger: #ff453a;
-  --color-accent-warning: #ff9f0a;
-  --color-accent-success: #30d158;
+  /* Brand-semantic tokens (resolve per theme) */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-control: var(--bg-control);
+  --color-bg-control-active: var(--bg-control-active);
+  --color-border-default: var(--border-default);
+  --color-border-hover: var(--border-hover);
+  --color-border-active: var(--border-active);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-danger: var(--accent-danger);
+  --color-accent-warning: var(--accent-warning);
 
   /* Shadcn tokens mapped to ATIS palette */
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-card: #0a0a0a;
-  --color-card-foreground: #ffffff;
-  --color-popover: #0a0a0a;
-  --color-popover-foreground: #ffffff;
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
-  --color-secondary: #1c1c1e;
-  --color-secondary-foreground: #ffffff;
-  --color-muted: #1c1c1e;
-  --color-muted-foreground: #737373;
-  --color-accent: #1c1c1e;
-  --color-accent-foreground: #ffffff;
-  --color-destructive: #ff453a;
-  --color-border: #1c1c1e;
-  --color-input: #1c1c1e;
-  --color-ring: #333333;
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-surface);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--bg-surface);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--accent-fg);
+  --color-primary-foreground: var(--accent-on);
+  --color-secondary: var(--bg-control);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--bg-control);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--bg-control);
+  --color-accent-foreground: var(--text-primary);
+  --color-destructive: var(--accent-danger);
+  --color-border: var(--border-default);
+  --color-input: var(--border-default);
+  --color-ring: var(--border-active);
 
-  /* Typography */
-  --font-sans: 'Poppins', sans-serif;
-  --font-display: 'Lexend Deco', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Typography — ATIS brand */
+  --font-sans: var(--font-inter-display), 'Inter', system-ui, sans-serif;
+  --font-display: var(--font-inter-display), 'Inter', system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace;
 
   /* Radius */
   --radius: 0.5rem;
@@ -66,10 +115,10 @@
   }
 
   html, body {
-    background-color: #000000;
-    color: #ffffff;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-weight: 400;
   }
 
   /* Custom scrollbar */
@@ -81,18 +130,38 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #333;
+    background: var(--border-active);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #444;
+    background: var(--text-muted);
   }
 
   /* Focus ring */
   *:focus-visible {
-    outline: 2px solid #ffffff;
+    outline: 2px solid var(--text-primary);
     outline-offset: 2px;
   }
+}
+
+/* ── ATIS logo marks — theme-adaptive via CSS mask (paints with currentColor) ── */
+.atis-mark {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+.atis-mark--symbol {
+  -webkit-mask-image: url('/brand/atis-symbol.svg');
+  mask-image: url('/brand/atis-symbol.svg');
+}
+.atis-mark--wordmark {
+  -webkit-mask-image: url('/brand/atis-wordmark.svg');
+  mask-image: url('/brand/atis-wordmark.svg');
 }
 
 @keyframes edgeFlow {
@@ -104,4 +173,9 @@
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

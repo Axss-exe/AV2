@@ -44,13 +44,14 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
             aria-hidden="true"
           />
 
-          {/* Modal */}
-          <motion.div
-            key="modal"
-            initial={{ opacity: 0, scale: 0.98, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          {/*
+            Centering wrapper: plain (non-motion) element so its `transform:
+            translate(-50%, -50%)` centering trick is never clobbered by
+            framer-motion, which manages `transform` itself for the enter/exit
+            animation on the inner motion.div (scale/y values compile to
+            `transform` too, and would otherwise overwrite the centering).
+          */}
+          <div
             style={{
               position: 'fixed',
               top: '50%',
@@ -59,24 +60,35 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
               width: '90vw',
               maxWidth: 720,
               maxHeight: '85vh',
-              background: '#0a0a0a',
-              border: '1px solid #1c1c1e',
-              borderRadius: 16,
               zIndex: 51,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
             }}
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${country.name} intelligence profile`}
           >
-            {/* Modal Header */}
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                width: '100%',
+                maxHeight: '85vh',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
+                borderRadius: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${country.name} intelligence profile`}
+            >
+              {/* Modal Header */}
             <div
               className="flex items-center justify-between flex-shrink-0"
               style={{
                 padding: '20px 24px',
-                borderBottom: '1px solid #1c1c1e',
+                borderBottom: '1px solid var(--border-default)',
               }}
             >
               <div className="flex items-center gap-3">
@@ -84,7 +96,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                   style={{
                     width: 40,
                     height: 28,
-                    background: '#1c1c1e',
+                    background: 'var(--border-default)',
                     borderRadius: 4,
                     display: 'flex',
                     alignItems: 'center',
@@ -101,7 +113,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                       fontFamily: 'var(--font-display)',
                       fontWeight: 700,
                       fontSize: 18,
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       lineHeight: 1.2,
                     }}
                   >
@@ -112,7 +124,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                       fontFamily: 'var(--font-sans)',
                       fontWeight: 400,
                       fontSize: 11,
-                      color: '#737373',
+                      color: 'var(--text-muted)',
                     }}
                   >
                     {country.region}
@@ -125,23 +137,23 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                 style={{
                   width: 32,
                   height: 32,
-                  background: '#1c1c1e',
+                  background: 'var(--border-default)',
                   border: 'none',
                   borderRadius: 8,
                   cursor: 'pointer',
-                  color: '#737373',
+                  color: 'var(--text-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'background 0.2s, color 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = '#2c2c2e';
-                  (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+                  (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-hover)';
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
-                  (e.currentTarget as HTMLButtonElement).style.color = '#737373';
+                  (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)';
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
                 }}
               >
                 <X size={15} aria-hidden="true" />
@@ -153,7 +165,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
               className="flex flex-shrink-0"
               style={{
                 padding: '0 24px',
-                borderBottom: '1px solid #1c1c1e',
+                borderBottom: '1px solid var(--border-default)',
               }}
               role="tablist"
             >
@@ -169,10 +181,10 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                       fontFamily: 'var(--font-sans)',
                       fontWeight: isActive ? 600 : 400,
                       fontSize: 13,
-                      color: isActive ? '#ffffff' : '#737373',
-                      background: isActive ? '#1c1c1e' : 'transparent',
+                      color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+                      background: isActive ? 'var(--border-default)' : 'transparent',
                       border: 'none',
-                      borderBottom: isActive ? '2px solid #ffffff' : '2px solid transparent',
+                      borderBottom: isActive ? '2px solid var(--text-primary)' : '2px solid transparent',
                       padding: '12px 16px',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
@@ -194,8 +206,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                 <div>
                   {/* Stats Grid */}
                   <div
-                    className="grid gap-3 mb-6"
-                    style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
+                    className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6"
                   >
                     {[
                       { label: 'GDP', value: country.gdp },
@@ -208,8 +219,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                       <div
                         key={item.label}
                         style={{
-                          background: '#000000',
-                          border: '1px solid #1c1c1e',
+                          background: 'var(--bg-primary)',
+                          border: '1px solid var(--border-default)',
                           borderRadius: 10,
                           padding: '12px 14px',
                         }}
@@ -221,7 +232,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                             fontSize: 10,
                             textTransform: 'uppercase' as const,
                             letterSpacing: '0.06em',
-                            color: '#737373',
+                            color: 'var(--text-muted)',
                             marginBottom: 4,
                           }}
                         >
@@ -232,7 +243,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                             fontFamily: 'var(--font-sans)',
                             fontWeight: 600,
                             fontSize: 13,
-                            color: (item as { green?: boolean }).green ? '#30d158' : '#ffffff',
+                            color: (item as { green?: boolean }).green ? 'var(--text-primary)' : 'var(--text-primary)',
                             lineHeight: 1.3,
                           }}
                         >
@@ -245,8 +256,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                   {/* Overview paragraph */}
                   <div
                     style={{
-                      background: '#000000',
-                      border: '1px solid #1c1c1e',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-default)',
                       borderRadius: 10,
                       padding: '16px 18px',
                     }}
@@ -256,7 +267,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 300,
                         fontSize: 13,
-                        color: '#a1a1a6',
+                        color: 'var(--text-tertiary)',
                         lineHeight: 1.65,
                         margin: 0,
                       }}
@@ -274,15 +285,15 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                       key={i}
                       className="flex items-start gap-3"
                       style={{
-                        background: '#000000',
-                        border: '1px solid #1c1c1e',
+                        background: 'var(--bg-primary)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 10,
                         padding: '14px 16px',
                       }}
                     >
                       <CheckCircle
                         size={14}
-                        color="#30d158"
+                        color="var(--text-primary)"
                         style={{ marginTop: 2, flexShrink: 0 }}
                         aria-hidden="true"
                       />
@@ -291,7 +302,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 300,
                           fontSize: 13,
-                          color: '#a1a1a6',
+                          color: 'var(--text-tertiary)',
                           lineHeight: 1.5,
                           margin: 0,
                         }}
@@ -310,8 +321,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                       key={i}
                       className="flex items-start gap-3"
                       style={{
-                        background: '#000000',
-                        border: '1px solid #1c1c1e',
+                        background: 'var(--bg-primary)',
+                        border: '1px solid var(--border-default)',
                         borderLeft: '2px solid #ff453a',
                         borderRadius: 10,
                         padding: '14px 16px',
@@ -328,7 +339,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 300,
                           fontSize: 13,
-                          color: '#a1a1a6',
+                          color: 'var(--text-tertiary)',
                           lineHeight: 1.5,
                           margin: 0,
                         }}
@@ -348,7 +359,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 300,
                         fontSize: 13,
-                        color: '#525252',
+                        color: 'var(--text-dim)',
                       }}
                     >
                       No linked opportunities for {country.name}.
@@ -359,8 +370,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                         <div
                           key={opp.id}
                           style={{
-                            background: '#000000',
-                            border: '1px solid #1c1c1e',
+                            background: 'var(--bg-primary)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 12,
                             padding: '16px 18px',
                             display: 'flex',
@@ -375,7 +386,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                                 style={{
                                   fontFamily: 'var(--font-mono)',
                                   fontSize: 10,
-                                  color: '#525252',
+                                  color: 'var(--text-dim)',
                                 }}
                               >
                                 {opp.id}
@@ -386,7 +397,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                                 fontFamily: 'var(--font-sans)',
                                 fontWeight: 600,
                                 fontSize: 13,
-                                color: '#ffffff',
+                                color: 'var(--text-primary)',
                                 marginBottom: 4,
                               }}
                             >
@@ -397,7 +408,7 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                                 fontFamily: 'var(--font-sans)',
                                 fontWeight: 400,
                                 fontSize: 11,
-                                color: '#737373',
+                                color: 'var(--text-muted)',
                               }}
                             >
                               {opp.value} · {opp.duration}
@@ -408,8 +419,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                               fontFamily: 'var(--font-sans)',
                               fontWeight: 600,
                               fontSize: 11,
-                              color: opp.status === 'active' ? '#30d158' : opp.status === 'pending' ? '#ff9f0a' : '#737373',
-                              background: '#1c1c1e',
+                              color: opp.status === 'active' ? 'var(--text-primary)' : opp.status === 'pending' ? '#ff9f0a' : 'var(--text-muted)',
+                              background: 'var(--border-default)',
                               borderRadius: 4,
                               padding: '3px 10px',
                               textTransform: 'uppercase' as const,
@@ -426,7 +437,8 @@ export function CountryModal({ country, open, onClose }: CountryModalProps) {
                 </div>
               )}
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

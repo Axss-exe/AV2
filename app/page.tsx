@@ -1,388 +1,229 @@
-'use client';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { AtisSymbol } from '@/components/brand';
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { AppShell } from '@/components/app-shell';
-import { OpportunityCard } from '@/components/opportunity-card';
-import { ErrorState } from '@/components/error-state';
-import { getOpportunities, getQueryHistory } from '@/lib/data';
-import type { Opportunity, QueryHistory } from '@/lib/types';
+export const metadata: Metadata = {
+  title: 'ATIS Pilot Briefing — Africa Trade Intelligence System',
+  description:
+    'An orientation briefing for the ATIS Zimbabwe pilot — what ATIS is, how the demo works, and what feedback we are looking for.',
+};
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
-}
+// This page is intentionally locked to a strict black-and-white system
+// regardless of the app's light/dark theme preference — it functions as a
+// printed-style briefing document, not a themed dashboard surface.
+const INK = '#0a0a0a';
+const HAIRLINE = 'rgba(10, 10, 10, 0.12)';
+const BODY = 'rgba(10, 10, 10, 0.72)';
+const DIM = 'rgba(10, 10, 10, 0.45)';
 
-function formatDate(): string {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).toUpperCase();
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  const diff = Date.now() - d.getTime();
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 1) return 'Just now';
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-const statsConfig = [
-  { key: 'opportunities', label: 'Active Opportunities' },
-  { key: 'countries', label: 'Countries Monitored' },
-  { key: 'entities', label: 'Entities Tracked' },
-  { key: 'validation', label: 'Avg. Validation Score' },
+const CAPABILITIES: { n: string; title: string; body: string }[] = [
+  {
+    n: '01',
+    title: 'Ask ATIS',
+    body: 'Ask questions in natural language about the information available in the system. Start broad, then ask follow-up questions to investigate a specific issue.',
+  },
+  {
+    n: '02',
+    title: 'Explore Evidence',
+    body: 'Review the underlying documents and information used to support ATIS responses. Use these to distinguish source evidence from AI interpretation.',
+  },
+  {
+    n: '03',
+    title: 'Explore Entities',
+    body: 'Investigate companies, organisations, people, government institutions, projects, and other entities identified within the knowledge base.',
+  },
+  {
+    n: '04',
+    title: 'Explore Relationships',
+    body: 'Follow connections between entities and see how different pieces of evidence may relate. Treat AI-discovered relationships as leads that may require verification.',
+  },
+  {
+    n: '05',
+    title: 'Follow Stories',
+    body: 'Look at developments as connected events rather than isolated pieces of information. Use this to understand how an issue has developed over time.',
+  },
+  {
+    n: '06',
+    title: 'Read RITA Intelligence',
+    body: 'Review RITA\u2019s reports on new developments. These are designed to explain what happened, what it connects to, and why it may matter, rather than simply repeating the news.',
+  },
+  {
+    n: '07',
+    title: 'Investigate Further',
+    body: 'When ATIS surfaces something interesting, use the entities, evidence, relationships, and stories to dig deeper rather than stopping at the initial answer.',
+  },
 ];
 
-export default function HomePage() {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [queryHistory, setQueryHistory] = useState<QueryHistory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [opps, history] = await Promise.all([getOpportunities(), getQueryHistory()]);
-      setOpportunities(opps);
-      setQueryHistory(history);
-    } catch (e: unknown) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const activeOpportunities = opportunities.filter((o) => o.status === 'active');
-  const validationAvg = opportunities.length
-    ? Math.round(
-        opportunities.reduce((acc, o) => acc + parseInt(o.validation_score), 0) / opportunities.length
-      )
-    : 0;
-
-  const stats = [
-    { label: 'Active Opportunities', value: activeOpportunities.length.toString() },
-    { label: 'Countries Monitored', value: '7' },
-    { label: 'Entities Tracked', value: '6' },
-    { label: 'Avg. Validation Score', value: `${validationAvg}%` },
-  ];
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.35, delay: i * 0.05, ease: [0.4, 0, 0.2, 1] },
-    }),
-  };
-
+export default function AtisDemoPage() {
   return (
-    <AppShell>
-      <div style={{ paddingTop: 40 }}>
-        {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="mb-8"
+    <div style={{ background: '#ffffff', color: INK, minHeight: '100vh' }}>
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <header
+        className="flex items-center justify-between px-6 md:px-12"
+        style={{ height: 72, borderBottom: `1px solid ${HAIRLINE}` }}
+      >
+        <div className="flex items-center gap-2.5">
+          <AtisSymbol size={22} color={INK} />
+          <span
+            className="font-mono font-semibold"
+            style={{ fontSize: 13, letterSpacing: '0.08em', color: INK }}
+          >
+            ATIS
+          </span>
+        </div>
+        <span
+          className="font-mono uppercase"
+          style={{ fontSize: 10, letterSpacing: '0.16em', color: DIM }}
         >
+          Pilot / Zimbabwe
+        </span>
+      </header>
+
+      <main>
+        {/* ── Hero / Introduction ──────────────────────────────────────── */}
+        <section
+          className="flex flex-col items-center px-6 md:px-12 pt-20 md:pt-28 pb-16 md:pb-20 text-center"
+          style={{ borderBottom: `1px solid ${HAIRLINE}` }}
+        >
+          <AtisSymbol size={56} color={INK} className="mb-10 md:mb-12" />
+
           <h1
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontWeight: 300,
-              fontSize: 28,
-              color: '#ffffff',
-              marginBottom: 6,
-            }}
+            className="font-sans font-semibold tracking-tight text-4xl md:text-6xl text-balance"
+            style={{ color: INK, maxWidth: 780 }}
           >
-            {getGreeting()}, Analyst
+            Africa Trade Intelligence System
           </h1>
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontWeight: 300,
-              fontSize: 14,
-              color: '#737373',
-              marginBottom: 4,
-            }}
-          >
-            Here&apos;s your intelligence briefing for today
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 400,
-              fontSize: 11,
-              color: '#525252',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-            }}
-          >
-            {formatDate()}
-          </p>
-        </motion.div>
 
-        {error ? (
-          <ErrorState message={error} onRetry={load} />
-        ) : (
-          <>
-            {/* Stats Row */}
-            <div
-              className="grid gap-4 mb-8"
-              style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
-              aria-label="Quick statistics"
+          <div
+            className="flex flex-col gap-5 mt-10 text-left"
+            style={{ maxWidth: 620 }}
+          >
+            <p className="leading-relaxed text-[15px] md:text-base" style={{ color: BODY }}>
+              ATIS is an early-stage intelligence platform designed to help you explore
+              complex information by connecting evidence, entities, relationships, events,
+              and emerging stories.
+            </p>
+            <p className="leading-relaxed text-[15px] md:text-base" style={{ color: BODY }}>
+              The current demo focuses on Zimbabwe and uses a Retrieval-Augmented
+              Generation (RAG) approach: ATIS retrieves relevant information from its
+              knowledge base and gives that evidence to the AI before generating an
+              answer.
+            </p>
+            <p className="leading-relaxed text-[15px] md:text-base" style={{ color: BODY }}>
+              RITA (Relationship Intelligence &amp; Triage Analyst) adds another layer by
+              looking at how new information connects to what is already known, turning
+              news and developments into contextual intelligence rather than simply
+              summarising headlines.
+            </p>
+          </div>
+        </section>
+
+        {/* ── Pilot Notice ─────────────────────────────────────────────── */}
+        <section className="px-6 md:px-12 py-14 md:py-16">
+          <div
+            className="mx-auto p-7 md:p-9"
+            style={{ maxWidth: 680, border: `1px solid ${HAIRLINE}` }}
+          >
+            <span
+              className="font-mono uppercase"
+              style={{ fontSize: 10, letterSpacing: '0.16em', color: DIM }}
             >
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  custom={i}
-                  initial="hidden"
-                  animate="visible"
-                  variants={cardVariants}
-                  style={{
-                    background: '#0a0a0a',
-                    border: '1px solid #1c1c1e',
-                    borderRadius: 14,
-                    padding: 20,
-                  }}
-                >
-                  {loading ? (
-                    <div
-                      style={{
-                        width: 60,
-                        height: 22,
-                        background: '#1c1c1e',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                        animation: 'pulse-soft 1.5s infinite',
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontWeight: 700,
-                        fontSize: 22,
-                        color: '#ffffff',
-                        marginBottom: 6,
-                      }}
-                    >
-                      {stat.value}
-                    </div>
-                  )}
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontWeight: 500,
-                      fontSize: 10,
-                      color: '#737373',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                    }}
-                  >
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+              Pilot
+            </span>
+            <p className="leading-relaxed text-[15px] mt-4" style={{ color: BODY }}>
+              This is a pilot, so some relationships and AI-generated analysis are
+              experimental and should be treated as leads for investigation rather than
+              verified facts.
+            </p>
+            <p className="leading-relaxed text-[15px] mt-4" style={{ color: BODY }}>
+              The goal of the demo is to get honest feedback on what works, what doesn&apos;t,
+              what is missing, and how you would actually use ATIS in practice.
+            </p>
+          </div>
+        </section>
 
-            {/* Two-column layout */}
-            <div className="grid gap-6" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
-              {/* Recent Intelligence */}
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.2 }}
-                style={{
-                  background: '#0a0a0a',
-                  border: '1px solid #1c1c1e',
-                  borderRadius: 14,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
+        {/* ── What You Can Do ──────────────────────────────────────────── */}
+        <section
+          className="px-6 md:px-12 py-14 md:py-16"
+          style={{ borderTop: `1px solid ${HAIRLINE}` }}
+        >
+          <div className="mx-auto" style={{ maxWidth: 680 }}>
+            <h2 className="font-sans font-semibold text-2xl md:text-3xl mb-8 md:mb-10" style={{ color: INK }}>
+              What you can do
+            </h2>
+            <ol>
+              {CAPABILITIES.map((item, i) => (
+                <li
+                  key={item.n}
+                  className="flex gap-5 md:gap-7 py-5"
                   style={{
-                    padding: '16px 20px',
-                    borderBottom: '1px solid #1c1c1e',
+                    borderTop: i === 0 ? 'none' : `1px solid ${HAIRLINE}`,
                   }}
                 >
-                  <h2
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontWeight: 600,
-                      fontSize: 14,
-                      color: '#ffffff',
-                    }}
+                  <span
+                    className="font-mono shrink-0 pt-0.5"
+                    style={{ fontSize: 13, color: DIM, letterSpacing: '0.02em' }}
+                    aria-hidden="true"
                   >
-                    Recent Intelligence
-                  </h2>
-                </div>
-                <div>
-                  {loading ? (
-                    <div className="p-5 flex flex-col gap-3">
-                      {[...Array(4)].map((_, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            height: 48,
-                            background: '#111111',
-                            borderRadius: 8,
-                            animation: 'pulse-soft 1.5s infinite',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  ) : queryHistory.length === 0 ? (
-                    <p
-                      style={{
-                        padding: 20,
-                        fontFamily: 'var(--font-sans)',
-                        fontWeight: 300,
-                        fontSize: 13,
-                        color: '#525252',
-                      }}
-                    >
-                      No queries yet. Start by asking a question in the Query dashboard.
+                    {item.n} &mdash;
+                  </span>
+                  <div>
+                    <h3 className="font-sans font-semibold text-base mb-1.5" style={{ color: INK }}>
+                      {item.title}
+                    </h3>
+                    <p className="leading-relaxed text-sm" style={{ color: BODY }}>
+                      {item.body}
                     </p>
-                  ) : (
-                    queryHistory.slice(0, 5).map((item, i) => (
-                      <motion.div
-                        key={item.id}
-                        custom={i}
-                        initial="hidden"
-                        animate="visible"
-                        variants={cardVariants}
-                        style={{
-                          padding: '12px 20px',
-                          borderBottom: i < Math.min(queryHistory.length, 5) - 1 ? '1px solid #1c1c1e' : 'none',
-                          cursor: 'pointer',
-                          transition: 'background 0.2s, border-color 0.2s',
-                        }}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLDivElement).style.background = '#111111';
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLDivElement).style.background = 'transparent';
-                        }}
-                      >
-                        <p
-                          style={{
-                            fontFamily: 'var(--font-sans)',
-                            fontWeight: 500,
-                            fontSize: 12,
-                            color: '#d1d1d6',
-                            marginBottom: 3,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {item.query}
-                        </p>
-                        <div className="flex items-center justify-between gap-2">
-                          <p
-                            style={{
-                              fontFamily: 'var(--font-sans)',
-                              fontWeight: 300,
-                              fontSize: 11,
-                              color: '#525252',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              flex: 1,
-                            }}
-                          >
-                            {item.summary.slice(0, 80)}...
-                          </p>
-                          <span
-                            style={{
-                              fontFamily: 'var(--font-mono)',
-                              fontSize: 10,
-                              color: '#333333',
-                              flexShrink: 0,
-                            }}
-                          >
-                            {formatTime(item.created_at)}
-                          </span>
-                        </div>
-                      </motion.div>
-                    ))
-                  )}
-                </div>
-              </motion.div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
 
-              {/* Featured Opportunities */}
-              <div>
-                <div
-                  style={{
-                    marginBottom: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <h2
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontWeight: 600,
-                      fontSize: 14,
-                      color: '#ffffff',
-                    }}
-                  >
-                    Featured Opportunities
-                  </h2>
-                  <a
-                    href="/query"
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontWeight: 500,
-                      fontSize: 11,
-                      color: '#a1a1a6',
-                      textDecoration: 'none',
-                    }}
-                    onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#ffffff'; }}
-                    onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#a1a1a6'; }}
-                  >
-                    View all
-                  </a>
-                </div>
-                {loading ? (
-                  <div className="flex flex-col gap-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          height: 100,
-                          background: '#0a0a0a',
-                          border: '1px solid #1c1c1e',
-                          borderRadius: 14,
-                          animation: 'pulse-soft 1.5s infinite',
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {opportunities.slice(0, 3).map((opp, i) => (
-                      <OpportunityCard key={opp.id} opportunity={opp} index={i} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </AppShell>
+        {/* ── Feedback Prompt ──────────────────────────────────────────── */}
+        <section
+          className="px-6 md:px-12 py-16 md:py-20 text-center"
+          style={{ borderTop: `1px solid ${HAIRLINE}` }}
+        >
+          <div className="mx-auto flex flex-col gap-5" style={{ maxWidth: 560 }}>
+            <p className="font-sans font-semibold text-xl md:text-2xl text-balance" style={{ color: INK }}>
+              Please try to break the system.
+            </p>
+            <p className="leading-relaxed text-[15px] md:text-base" style={{ color: BODY }}>
+              Ask difficult questions, challenge its answers, look for missing evidence,
+              test whether relationships make sense, and note where the system gives you
+              something useful that you would not have found easily yourself.
+            </p>
+            <p className="leading-relaxed text-[15px] md:text-base" style={{ color: DIM }}>
+              The demo is not asking you to prove that ATIS works. It is asking you to
+              help us discover where it works, where it doesn&apos;t, and what it needs to
+              become genuinely useful.
+            </p>
+          </div>
+        </section>
+
+        {/* ── Enter Demo ───────────────────────────────────────────────── */}
+        <section
+          className="flex justify-center px-6 md:px-12 pb-24 md:pb-28"
+        >
+          <Link
+            href="/atis-dashboard"
+            className="inline-flex items-center justify-center gap-2.5 font-mono uppercase transition-opacity duration-150 hover:opacity-80"
+            style={{
+              background: INK,
+              color: '#ffffff',
+              fontSize: 12,
+              letterSpacing: '0.12em',
+              padding: '16px 32px',
+            }}
+          >
+            Enter ATIS Demo
+            <ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
+          </Link>
+        </section>
+      </main>
+    </div>
   );
 }

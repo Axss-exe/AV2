@@ -95,8 +95,8 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
         style={{
           width: '100%',
           maxWidth: 640,
-          background: '#000000',
-          borderLeft: '1px solid #1c1c1e',
+          background: 'var(--bg-primary)',
+          borderLeft: '1px solid var(--border-default)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -107,8 +107,8 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
           className="flex items-center justify-between flex-shrink-0"
           style={{
             padding: '20px 24px',
-            borderBottom: '1px solid #1c1c1e',
-            background: '#0a0a0a',
+            borderBottom: '1px solid var(--border-default)',
+            background: 'var(--bg-surface)',
           }}
         >
           <div className="flex items-center gap-3">
@@ -116,7 +116,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
               style={{
                 width: 32,
                 height: 32,
-                background: '#1c1c1e',
+                background: 'var(--border-default)',
                 borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
@@ -130,7 +130,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                   fontFamily: 'var(--font-display)',
                   fontWeight: 700,
                   fontSize: 12,
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                 }}
               >
                 V
@@ -142,7 +142,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 600,
                   fontSize: 14,
-                  color: '#ffffff',
+                  color: 'var(--text-primary)',
                   marginBottom: 2,
                   lineHeight: 1.3,
                 }}
@@ -154,7 +154,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: 10,
-                    color: '#525252',
+                    color: 'var(--text-dim)',
                   }}
                 >
                   {opportunity.id}
@@ -166,9 +166,9 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                     fontSize: 10,
                     textTransform: 'uppercase' as const,
                     letterSpacing: '0.06em',
-                    color: '#a1a1a6',
-                    background: '#1c1c1e',
-                    border: '1px solid #333333',
+                    color: 'var(--text-tertiary)',
+                    background: 'var(--border-default)',
+                    border: '1px solid var(--border-default)',
                     borderRadius: 4,
                     padding: '1px 6px',
                   }}
@@ -187,15 +187,15 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: '#737373',
+              color: 'var(--text-muted)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'color 0.2s',
               borderRadius: 4,
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#737373'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'; }}
           >
             <X size={16} aria-hidden="true" />
           </button>
@@ -209,7 +209,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
             style={{
               paddingBottom: 16,
               marginBottom: 16,
-              borderBottom: '1px solid #1c1c1e',
+              borderBottom: '1px solid var(--border-default)',
             }}
           >
             {stats.map((stat) => (
@@ -219,7 +219,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                     fontFamily: 'var(--font-display)',
                     fontWeight: 700,
                     fontSize: 22,
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                   }}
                 >
                   {loading ? '—' : stat.value}
@@ -229,7 +229,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 500,
                     fontSize: 10,
-                    color: '#737373',
+                    color: 'var(--text-muted)',
                     textTransform: 'uppercase' as const,
                     letterSpacing: '0.06em',
                   }}
@@ -255,8 +255,8 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                 <div
                   key={section.id}
                   style={{
-                    background: '#0a0a0a',
-                    border: '1px solid #1c1c1e',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-default)',
                     borderRadius: 14,
                     overflow: 'hidden',
                   }}
@@ -275,7 +275,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                       transition: 'background 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = '#111111';
+                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-control)';
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
@@ -285,8 +285,8 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                       {/* Number circle */}
                       <motion.div
                         animate={{
-                          background: isOpen ? '#ffffff' : '#1c1c1e',
-                          color: isOpen ? '#000000' : '#ffffff',
+                          background: isOpen ? 'var(--text-primary)' : 'var(--border-default)',
+                          color: isOpen ? 'var(--bg-primary)' : 'var(--text-primary)',
                         }}
                         transition={{ duration: 0.3 }}
                         style={{
@@ -312,7 +312,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                             fontFamily: 'var(--font-sans)',
                             fontWeight: 600,
                             fontSize: 14,
-                            color: '#ffffff',
+                            color: 'var(--text-primary)',
                             lineHeight: 1.3,
                           }}
                         >
@@ -323,7 +323,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                             fontFamily: 'var(--font-sans)',
                             fontWeight: 400,
                             fontSize: 11,
-                            color: '#737373',
+                            color: 'var(--text-muted)',
                             marginTop: 2,
                           }}
                         >
@@ -339,8 +339,8 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 600,
                           fontSize: 10,
-                          color: '#a1a1a6',
-                          background: '#1c1c1e',
+                          color: 'var(--text-tertiary)',
+                          background: 'var(--border-default)',
                           borderRadius: 4,
                           padding: '2px 8px',
                         }}
@@ -353,7 +353,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                       >
                         <ChevronDown
                           size={18}
-                          color="#a1a1a6"
+                          color="var(--text-tertiary)"
                           aria-hidden="true"
                         />
                       </motion.div>
@@ -377,7 +377,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                         <div
                           style={{
                             padding: '0 22px 18px',
-                            borderTop: '1px solid #1c1c1e',
+                            borderTop: '1px solid var(--border-default)',
                           }}
                         >
                           {loading ? (
@@ -387,7 +387,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                                   key={i}
                                   style={{
                                     height: 80,
-                                    background: '#000000',
+                                    background: 'var(--bg-primary)',
                                     borderRadius: 10,
                                     animation: 'pulse-soft 1.5s infinite',
                                     marginTop: i === 0 ? 4 : 0,
@@ -416,7 +416,7 @@ export function ValidationPanel({ opportunity, open, onClose }: ValidationPanelP
                                     fontFamily: 'var(--font-sans)',
                                     fontWeight: 300,
                                     fontSize: 12,
-                                    color: '#525252',
+                                    color: 'var(--text-dim)',
                                     paddingTop: 8,
                                   }}
                                 >

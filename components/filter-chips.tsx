@@ -22,9 +22,9 @@ export function FilterChips({ options, active, onToggle, label }: FilterChipsPro
               padding: '5px 12px',
               borderRadius: 8,
               border: '1px solid',
-              borderColor: isActive ? '#333333' : '#1c1c1e',
-              background: isActive ? '#2c2c2e' : '#1c1c1e',
-              color: isActive ? '#ffffff' : '#a1a1a6',
+              borderColor: isActive ? 'var(--border-default)' : 'var(--border-default)',
+              background: isActive ? 'var(--border-hover)' : 'var(--border-default)',
+              color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
               fontFamily: 'var(--font-sans)',
               fontWeight: 500,
               fontSize: 12,
@@ -33,15 +33,15 @@ export function FilterChips({ options, active, onToggle, label }: FilterChipsPro
             }}
             onMouseEnter={(e) => {
               if (!isActive) {
-                (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
-                (e.currentTarget as HTMLButtonElement).style.color = '#d1d1d6';
+                (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)';
                 (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.02)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isActive) {
-                (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
-                (e.currentTarget as HTMLButtonElement).style.color = '#a1a1a6';
+                (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-tertiary)';
                 (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
               }
             }}

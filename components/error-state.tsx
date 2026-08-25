@@ -14,7 +14,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
           fontFamily: 'var(--font-sans)',
           fontWeight: 500,
           fontSize: 14,
-          color: '#a1a1a6',
+          color: 'var(--text-tertiary)',
           marginBottom: onRetry ? 16 : 0,
           maxWidth: 320,
         }}
@@ -27,9 +27,9 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
           style={{
             padding: '6px 16px',
             borderRadius: 8,
-            background: '#1c1c1e',
-            border: '1px solid #333333',
-            color: '#ffffff',
+            background: 'var(--border-default)',
+            border: '1px solid var(--border-default)',
+            color: 'var(--text-primary)',
             fontFamily: 'var(--font-sans)',
             fontWeight: 500,
             fontSize: 12,

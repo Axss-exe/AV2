@@ -25,8 +25,8 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
       onClick={onClick}
       className="flex"
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 16,
         height: 320,
         overflow: 'hidden',
@@ -34,8 +34,8 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
         transition: 'border-color 0.2s',
         marginBottom: 24,
       }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#262626'; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#1c1c1e'; }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)'; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'; }}
     >
       {/* Left: content (60%) */}
       <div
@@ -43,7 +43,7 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
         style={{
           flex: '0 0 60%',
           padding: '32px 36px',
-          borderRight: '1px solid #1c1c1e',
+          borderRight: '1px solid var(--border-default)',
         }}
       >
         <div>
@@ -67,7 +67,7 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
               fontSize: 24,
-              color: '#ffffff',
+              color: 'var(--text-primary)',
               lineHeight: 1.2,
               marginBottom: 12,
             }}
@@ -80,7 +80,7 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 14,
-              color: '#a1a1a6',
+              color: 'var(--text-tertiary)',
               lineHeight: 1.6,
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -98,11 +98,11 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 11,
-              color: '#737373',
+              color: 'var(--text-muted)',
             }}
           >
             <span>{article.author}</span>
-            <span style={{ margin: '0 8px', color: '#333333' }}>·</span>
+            <span style={{ margin: '0 8px', color: 'var(--border-default)' }}>·</span>
             <span>{formatDate(article.published_at)}</span>
           </div>
           <button
@@ -110,8 +110,8 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 500,
               fontSize: 13,
-              background: '#ffffff',
-              color: '#000000',
+              background: 'var(--text-primary)',
+              color: 'var(--bg-primary)',
               border: 'none',
               borderRadius: 8,
               padding: '8px 16px',
@@ -120,11 +120,11 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
               minHeight: 36,
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#d1d1d6';
+              (e.currentTarget as HTMLButtonElement).style.background = 'var(--text-secondary)';
               (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.02)';
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#ffffff';
+              (e.currentTarget as HTMLButtonElement).style.background = 'var(--text-primary)';
               (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
             }}
             onClick={(e) => { e.stopPropagation(); onClick(); }}
@@ -160,7 +160,7 @@ export function HeroArticle({ article, onClick }: HeroArticleProps) {
               fontSize: 10,
               textTransform: 'uppercase' as const,
               letterSpacing: '0.08em',
-              color: '#a1a1a6',
+              color: 'var(--text-tertiary)',
               background: 'rgba(0,0,0,0.4)',
               borderRadius: 4,
               padding: '3px 8px',

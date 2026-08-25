@@ -11,8 +11,8 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
   return (
     <div
       style={{
-        background: '#0a0a0a',
-        border: '1px solid #1c1c1e',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
         borderRadius: 16,
         overflow: 'hidden',
         marginBottom: 20,
@@ -22,8 +22,8 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
       <div
         className="flex items-center justify-between"
         style={{
-          background: '#111111',
-          borderBottom: '1px solid #1c1c1e',
+          background: 'var(--bg-control)',
+          borderBottom: '1px solid var(--border-default)',
           padding: '16px 20px',
         }}
       >
@@ -32,7 +32,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
             style={{
               width: 32,
               height: 32,
-              background: '#1c1c1e',
+              background: 'var(--border-default)',
               borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
@@ -41,7 +41,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
             }}
             aria-hidden="true"
           >
-            <FileText size={14} color="#a1a1a6" />
+            <FileText size={14} color="var(--text-tertiary)" />
           </div>
           <div>
             <div
@@ -49,7 +49,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 14,
-                color: '#ffffff',
+                color: 'var(--text-primary)',
                 marginBottom: 2,
               }}
             >
@@ -60,7 +60,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
                 fontFamily: 'var(--font-sans)',
                 fontWeight: 400,
                 fontSize: 11,
-                color: '#737373',
+                color: 'var(--text-muted)',
               }}
             >
               {opportunity.id} · {opportunity.value} · {opportunity.duration}
@@ -74,9 +74,9 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
             fontSize: 10,
             textTransform: 'uppercase' as const,
             letterSpacing: '0.06em',
-            color: opportunity.status === 'active' ? '#30d158' : opportunity.status === 'pending' ? '#ff9f0a' : '#737373',
-            background: '#1c1c1e',
-            border: '1px solid #333333',
+            color: opportunity.status === 'active' ? 'var(--text-primary)' : opportunity.status === 'pending' ? '#ff9f0a' : 'var(--text-muted)',
+            background: 'var(--border-default)',
+            border: '1px solid var(--border-default)',
             borderRadius: 4,
             padding: '2px 8px',
           }}
@@ -102,7 +102,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
               fontSize: 11,
               textTransform: 'uppercase' as const,
               letterSpacing: '0.08em',
-              color: '#737373',
+              color: 'var(--text-muted)',
               marginBottom: 10,
             }}
           >
@@ -113,7 +113,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
               fontFamily: 'var(--font-sans)',
               fontWeight: 300,
               fontSize: 13,
-              color: '#a1a1a6',
+              color: 'var(--text-tertiary)',
               lineHeight: 1.6,
               margin: 0,
             }}
@@ -131,7 +131,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
               fontSize: 11,
               textTransform: 'uppercase' as const,
               letterSpacing: '0.08em',
-              color: '#737373',
+              color: 'var(--text-muted)',
               marginBottom: 10,
             }}
           >
@@ -150,9 +150,9 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
                       fontSize: 11,
                       textTransform: 'uppercase' as const,
                       letterSpacing: '0.06em',
-                      color: '#737373',
+                      color: 'var(--text-muted)',
                       padding: '8px 10px',
-                      borderBottom: '1px solid #1c1c1e',
+                      borderBottom: '1px solid var(--border-default)',
                     }}
                   >
                     {h}
@@ -170,9 +170,9 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 300,
                         fontSize: 12,
-                        color: '#a1a1a6',
+                        color: 'var(--text-tertiary)',
                         padding: '10px',
-                        borderBottom: '1px solid #1c1c1e',
+                        borderBottom: '1px solid var(--border-default)',
                         verticalAlign: 'top' as const,
                       }}
                     >
@@ -194,7 +194,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
               fontSize: 11,
               textTransform: 'uppercase' as const,
               letterSpacing: '0.08em',
-              color: '#737373',
+              color: 'var(--text-muted)',
               marginBottom: 10,
             }}
           >
@@ -208,8 +208,8 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
                     width: 16,
                     height: 16,
                     borderRadius: 3,
-                    border: '1px solid #333333',
-                    background: '#1c1c1e',
+                    border: '1px solid var(--border-default)',
+                    background: 'var(--border-default)',
                     flexShrink: 0,
                     marginTop: 1,
                   }}
@@ -220,7 +220,7 @@ export function DocumentView({ opportunity }: DocumentViewProps) {
                     fontFamily: 'var(--font-sans)',
                     fontWeight: 300,
                     fontSize: 12,
-                    color: '#a1a1a6',
+                    color: 'var(--text-tertiary)',
                     lineHeight: 1.5,
                   }}
                 >

@@ -100,8 +100,8 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                 bottom: 0,
                 width: '100%',
                 maxWidth: 768,
-                background: '#0a0a0a',
-                borderLeft: '1px solid #1c1c1e',
+                background: 'var(--bg-surface)',
+                borderLeft: '1px solid var(--border-default)',
                 zIndex: 49,
                 display: 'flex',
                 flexDirection: 'column',
@@ -115,7 +115,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                 className="flex-shrink-0"
                 style={{
                   padding: '24px 32px 20px',
-                  borderBottom: '1px solid #1c1c1e',
+                  borderBottom: '1px solid var(--border-default)',
                 }}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -128,8 +128,8 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                           fontSize: 10,
                           textTransform: 'uppercase' as const,
                           letterSpacing: '0.06em',
-                          color: '#a1a1a6',
-                          background: '#1c1c1e',
+                          color: 'var(--text-tertiary)',
+                          background: 'var(--border-default)',
                           borderRadius: 4,
                           padding: '2px 8px',
                         }}
@@ -144,7 +144,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                           textTransform: 'uppercase' as const,
                           letterSpacing: '0.06em',
                           color: '#ff9f0a',
-                          background: '#1c1c1e',
+                          background: 'var(--border-default)',
                           borderRadius: 4,
                           padding: '2px 8px',
                         }}
@@ -157,7 +157,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                         fontFamily: 'var(--font-display)',
                         fontWeight: 700,
                         fontSize: 20,
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         lineHeight: 1.25,
                         marginBottom: 8,
                       }}
@@ -169,16 +169,16 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 300,
                         fontSize: 11,
-                        color: '#737373',
+                        color: 'var(--text-muted)',
                         display: 'flex',
                         gap: 8,
                         flexWrap: 'wrap' as const,
                       }}
                     >
                       <span>{article.author}</span>
-                      <span style={{ color: '#333333' }}>·</span>
+                      <span style={{ color: 'var(--border-default)' }}>·</span>
                       <span>{formatDate(article.published_at)}</span>
-                      <span style={{ color: '#333333' }}>·</span>
+                      <span style={{ color: 'var(--border-default)' }}>·</span>
                       <span>{estimateReadTime(article.content)}</span>
                     </div>
                   </div>
@@ -188,11 +188,11 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                     style={{
                       width: 32,
                       height: 32,
-                      background: '#1c1c1e',
+                      background: 'var(--border-default)',
                       border: 'none',
                       borderRadius: 8,
                       cursor: 'pointer',
-                      color: '#737373',
+                      color: 'var(--text-muted)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -200,12 +200,12 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                       transition: 'background 0.2s, color 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = '#2c2c2e';
-                      (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-hover)';
+                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)';
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
-                      (e.currentTarget as HTMLButtonElement).style.color = '#737373';
+                      (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)';
+                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
                     }}
                   >
                     <X size={16} aria-hidden="true" />
@@ -225,7 +225,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 600,
                           fontSize: 14,
-                          color: '#ffffff',
+                          color: 'var(--text-primary)',
                           marginTop: i === 0 ? 0 : 24,
                           marginBottom: 10,
                           lineHeight: 1.4,
@@ -240,7 +240,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 300,
                           fontSize: 13,
-                          color: '#a1a1a6',
+                          color: 'var(--text-tertiary)',
                           lineHeight: 1.7,
                           marginBottom: 16,
                         }}
@@ -261,9 +261,9 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                           fontFamily: 'var(--font-sans)',
                           fontWeight: 400,
                           fontSize: 11,
-                          color: '#737373',
-                          background: '#111111',
-                          border: '1px solid #1c1c1e',
+                          color: 'var(--text-muted)',
+                          background: 'var(--bg-control)',
+                          border: '1px solid var(--border-default)',
                           borderRadius: 6,
                           padding: '3px 10px',
                         }}
@@ -280,7 +280,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                     <div
                       style={{
                         height: 1,
-                        background: '#1c1c1e',
+                        background: 'var(--border-default)',
                         marginBottom: 20,
                       }}
                     />
@@ -289,7 +289,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                         fontFamily: 'var(--font-sans)',
                         fontWeight: 600,
                         fontSize: 14,
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         marginBottom: 12,
                       }}
                     >
@@ -303,8 +303,8 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                             key={i}
                             style={{
                               height: 80,
-                              background: '#000000',
-                              border: '1px solid #1c1c1e',
+                              background: 'var(--bg-primary)',
+                              border: '1px solid var(--border-default)',
                               borderRadius: 12,
                               animation: 'pulse-soft 1.5s infinite',
                             }}
@@ -317,8 +317,8 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                           <div
                             key={opp.id}
                             style={{
-                              background: '#000000',
-                              border: '1px solid #1c1c1e',
+                              background: 'var(--bg-primary)',
+                              border: '1px solid var(--border-default)',
                               borderRadius: 12,
                               padding: '16px 18px',
                               display: 'flex',
@@ -333,7 +333,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                                   style={{
                                     fontFamily: 'var(--font-mono)',
                                     fontSize: 10,
-                                    color: '#525252',
+                                    color: 'var(--text-dim)',
                                   }}
                                 >
                                   {opp.id}
@@ -343,8 +343,8 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                                     fontFamily: 'var(--font-sans)',
                                     fontWeight: 600,
                                     fontSize: 10,
-                                    color: '#30d158',
-                                    background: '#1c1c1e',
+                                    color: 'var(--text-primary)',
+                                    background: 'var(--border-default)',
                                     borderRadius: 4,
                                     padding: '1px 6px',
                                   }}
@@ -357,7 +357,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                                   fontFamily: 'var(--font-sans)',
                                   fontWeight: 600,
                                   fontSize: 13,
-                                  color: '#ffffff',
+                                  color: 'var(--text-primary)',
                                   marginBottom: 4,
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
@@ -371,7 +371,7 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                                   fontFamily: 'var(--font-sans)',
                                   fontWeight: 400,
                                   fontSize: 11,
-                                  color: '#737373',
+                                  color: 'var(--text-muted)',
                                 }}
                               >
                                 {opp.markets.join(' · ')}
@@ -383,9 +383,9 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                                 fontFamily: 'var(--font-sans)',
                                 fontWeight: 500,
                                 fontSize: 12,
-                                color: '#ffffff',
-                                background: '#1c1c1e',
-                                border: '1px solid #333333',
+                                color: 'var(--text-primary)',
+                                background: 'var(--border-default)',
+                                border: '1px solid var(--border-default)',
                                 borderRadius: 8,
                                 padding: '8px 16px',
                                 cursor: 'pointer',
@@ -395,10 +395,10 @@ export function ArticleModal({ article, open, onClose }: ArticleModalProps) {
                                 flexShrink: 0,
                               }}
                               onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLButtonElement).style.background = '#2c2c2e';
+                                (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-hover)';
                               }}
                               onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1e';
+                                (e.currentTarget as HTMLButtonElement).style.background = 'var(--border-default)';
                               }}
                             >
                               View Validation Trace
