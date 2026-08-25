@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowRight, AlertCircle } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
@@ -11,7 +12,7 @@ import { PerspectiveBanner } from '@/components/query/perspective-banner';
 import { AnswerPanel } from '@/components/query/answer-panel';
 import { ResearchRequiredPanel } from '@/components/query/research-required-panel';
 import { FindingsPanel } from '@/components/query/findings-panel';
-import { OpportunitiesPanel } from '@/components/query/opportunities-panel';
+import { RelatedNewsPanel } from '@/components/query/related-news-panel';
 import { RisksPanel } from '@/components/query/risks-panel';
 import { IntelDrawer, type DrawerView } from '@/components/query/intel-drawer';
 import { useATIS } from '@/lib/context';
@@ -184,6 +185,7 @@ function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<type
 }
 
 export default function QueryPage() {
+  const router = useRouter();
   const {
     currentQueryResult,
     setCurrentQueryResult,
@@ -504,9 +506,15 @@ export default function QueryPage() {
                         </motion.div>
 
                         <motion.div custom={2} initial="hidden" animate="visible" variants={cardVariants}>
-                          <OpportunitiesPanel
-                            opportunities={vm.opportunities}
-                            onSelect={(o) => pushDrawer({ type: 'opportunity', item: o })}
+                          <RelatedNewsPanel
+                            countries={Array.from(
+                              new Set(
+                                [vm.perspectiveCountry, ...vm.sourceCountries].filter(
+                                  (c): c is string => !!c && c.trim().length > 0
+                                )
+                              )
+                            )}
+                            onSelect={(article) => router.push(`/news/${article.id}`)}
                           />
                         </motion.div>
 
