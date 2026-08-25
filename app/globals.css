@@ -22,10 +22,10 @@
   --border-hover: #cfcec4;
   --border-active: #a6a6a0;     /* Signal Gray */
   --text-primary: #0a0a0a;      /* Obsidian */
-  --text-secondary: #33332f;
-  --text-tertiary: #666660;     /* Deep Gray */
-  --text-muted: #8a8a83;
-  --text-dim: #a6a6a0;          /* Signal Gray */
+  --text-secondary: rgba(10, 10, 10, 0.9);
+  --text-tertiary: rgba(10, 10, 10, 0.75);
+  --text-muted: rgba(10, 10, 10, 0.6);
+  --text-dim: rgba(10, 10, 10, 0.45);
   --accent-fg: #0a0a0a;         /* monochrome "accent" = Obsidian */
   --accent-on: #ffffff;
   --accent-danger: #b3261e;
@@ -43,10 +43,10 @@
   --border-hover: #2e2e2c;
   --border-active: #3a3a37;
   --text-primary: #ffffff;      /* White */
-  --text-secondary: #d1d1cc;
-  --text-tertiary: #a6a6a0;     /* Signal Gray */
-  --text-muted: #666660;        /* Deep Gray */
-  --text-dim: #525250;
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-tertiary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-dim: rgba(255, 255, 255, 0.45);
   --accent-fg: #ffffff;         /* monochrome "accent" = White */
   --accent-on: #0a0a0a;
   --accent-danger: #ff6b60;
