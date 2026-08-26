@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql, getInvestigationDetail } from '@/lib/investigation-db';
+import { proxyPOSTWithTimeout } from '@/lib/proxy';
 
-const ATISV2_BASE_URL = process.env.ATISV2_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL;
 const REQUEST_TIMEOUT_MS = 120_000;
 
 function safeBackendError(body: unknown, status: number) {
@@ -24,10 +24,6 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Invalid investigation id' }, { status: 400 });
     }
 
-    if (!ATISV2_BASE_URL) {
-      return NextResponse.json({ error: 'ATISv2 backend URL is not configured.' }, { status: 503 });
-    }
-
     const investigation = await getInvestigationDetail(investigationId);
     if (!investigation) {
       return NextResponse.json({ error: 'Investigation not found' }, { status: 404 });
@@ -36,18 +32,18 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Investigation has no queries yet' }, { status: 400 });
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     let backendResponse: Response;
 
     try {
-      backendResponse = await fetch(`${ATISV2_BASE_URL.replace(/\/$/, '')}/api/investigation/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ investigation }),
-        signal: controller.signal,
-        cache: 'no-store',
-      });
+      backendResponse = await proxyPOSTWithTimeout(
+        '/api/investigation/report',
+        new Request('http://localhost/api/investigation/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ investigation }),
+        }),
+        REQUEST_TIMEOUT_MS
+      );
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') {
         return NextResponse.json(
@@ -59,14 +55,15 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         { error: 'Could not reach the ATISv2 report service. Please try again.' },
         { status: 502 }
       );
-    } finally {
-      clearTimeout(timeout);
     }
 
     const body: unknown = await backendResponse.json().catch(() => null);
     if (!backendResponse.ok) {
       return NextResponse.json(
-        { error: safeBackendError(body, backendResponse.status) },
+        {
+          error: safeBackendError(body, backendResponse.status),
+          detail: safeBackendError(body, backendResponse.status),
+        },
         { status: backendResponse.status >= 500 ? 502 : backendResponse.status }
       );
     }
