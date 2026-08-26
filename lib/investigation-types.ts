@@ -47,17 +47,49 @@ export interface Investigation extends InvestigationSummary {
   report: InvestigationReport | null;
 }
 
-/** AI-synthesized knowledge report — organizes/summarizes the investigation's
- *  already-real accumulated data. Never invents entities, sources, or facts
- *  that don't exist in the stored query results. */
 export interface InvestigationReport {
-  executiveAssessment: string;
-  keyFindings: string[];
-  actorLandscape: string;
-  relationshipsNarrative: string;
-  risks: string[];
-  opportunities: string[];
-  knowledgeGaps: string[];
-  sourceTrail: string[];
-  generatedAt: string;
+  title: string;
+  generated_at: string;
+  implications: string;
+  key_findings: KeyFinding[];
+  based_on_queries: number;
+  executive_summary: string;
+  original_question: string;
+  research_required: string[];
+  important_entities: ImportantEntity[];
+  evidence_and_sources: EvidenceSource[];
+  unresolved_questions: string[];
+  evidence_sources_count: number;
+  evidence_entities_count: number;
+  important_relationships: Relationship[];
+  investigation_narrative: string;
+  confidence_and_limitations: string;
+}
+
+export interface KeyFinding {
+  finding: string;
+  confidence: 'High' | 'Medium' | 'Low';
+  source_nodes: string[];
+  evidence_queries: string[];
+}
+
+export interface ImportantEntity {
+  name: string;
+  type: string;
+  significance: string;
+  evidence_queries: string[];
+}
+
+export interface Relationship {
+  insight: string;
+  to_entity: string;
+  from_entity: string;
+  evidence_queries: string[];
+  relationship_type: string;
+}
+
+export interface EvidenceSource {
+  type: string;
+  relevance: string;
+  source_id: string;
 }

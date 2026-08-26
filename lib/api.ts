@@ -555,6 +555,5 @@ export async function generateInvestigationReport(id: number): Promise<Investiga
     { method: 'POST', headers: { 'Content-Type': 'application/json' } },
     120_000
   );
-  const json = await parseJSON<{ status: string; data: InvestigationReport }>(res);
-  return json.data;
+  return parseJSON<InvestigationReport>(res);
 }

@@ -68,14 +68,14 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       );
     }
 
-    if (!body || typeof body !== 'object' || !('report' in body)) {
+    if (!body || typeof body !== 'object') {
       return NextResponse.json(
         { error: 'ATISv2 returned an incomplete report response.' },
         { status: 502 }
       );
     }
 
-    const report = (body as { report: unknown }).report;
+    const report = body;
     await sql`
       UPDATE investigations
       SET report_json = ${JSON.stringify(report)}::jsonb,
@@ -84,7 +84,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       WHERE id = ${investigationId}
     `;
 
-    return NextResponse.json({ status: 'ok', data: report });
+    return NextResponse.json(report);
   } catch (error) {
     console.error('[investigations/[id]/report POST]', error);
     return NextResponse.json({ error: 'Unable to complete the report request.' }, { status: 500 });
