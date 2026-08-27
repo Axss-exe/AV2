@@ -168,6 +168,11 @@ export interface FilterStats {
 }
 
 export interface QueryAPIResponse {
+  status?: string;
+  success?: boolean;
+  error?: string;
+  detail?: string;
+  message?: string;
   executive_summary?: string;
   summary?: string;
   structured_intelligence?: IntelligenceRow[];
@@ -235,6 +240,10 @@ export interface EntityGraphEdge {
 interface QueryEnvelope {
   // Wrapped shape: { status, elapsed_seconds, data: { ... } }
   status?: string;
+  success?: boolean;
+  error?: string;
+  detail?: string;
+  message?: string;
   cached?: boolean;
   elapsed_seconds?: number;
   data?: QueryAPIResponse;
@@ -258,6 +267,7 @@ interface QueryEnvelope {
 export interface QueryAPIResult extends QueryAPIResponse {
   cached?: boolean;
   elapsed_seconds?: number;
+  backendError?: string;
 }
 
 export async function queryAPI(body: QueryRequest): Promise<QueryAPIResult> {
@@ -269,10 +279,24 @@ export async function queryAPI(body: QueryRequest): Promise<QueryAPIResult> {
   const json = await parseJSON<QueryEnvelope>(res);
   // Unwrap { status, data: {...} } envelope if present, but keep the
   // envelope-level cached/elapsed_seconds metadata alongside it.
+  const envelopeError = typeof json.error === 'string'
+    ? json.error
+    : typeof json.detail === 'string'
+      ? json.detail
+      : typeof json.message === 'string'
+        ? json.message
+        : undefined;
   if (json.data && typeof json.data === 'object') {
-    return { ...json.data, cached: json.cached, elapsed_seconds: json.elapsed_seconds };
+    return {
+      ...json.data,
+      status: json.status,
+      success: json.success,
+      backendError: envelopeError,
+      cached: json.cached,
+      elapsed_seconds: json.elapsed_seconds,
+    };
   }
-  return json as QueryAPIResult;
+  return { ...(json as QueryAPIResult), backendError: envelopeError };
 }
 
 // ---------------------------------------------------------------------------

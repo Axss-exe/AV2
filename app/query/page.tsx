@@ -18,7 +18,7 @@ import { RisksPanel } from '@/components/query/risks-panel';
 import { IntelDrawer, type DrawerView } from '@/components/query/intel-drawer';
 import { useATIS } from '@/lib/context';
 import { queryAPI, APIError, createInvestigation } from '@/lib/api';
-import { mapAPIResponseToQueryResult } from '@/lib/query-mapping';
+import { hasQueryIntelligence, mapAPIResponseToQueryResult } from '@/lib/query-mapping';
 import { buildIntelligenceViewModel } from '@/lib/intelligence-view-model';
 
 const SUGGESTIONS = [
@@ -69,9 +69,15 @@ export default function QueryPage() {
         perspective_country_code: perspectiveCountryCode,
       });
       const result = mapAPIResponseToQueryResult(query, res);
+      if (res.backendError && !hasQueryIntelligence(res)) {
+        throw new APIError(res.backendError);
+      }
       setCurrentQueryResult(result);
       addQueryToHistory(result);
       setHasResult(true);
+      if (res.backendError) {
+        setApiError(`Some analysis components could not be finalized: ${res.backendError}`);
+      }
     } catch (err: unknown) {
       const msg =
         err instanceof APIError

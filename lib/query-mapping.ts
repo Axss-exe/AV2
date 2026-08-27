@@ -7,10 +7,30 @@
 import type { queryAPI } from './api';
 import type { QueryResult, IntelTableRow, GraphNode, GraphEdge, KeyEntity } from './types';
 
-// Map backend API response to the existing QueryResult type.
-// The backend returns { status, elapsed_seconds, data: { ... } } — the
-// queryAPI() function in lib/api.ts already unwraps this so `res` is the
-// flat `data` object here.
+function normalizeTextArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (typeof item === 'string') return [item];
+    if (item && typeof item === 'object' && typeof (item as { text?: unknown }).text === 'string') {
+      return [(item as { text: string }).text];
+    }
+    return [];
+  });
+}
+
+export function hasQueryIntelligence(res: Awaited<ReturnType<typeof queryAPI>>): boolean {
+  return Boolean(res.executive_summary ?? res.summary)
+    || (res.structured_intelligence?.length ?? 0) > 0
+    || (res.findings?.length ?? 0) > 0
+    || (res.findings_cited?.length ?? 0) > 0
+    || (res.opportunities_cited?.length ?? 0) > 0
+    || (res.risks?.length ?? 0) > 0
+    || (res.risks_cited?.length ?? 0) > 0
+    || (res.key_entities?.length ?? 0) > 0
+    || (res.source_nodes?.length ?? 0) > 0;
+}
+
+// Map the already-unwrapped backend response into one safe QueryResult shape.
 export function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnType<typeof queryAPI>>): QueryResult {
   // Derive stats from res.stats (real) or res.statistics (legacy fallback)
   const s = res.stats ?? {};
@@ -147,9 +167,9 @@ export function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnTy
     graphNodes,
     graphEdges,
     tableRows,
-    findings:     Array.isArray(res.findings)     ? res.findings     : [],
-    opportunities: Array.isArray(res.opportunities) ? res.opportunities : [],
-    riskFactors:  Array.isArray(res.risks)        ? res.risks        : [],
+    findings:     normalizeTextArray(res.findings),
+    opportunities: normalizeTextArray(res.opportunities),
+    riskFactors:  normalizeTextArray(res.risks),
     keyEntities,
     findingsCited,
     opportunitiesCited,

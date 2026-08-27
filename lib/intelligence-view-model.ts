@@ -156,7 +156,13 @@ export function buildIntelligenceViewModel(result: QueryResult): IntelligenceVie
   const intelEmpty = intelRows.length === 0;
   const rankedByLlmZero = result.filterStats?.rankedByLlm === 0;
   const findingsPlaceholder = (result.findings ?? []).some(isPlaceholder);
-  const isResearchRequired = (keyEntitiesEmpty && intelEmpty) || rankedByLlmZero || findingsPlaceholder;
+  const hasMeaningfulIntelligence = Boolean(rawSummary.trim())
+    || !keyEntitiesEmpty
+    || !intelEmpty
+    || findings.length > 0
+    || opportunities.length > 0
+    || risks.length > 0;
+  const isResearchRequired = !hasMeaningfulIntelligence || (rankedByLlmZero && !hasMeaningfulIntelligence) || (findingsPlaceholder && !hasMeaningfulIntelligence);
 
   const emptyCategories: string[] = [];
   if (findings.length === 0) emptyCategories.push('findings');

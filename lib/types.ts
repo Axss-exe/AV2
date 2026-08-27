@@ -166,6 +166,7 @@ export interface QueryResult {
   cached?: boolean;
   elapsedSeconds?: number;
   entityGraphRaw?: unknown;
+  backendError?: string;
 }
 
 export interface GraphNode {
