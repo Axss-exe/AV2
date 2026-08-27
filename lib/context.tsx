@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import type { Article, Opportunity, QueryResult } from './types';
 import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
+import { normalizeATISNewsResponse, hasMeaningfulATISData } from './news-normalization';
 import { DEFAULT_PERSPECTIVE, getCountryCode } from './perspective';
 
 interface ATISContextType {
@@ -35,6 +36,7 @@ interface ATISContextType {
   analysisProgress: number;
   analysisStatusText: string;
   analysisError: string | null;
+  analysisPartial: boolean;
   currentDashboard: Dashboard | null;
   runAnalysis: (article: NewsArticle) => Promise<void>;
   clearAnalysis: () => void;
@@ -92,6 +94,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisStatusText, setAnalysisStatusText] = useState('');
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisPartial, setAnalysisPartial] = useState(false);
   const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(null);
 
   const addQueryToHistory = useCallback((result: QueryResult) => {
@@ -107,6 +110,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setAnalysisLoading(true);
     setAnalysisProgress(0);
     setAnalysisError(null);
+    setAnalysisPartial(false);
     setCurrentDashboard(null);
 
     // Animate progress over 60s while the API runs
@@ -157,8 +161,27 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
           throw new Error(json.detail ?? json.error ?? `Request failed (${res.status})`);
         }
 
-        // Unwrap { status, data: {...} } or flat shape
-        const dashboard: Dashboard = json.data ?? json;
+        // Normalize once at the API boundary so every dashboard consumer receives
+        // predictable arrays and safe scalar values, regardless of backend shape.
+        const dashboard = normalizeATISNewsResponse(json);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[ATIS NEWS] Raw API response:', json);
+          console.log('[ATIS NEWS] Normalized payload:', dashboard);
+          console.log('[ATIS NEWS] Sections:', {
+            executiveSummary: Boolean(dashboard.executive_summary),
+            structuredIntelligence: dashboard.structured_intelligence.length,
+            findings: dashboard.findings.length,
+            opportunities: dashboard.opportunities.length,
+            risks: dashboard.risks.length,
+            keyEntities: dashboard.key_entities.length,
+            sourceNodes: dashboard.source_nodes.length,
+            perspectiveNodes: dashboard.perspective_nodes.length,
+            crossBorderBridges: dashboard.cross_border_bridges.length,
+          });
+        }
+        if (!hasMeaningfulATISData(dashboard)) {
+          throw new Error('The analysis returned no usable intelligence data. Please try again.');
+        }
         return dashboard;
       }
       throw new Error('Max retries exceeded. Please try again.');
@@ -169,6 +192,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       clearInterval(timer);
       setAnalysisProgress(100);
       setAnalysisStatusText('Analysis complete.');
+      setAnalysisPartial(dashboard.partial);
       setCurrentDashboard(dashboard);
     } catch (err) {
       clearInterval(timer);
@@ -184,6 +208,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setAnalysisProgress(0);
     setAnalysisStatusText('');
     setAnalysisError(null);
+    setAnalysisPartial(false);
     setCurrentDashboard(null);
   }, []);
 
@@ -215,6 +240,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         analysisProgress,
         analysisStatusText,
         analysisError,
+        analysisPartial,
         currentDashboard,
         runAnalysis,
         clearAnalysis,

@@ -83,6 +83,7 @@ export default function OpportunitiesPage() {
   const router = useRouter();
   const {
     currentDashboard,
+    analysisPartial,
     currentNewsArticle,
     clearAnalysis,
     perspectiveCountry,
@@ -283,6 +284,13 @@ export default function OpportunitiesPage() {
 
           {/* ── In-memory analysis panel ──────────────────────────────────── */}
           {currentDashboard && (
+            <>
+            {analysisPartial && (
+              <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 14px', background: 'rgba(255,159,10,0.08)', border: '1px solid rgba(255,159,10,0.24)', borderRadius: 8, color: 'var(--text-dim)', fontSize: 12 }}>
+                <AlertCircle size={14} aria-hidden="true" />
+                Analysis returned partial intelligence. Missing sections are shown as empty rather than inferred.
+              </div>
+            )}
             <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 40 }}>
               {/* Analysis header card */}
               <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 14, padding: '20px 24px', marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
@@ -347,8 +355,9 @@ export default function OpportunitiesPage() {
                     </motion.div>
                   ))}
               </div>
-            </motion.section>
-          )}
+              </motion.section>
+            </>
+            )}
 
           {/* ── Saved from DB ─────────────────────────────────────────────── */}
           {!currentDashboard && saved.length > 0 && (
