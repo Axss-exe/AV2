@@ -322,12 +322,22 @@ export interface NewsOpportunity {
 }
 
 export interface NewsAPIResponse {
-  core_event?: string;
+  intelligence_id?: string;
+  executive_summary?: string;
   trigger_event?: string;
   market_equilibrium_shift?: string;
-  opportunities?: NewsOpportunity[];
-  urgency?: string;
-  feasibility?: string;
+  source_country?: string;
+  event_country?: string;
+  key_entities?: Array<{ name?: string; type?: string; country?: string; role?: string }>;
+  structured_intelligence?: Array<{ claim?: string; evidence?: string; source_node?: string; impact?: string }>;
+  findings?: CitedStatement[];
+  risks?: CitedStatement[];
+  opportunities?: OpportunityCited[];
+  source_nodes?: SourceNode[];
+  perspective_nodes?: unknown[];
+  cross_border_bridges?: Array<{ from_node?: string; to_node?: string; relationship_type?: string }>;
+  perspective?: PerspectiveContext;
+  pipeline_metadata?: Record<string, unknown>;
   [key: string]: unknown;
 }
 

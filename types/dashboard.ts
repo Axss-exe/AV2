@@ -29,8 +29,16 @@ export interface PipelineMetadata {
 
 export interface Dashboard {
   intelligence_id: string;
+  partial?: boolean;
+  executive_summary?: string;
   trigger_event: string;
   market_equilibrium_shift: string;
+  source_country?: string;
+  event_country?: string;
+  key_entities?: Array<{ name?: string; type?: string; country?: string; role?: string }>;
+  structured_intelligence?: Array<{ claim?: string; evidence?: string; source_node?: string; impact?: string }>;
+  findings?: Array<{ text?: string; source_nodes?: string[] }>;
+  risks?: Array<{ text?: string; source_nodes?: string[] }>;
   opportunities: Opportunity[];
   pipeline_metadata: PipelineMetadata;
 }

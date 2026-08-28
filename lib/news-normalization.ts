@@ -6,6 +6,10 @@ export interface NormalizedTextItem {
 }
 
 export interface StructuredIntelligenceItem {
+  claim?: string;
+  evidence?: string;
+  source_node?: string;
+  impact?: string;
   entity?: string;
   type?: string;
   country?: string;
@@ -13,13 +17,14 @@ export interface StructuredIntelligenceItem {
   status?: string;
   priority?: string;
   insight?: string;
-  source_node?: string;
 }
 
 export interface KeyEntityItem {
-  entity?: string;
+  name?: string;
   type?: string;
   country?: string;
+  role?: string;
+  entity?: string;
   relationship?: string;
   source_node?: string;
 }
@@ -125,7 +130,9 @@ export function normalizeATISNewsResponse(raw: unknown): ATISNewsDashboard {
   const key_entities = Array.isArray(data.key_entities)
     ? data.key_entities.filter((item) => item && typeof item === 'object') as KeyEntityItem[]
     : [];
-  const meaningful = Boolean(data.executive_summary) || structured_intelligence.length > 0 || findings.length > 0 || opportunities.length > 0 || risks.length > 0 || key_entities.length > 0;
+  const meaningful = Boolean(
+    data.executive_summary || data.trigger_event || data.market_equilibrium_shift
+  ) || structured_intelligence.length > 0 || findings.length > 0 || opportunities.length > 0 || risks.length > 0 || key_entities.length > 0;
   const sectionCount = [structured_intelligence.length, findings.length, opportunities.length, risks.length, key_entities.length].filter(Boolean).length;
   const metadata = asRecord(data.pipeline_metadata) as PipelineMetadata;
 

@@ -45,10 +45,10 @@ interface ATISContextType {
 const ATISContext = createContext<ATISContextType | null>(null);
 
 const STATUS_MESSAGES = [
-  'Running constraint analysis...',
-  'Extracting entities...',
-  'Solving equilibrium...',
-  'Formatting dashboard...',
+  'Extracting intelligence...',
+  'Mapping the event against the knowledge graph...',
+  'Solving strategic constraints...',
+  'Formatting intelligence dashboard...',
 ];
 
 export function ATISProvider({ children }: { children: React.ReactNode }) {

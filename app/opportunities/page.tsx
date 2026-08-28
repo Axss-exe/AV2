@@ -77,6 +77,15 @@ function SkeletonCard() {
   );
 }
 
+function IntelligenceSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '18px 20px' }}>
+      <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-dim)', margin: '0 0 12px' }}>{title}</h3>
+      {children}
+    </section>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function OpportunitiesPage() {
@@ -150,7 +159,7 @@ export default function OpportunitiesPage() {
     const savedRow = saved.find((r) => r.opportunity_id === opportunityId);
     const dashboardJson = savedRow
       ? savedRow.dashboard_json
-      : currentDashboard ?? {};
+      : (currentDashboard ?? {}) as Record<string, unknown>;
 
     // The opportunity's own perspective (from the backend) is authoritative.
     // Fall back to the user's currently selected perspective only if absent.
@@ -322,9 +331,9 @@ export default function OpportunitiesPage() {
                 {/* Meta row */}
                 {currentDashboard.pipeline_metadata && (
                   <div className="flex flex-wrap items-center gap-3 mt-4">
-                    {(currentDashboard.pipeline_metadata as Record<string, unknown>).extracted_entities_count != null && (
+                    {currentDashboard.pipeline_metadata.extracted_entities_count != null && (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 8px' }}>
-                        <Hash size={9} aria-hidden="true" /> {(currentDashboard.pipeline_metadata as Record<string, unknown>).extracted_entities_count as number} entities
+                        <Hash size={9} aria-hidden="true" /> {currentDashboard.pipeline_metadata.extracted_entities_count} entities
                       </span>
                     )}
                     {(currentDashboard.pipeline_metadata as Record<string, unknown>).processed_at && (
@@ -336,11 +345,31 @@ export default function OpportunitiesPage() {
                 )}
               </div>
 
+              {/* Canonical News intelligence sections */}
+              <div className="flex flex-col gap-4" style={{ marginBottom: 20 }}>
+                {(currentDashboard.executive_summary || currentDashboard.trigger_event || currentDashboard.market_equilibrium_shift) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(currentDashboard.executive_summary || currentDashboard.trigger_event) && <IntelligenceSection title="Executive Summary">
+                      <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.65 }}>{(currentDashboard.executive_summary as string) || (currentDashboard.trigger_event as string)}</p>
+                    </IntelligenceSection>}
+                    {currentDashboard.trigger_event && <IntelligenceSection title="Trigger Event">
+                      <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.65 }}>{currentDashboard.trigger_event as string}</p>
+                      <p style={{ margin: '10px 0 0', color: 'var(--text-dim)', fontSize: 11 }}>Source country: {(currentDashboard.source_country as string) || 'Not specified'} · Event country: {(currentDashboard.event_country as string) || 'Not specified'}</p>
+                    </IntelligenceSection>}
+                  </div>
+                )}
+                {currentDashboard.market_equilibrium_shift && <IntelligenceSection title="Market Equilibrium Shift"><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.65 }}>{currentDashboard.market_equilibrium_shift as string}</p></IntelligenceSection>}
+                {Array.isArray(currentDashboard.findings) && currentDashboard.findings.length > 0 && <IntelligenceSection title="Findings"><div className="flex flex-col gap-3">{currentDashboard.findings.map((item: { text?: string; source_nodes?: string[] }, i: number) => <div key={i}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>{item.text}</p>{item.source_nodes?.length ? <p style={{ margin: '5px 0 0', color: 'var(--text-dim)', fontSize: 10 }}>Evidence: {item.source_nodes.join(', ')}</p> : null}</div>)}</div></IntelligenceSection>}
+                {Array.isArray(currentDashboard.structured_intelligence) && currentDashboard.structured_intelligence.length > 0 && <IntelligenceSection title="Structured Intelligence"><div className="flex flex-col gap-3">{currentDashboard.structured_intelligence.map((item: { claim?: string; evidence?: string; impact?: string }, i: number) => <div key={i}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}><strong>{item.claim}</strong>{item.impact ? ` — ${item.impact}` : ''}</p>{item.evidence ? <p style={{ margin: '5px 0 0', color: 'var(--text-dim)', fontSize: 11 }}>{item.evidence}</p> : null}</div>)}</div></IntelligenceSection>}
+                {Array.isArray(currentDashboard.risks) && currentDashboard.risks.length > 0 && <IntelligenceSection title="Risks"><div className="flex flex-col gap-3">{currentDashboard.risks.map((item: { text?: string; source_nodes?: string[] }, i: number) => <div key={i}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>{item.text}</p>{item.source_nodes?.length ? <p style={{ margin: '5px 0 0', color: 'var(--text-dim)', fontSize: 10 }}>Evidence: {item.source_nodes.join(', ')}</p> : null}</div>)}</div></IntelligenceSection>}
+                {Array.isArray(currentDashboard.opportunities) && currentDashboard.opportunities.length === 0 && <IntelligenceSection title="Opportunities"><p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No validated opportunities identified.</p></IntelligenceSection>}
+              </div>
+
               {/* Opportunity cards from analysis */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', gap: 16 }}>
                 {(Array.isArray(currentDashboard.opportunities) ? currentDashboard.opportunities : [])
-                  .sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.urgency_score as number) - (a.urgency_score as number))
-                  .map((opp: Record<string, unknown>, i: number) => (
+                  .sort((a, b) => b.urgency_score - a.urgency_score)
+                  .map((opp, i) => (
                     <motion.div key={(opp.opportunity_id as string) ?? i} custom={i} variants={cardVariants} initial="hidden" animate="visible">
                       <OpportunityCard
                         opportunity={opp as Parameters<typeof OpportunityCard>[0]['opportunity']}
