@@ -359,10 +359,15 @@ export default function OpportunitiesPage() {
                   </div>
                 )}
                 {currentDashboard.market_equilibrium_shift && <IntelligenceSection title="Market Equilibrium Shift"><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.65 }}>{currentDashboard.market_equilibrium_shift as string}</p></IntelligenceSection>}
+                {(currentDashboard.perspective || currentDashboard.event_country || currentDashboard.source_country) && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {currentDashboard.perspective && <IntelligenceSection title="Analytical Perspective"><p style={{ margin: 0, color: 'var(--text-primary)', fontSize: 15, fontWeight: 600 }}>{currentDashboard.perspective.country || 'Not specified'}{currentDashboard.perspective.country_code ? ` (${currentDashboard.perspective.country_code})` : ''}</p><p style={{ margin: '6px 0 0', color: 'var(--text-dim)', fontSize: 11 }}>Country through which this event is being interpreted.</p></IntelligenceSection>}
+                  {(currentDashboard.event_country || currentDashboard.source_country) && <IntelligenceSection title="Cross-Border Analysis"><div className="flex flex-col gap-2" style={{ color: 'var(--text-tertiary)', fontSize: 13 }}><span>Event country: {currentDashboard.event_country || 'Not specified'}</span><span>Source country: {currentDashboard.source_country || 'Not specified'}</span><span>Cross-border bridges: {Array.isArray((currentDashboard as Record<string, unknown>).cross_border_bridges) ? ((currentDashboard as Record<string, unknown>).cross_border_bridges as unknown[]).length : 0}</span></div></IntelligenceSection>}
+                </div>}
                 {Array.isArray(currentDashboard.findings) && currentDashboard.findings.length > 0 && <IntelligenceSection title="Findings"><div className="flex flex-col gap-3">{currentDashboard.findings.map((item: { text?: string; source_nodes?: string[] }, i: number) => <div key={i}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>{item.text}</p>{item.source_nodes?.length ? <p style={{ margin: '5px 0 0', color: 'var(--text-dim)', fontSize: 10 }}>Evidence: {item.source_nodes.join(', ')}</p> : null}</div>)}</div></IntelligenceSection>}
                 {Array.isArray(currentDashboard.structured_intelligence) && currentDashboard.structured_intelligence.length > 0 && <IntelligenceSection title="Structured Intelligence"><div className="flex flex-col gap-3">{currentDashboard.structured_intelligence.map((item: { claim?: string; evidence?: string; impact?: string }, i: number) => <div key={i}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}><strong>{item.claim}</strong>{item.impact ? ` — ${item.impact}` : ''}</p>{item.evidence ? <p style={{ margin: '5px 0 0', color: 'var(--text-dim)', fontSize: 11 }}>{item.evidence}</p> : null}</div>)}</div></IntelligenceSection>}
                 {Array.isArray(currentDashboard.risks) && currentDashboard.risks.length > 0 && <IntelligenceSection title="Risks"><div className="flex flex-col gap-3">{currentDashboard.risks.map((item: { text?: string; source_nodes?: string[] }, i: number) => <div key={i}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>{item.text}</p>{item.source_nodes?.length ? <p style={{ margin: '5px 0 0', color: 'var(--text-dim)', fontSize: 10 }}>Evidence: {item.source_nodes.join(', ')}</p> : null}</div>)}</div></IntelligenceSection>}
-                {Array.isArray(currentDashboard.opportunities) && currentDashboard.opportunities.length === 0 && <IntelligenceSection title="Opportunities"><p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No validated opportunities identified.</p></IntelligenceSection>}
+                {Array.isArray(currentDashboard.risks) && currentDashboard.risks.length === 0 && <IntelligenceSection title="Risks"><p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No risks were explicitly identified in the current structured analysis.</p></IntelligenceSection>}
+                {Array.isArray(currentDashboard.opportunities) && currentDashboard.opportunities.length === 0 && <IntelligenceSection title="Opportunities"><p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No opportunities were identified in the current analysis.</p></IntelligenceSection>}
               </div>
 
               {/* Opportunity cards from analysis */}
@@ -388,7 +393,7 @@ export default function OpportunitiesPage() {
             </>
             )}
 
-          {/* ── Saved from DB ─────────────────────────────────────────────── */}
+          {/* ── Saved from DB ─���───────────────────────────────────────────── */}
           {!currentDashboard && saved.length > 0 && (
             <div className="flex items-center gap-3 mb-5">
               <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: 'var(--text-tertiary)', margin: 0 }}>

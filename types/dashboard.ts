@@ -18,12 +18,28 @@ export interface Opportunity {
 }
 
 export interface PipelineMetadata {
-  processed_at: string;
-  source_article: string;
-  extracted_entities_count: number;
-  core_event: string;
-  model_primary: string;
-  model_fallback: string;
+  processed_at?: string;
+  source_article?: string;
+  extracted_entities_count?: number;
+  core_event?: string;
+  model_primary?: string;
+  model_fallback?: string | null;
+  analysis_fingerprint?: string;
+  analysis_version?: string;
+  cross_border_bridges_found?: number;
+  perspective_nodes_found?: number;
+  event_country?: string;
+  source_country?: string;
+  perspective_country?: string;
+  perspective_country_code?: string;
+  schema_version?: string;
+  knowledge_state?: {
+    vault_version?: string;
+    total_files?: number;
+    evidence_set_hash?: string;
+    knowledge_state_hash?: string;
+    [key: string]: unknown;
+  };
   elapsed_seconds?: number;
 }
 

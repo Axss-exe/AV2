@@ -133,16 +133,6 @@ export function normalizeATISNewsResponse(raw: unknown): ATISNewsDashboard {
     ? data.key_entities.filter((item) => item && typeof item === 'object') as KeyEntityItem[]
     : [];
   const metadata = asRecord(data.pipeline_metadata) as PipelineMetadata;
-  const meaningful = Boolean(
-    data.executive_summary ||
-    data.market_equilibrium_shift ||
-    data.trigger_event ||
-    metadata.core_event ||
-    data.perspective ||
-    data.event_country ||
-    data.source_country
-  ) || structured_intelligence.length > 0 || findings.length > 0 || opportunities.length > 0 || risks.length > 0 || key_entities.length > 0;
-
   return {
     ...data,
     intelligence_id: typeof data.intelligence_id === 'string' ? data.intelligence_id : '',
@@ -150,7 +140,8 @@ export function normalizeATISNewsResponse(raw: unknown): ATISNewsDashboard {
     market_equilibrium_shift: typeof data.market_equilibrium_shift === 'string' ? data.market_equilibrium_shift : '',
     executive_summary: typeof data.executive_summary === 'string'
       ? data.executive_summary
-      : typeof data.market_equilibrium_shift === 'string' ? data.market_equilibrium_shift : '',
+      : typeof metadata.core_event === 'string' ? metadata.core_event
+        : typeof data.market_equilibrium_shift === 'string' ? data.market_equilibrium_shift : '',
     structured_intelligence,
     findings,
     opportunities,
@@ -167,5 +158,20 @@ export function normalizeATISNewsResponse(raw: unknown): ATISNewsDashboard {
 }
 
 export function hasMeaningfulATISData(payload: ATISNewsDashboard): boolean {
-  return Boolean(payload.executive_summary) || payload.structured_intelligence.length > 0 || payload.findings.length > 0 || payload.opportunities.length > 0 || payload.risks.length > 0 || payload.key_entities.length > 0;
+  const metadata = asRecord(payload.pipeline_metadata);
+  const perspective = asRecord(payload.perspective);
+  return Boolean(
+    payload.executive_summary ||
+    payload.market_equilibrium_shift ||
+    payload.trigger_event ||
+    metadata.core_event ||
+    perspective.country ||
+    payload.event_country ||
+    payload.source_country ||
+    payload.structured_intelligence.length > 0 ||
+    payload.findings.length > 0 ||
+    payload.opportunities.length > 0 ||
+    payload.risks.length > 0 ||
+    payload.key_entities.length > 0
+  );
 }
