@@ -82,21 +82,13 @@ export function normalizeTextItems(value: unknown): NormalizedTextItem[] {
 
 export function extractATISPayload(raw: unknown): Record<string, unknown> {
   const obj = asRecord(raw);
-  const isPayload = ['executive_summary', 'opportunities', 'findings', 'structured_intelligence']
-    .some((key) => key in obj);
-  if (isPayload) return obj;
-
-  // The News route may return the Stage 3 dashboard under a wrapper.
-  // Prefer the dashboard itself so the UI validates the actual intelligence,
-  // rather than rejecting a valid response because wrapper keys are sparse.
-  for (const candidate of [obj.dashboard, obj.data, obj.result]) {
+  // The current 2.1.0 perspective schema puts the intelligence in `data`,
+  // even when optional legacy arrays are absent. Treat an object-shaped
+  // envelope as authoritative instead of requiring old field names first.
+  for (const candidate of [obj.data, obj.dashboard, obj.result]) {
     const payload = asRecord(candidate);
-    if (['executive_summary', 'opportunities', 'findings', 'structured_intelligence', 'key_entities']
-      .some((key) => key in payload)) {
-      return payload;
-    }
+    if (Object.keys(payload).length > 0) return payload;
   }
-
   return obj;
 }
 
@@ -140,18 +132,25 @@ export function normalizeATISNewsResponse(raw: unknown): ATISNewsDashboard {
   const key_entities = Array.isArray(data.key_entities)
     ? data.key_entities.filter((item) => item && typeof item === 'object') as KeyEntityItem[]
     : [];
-  const meaningful = Boolean(
-    data.executive_summary || data.trigger_event || data.market_equilibrium_shift
-  ) || structured_intelligence.length > 0 || findings.length > 0 || opportunities.length > 0 || risks.length > 0 || key_entities.length > 0;
-  const sectionCount = [structured_intelligence.length, findings.length, opportunities.length, risks.length, key_entities.length].filter(Boolean).length;
   const metadata = asRecord(data.pipeline_metadata) as PipelineMetadata;
+  const meaningful = Boolean(
+    data.executive_summary ||
+    data.market_equilibrium_shift ||
+    data.trigger_event ||
+    metadata.core_event ||
+    data.perspective ||
+    data.event_country ||
+    data.source_country
+  ) || structured_intelligence.length > 0 || findings.length > 0 || opportunities.length > 0 || risks.length > 0 || key_entities.length > 0;
 
   return {
     ...data,
     intelligence_id: typeof data.intelligence_id === 'string' ? data.intelligence_id : '',
     trigger_event: typeof data.trigger_event === 'string' ? data.trigger_event : '',
     market_equilibrium_shift: typeof data.market_equilibrium_shift === 'string' ? data.market_equilibrium_shift : '',
-    executive_summary: typeof data.executive_summary === 'string' ? data.executive_summary : '',
+    executive_summary: typeof data.executive_summary === 'string'
+      ? data.executive_summary
+      : typeof data.market_equilibrium_shift === 'string' ? data.market_equilibrium_shift : '',
     structured_intelligence,
     findings,
     opportunities,
@@ -161,7 +160,9 @@ export function normalizeATISNewsResponse(raw: unknown): ATISNewsDashboard {
     perspective_nodes: Array.isArray(data.perspective_nodes) ? data.perspective_nodes : [],
     cross_border_bridges: Array.isArray(data.cross_border_bridges) ? data.cross_border_bridges.filter((v) => v && typeof v === 'object') as CrossBorderBridge[] : [],
     pipeline_metadata: metadata,
-    partial: meaningful && sectionCount < 5,
+    // Only trust an explicit backend partial flag. Sparse optional sections are
+    // valid for the current perspective-deterministic schema.
+    partial: data.partial === true,
   };
 }
 

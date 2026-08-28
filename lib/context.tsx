@@ -165,8 +165,23 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         // predictable arrays and safe scalar values, regardless of backend shape.
         const dashboard = normalizeATISNewsResponse(json);
         if (process.env.NODE_ENV === 'development') {
+          const rawData = json && typeof json === 'object' && json.data && typeof json.data === 'object' ? json.data : json;
+          const schemaVersion = rawData && typeof rawData === 'object' && 'schema_version' in rawData
+            ? rawData.schema_version
+            : json?.schema_version ?? 'unknown';
+          const usabilityReason = dashboard.market_equilibrium_shift
+            ? 'market_equilibrium_shift present'
+            : dashboard.trigger_event
+              ? 'trigger_event present'
+              : dashboard.pipeline_metadata?.core_event
+                ? 'pipeline_metadata.core_event present'
+                : dashboard.structured_intelligence.length > 0
+                  ? 'structured_intelligence present'
+                  : 'no recognized intelligence fields';
           console.log('[ATIS NEWS] Raw API response:', json);
+          console.log('[ATIS NEWS] Detected schema version:', schemaVersion);
           console.log('[ATIS NEWS] Normalized payload:', dashboard);
+          console.log('[ATIS NEWS] Usability check:', Boolean(hasMeaningfulATISData(dashboard)), `reason: ${usabilityReason}`);
           console.log('[ATIS NEWS] Sections:', {
             executiveSummary: Boolean(dashboard.executive_summary),
             structuredIntelligence: dashboard.structured_intelligence.length,
