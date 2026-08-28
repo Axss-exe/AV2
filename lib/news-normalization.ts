@@ -85,8 +85,18 @@ export function extractATISPayload(raw: unknown): Record<string, unknown> {
   const isPayload = ['executive_summary', 'opportunities', 'findings', 'structured_intelligence']
     .some((key) => key in obj);
   if (isPayload) return obj;
-  if (obj.data && typeof obj.data === 'object') return asRecord(obj.data);
-  if (obj.result && typeof obj.result === 'object') return asRecord(obj.result);
+
+  // The News route may return the Stage 3 dashboard under a wrapper.
+  // Prefer the dashboard itself so the UI validates the actual intelligence,
+  // rather than rejecting a valid response because wrapper keys are sparse.
+  for (const candidate of [obj.dashboard, obj.data, obj.result]) {
+    const payload = asRecord(candidate);
+    if (['executive_summary', 'opportunities', 'findings', 'structured_intelligence', 'key_entities']
+      .some((key) => key in payload)) {
+      return payload;
+    }
+  }
+
   return obj;
 }
 
