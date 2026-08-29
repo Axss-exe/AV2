@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AppShell } from '@/components/app-shell';
 import { AnalysisLoader } from '@/components/analysis-loader';
 import { useATIS } from '@/lib/context';
 import { AlertCircle, ChevronRight, Zap } from 'lucide-react';
 import type { Article } from '@/types/article';
+import NewsIntelligencePanel from '@/components/news-intelligence-panel';
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -53,7 +53,6 @@ export default function ArticleDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
   const {
     runAnalysis,
     clearAnalysis,
@@ -86,12 +85,6 @@ export default function ArticleDetailPage({
     fetchArticle();
   }, [id]);
 
-  // Navigate to /opportunities when dashboard is ready
-  useEffect(() => {
-    if (currentDashboard) {
-      router.push('/opportunities');
-    }
-  }, [currentDashboard, router]);
 
   const handleAnalyze = async () => {
     if (!article) return;
@@ -422,6 +415,8 @@ export default function ArticleDetailPage({
                 </button>
               </div>
             </div>
+
+            {currentDashboard && <NewsIntelligencePanel dashboard={currentDashboard} />}
           </>
         )}
       </main>

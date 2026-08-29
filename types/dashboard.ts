@@ -57,4 +57,11 @@ export interface Dashboard {
   risks?: Array<{ text?: string; source_nodes?: string[] }>;
   opportunities: Opportunity[];
   pipeline_metadata: PipelineMetadata;
+  status?: string;
+  detail?: string;
+  perspective?: { country?: string; country_code?: string; actor?: string; capability?: string };
+  source_nodes?: Array<{ id?: string; type?: string; [key: string]: unknown }>;
+  perspective_nodes?: unknown[];
+  cross_border_bridges?: Array<{ [key: string]: unknown }>;
+  impact_chain?: unknown[];
 }
