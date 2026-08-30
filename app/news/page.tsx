@@ -472,10 +472,10 @@ export default function NewsPage() {
             </div>
             <div>
               <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                News Dashboard
+                Intelligence Stories
               </h1>
               <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 11, color: 'var(--text-dim)', margin: 0 }}>
-                Live intelligence from monitored markets
+                Discover events worth investigating from the Zimbabwe perspective
               </p>
             </div>
           </div>
@@ -522,7 +522,7 @@ export default function NewsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
                 <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-tertiary)', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.07em' }}>
-                  All Articles
+                  Story discovery
                 </h2>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--border-default)' }}>
                   {filtered.length}

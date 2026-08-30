@@ -1,71 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { ChevronDown, ShieldAlert, Search, Network, CircleHelp } from 'lucide-react';
 import type { Dashboard } from '@/types/dashboard';
 
-type UnknownRecord = Record<string, unknown>;
+type AnyRecord = Record<string, unknown>;
+const rec = (v: unknown): AnyRecord => v && typeof v === 'object' && !Array.isArray(v) ? v as AnyRecord : {};
+const arr = (v: unknown): unknown[] => Array.isArray(v) ? v : [];
+const text = (v: unknown, fallback = 'Not returned') => typeof v === 'string' || typeof v === 'number' ? String(v) : fallback;
+const percent = (v: unknown) => typeof v === 'number' ? `${Math.round(v <= 1 ? v * 100 : v)}%` : '—';
+const listText = (item: unknown) => { const o = rec(item); return text(o.text ?? o.claim ?? o.interpretation ?? o.title ?? o.label ?? item, 'No statement returned'); };
 
-function record(value: unknown): UnknownRecord {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : {};
-}
-
-function display(value: unknown): string {
-  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
-  return JSON.stringify(value, null, 2);
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 12, padding: '18px 20px' }}>
-    <h2 style={{ margin: '0 0 12px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{title}</h2>
+function Section({ eyebrow, title, children, tone = 'default' }: { eyebrow?: string; title: string; children: React.ReactNode; tone?: 'default' | 'accent' | 'warning' }) {
+  return <section className="flex flex-col gap-4" style={{ borderTop: `1px solid ${tone === 'warning' ? 'rgba(255,159,10,.35)' : tone === 'accent' ? 'rgba(0,122,255,.35)' : 'var(--border-default)'}`, paddingTop: 22 }}>
+    <div><p style={{ margin: 0, color: tone === 'warning' ? '#ff9f0a' : tone === 'accent' ? '#5ac8fa' : 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase' }}>{eyebrow ?? 'Intelligence layer'}</p><h2 style={{ margin: '6px 0 0', color: 'var(--text-primary)', fontSize: 18, fontWeight: 650, letterSpacing: '-.01em' }}>{title}</h2></div>
     {children}
   </section>;
 }
 
-function TextList({ items, empty }: { items: unknown[]; empty: string }) {
-  if (!items.length) return <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>{empty}</p>;
-  return <div className="flex flex-col gap-3">{items.map((item, index) => {
-    const obj = record(item);
-    const text = obj.text ?? obj.claim ?? obj.insight ?? obj.title ?? item;
-    return <div key={index} style={{ color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.6 }}>
-      <div>{display(text)}</div>
-      {Array.isArray(obj.source_nodes) && obj.source_nodes.length > 0 && <div style={{ marginTop: 4, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>Evidence: {obj.source_nodes.map(display).join(', ')}</div>}
-      {obj.evidence != null && <div style={{ marginTop: 4, color: 'var(--text-dim)', fontSize: 11 }}>{display(obj.evidence)}</div>}
-    </div>;
-  })}</div>;
-}
+function Evidence({ item }: { item: unknown }) { const o = rec(item); const nodes = arr(o.source_nodes ?? o.supporting_nodes ?? o.evidence_nodes); return <div style={{ display: 'flex', flexDirection: 'column', gap: 7, padding: '12px 14px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 8 }}><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.6 }}>{listText(item)}</p>{nodes.length > 0 && <p style={{ margin: 0, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>Evidence nodes · {nodes.map((n) => text(n)).join(' · ')}</p>}{o.status && <span style={{ color: o.status === 'SUPPORTED' || o.status === 'supported' ? '#30d158' : '#ff9f0a', fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase' }}>{text(o.status)}</span>}</div> }
 
-function JsonDetails({ title, value }: { title: string; value: unknown }) {
-  const [open, setOpen] = useState(false);
-  const hasValue = Array.isArray(value) ? value.length > 0 : Object.keys(record(value)).length > 0;
-  return <details open={open} onToggle={(event) => setOpen(event.currentTarget.open)} style={{ borderTop: '1px solid var(--border-default)', paddingTop: 12 }}>
-    <summary style={{ cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: 12 }}>{title} {hasValue ? '' : '(empty)'}</summary>
-    {hasValue ? <pre style={{ overflowX: 'auto', margin: '12px 0 0', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10, lineHeight: 1.6 }}>{display(value)}</pre> : <p style={{ color: 'var(--text-dim)', fontSize: 12 }}>No data returned.</p>}
-  </details>;
-}
+function Expandable({ title, value }: { title: string; value: unknown }) { const [open, setOpen] = useState(false); const items = arr(value); return <div style={{ border: '1px solid var(--border-default)', borderRadius: 8, overflow: 'hidden' }}><button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between gap-3" style={{ background: 'var(--bg-surface)', border: 0, padding: '12px 14px', color: 'var(--text-tertiary)', cursor: 'pointer', textAlign: 'left' }}><span style={{ fontSize: 12 }}>{title} <span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>({items.length})</span></span><ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : undefined }} /></button>{open && <div className="flex flex-col gap-2" style={{ padding: 12, background: 'var(--bg-primary)' }}>{items.length ? items.slice(0, 12).map((item, i) => <Evidence key={i} item={item} />) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 12 }}>No data returned.</p>}</div>}</div> }
 
 export function NewsIntelligencePanel({ dashboard }: { dashboard: Dashboard }) {
-  const perspective = record(dashboard.perspective);
-  const metadata = record(dashboard.pipeline_metadata);
-  const rawDashboard = dashboard as unknown as UnknownRecord;
-  const impactChain = Array.isArray(rawDashboard.impact_chain) ? rawDashboard.impact_chain as unknown[] : [];
-  const status = rawDashboard.status;
-  const detail = rawDashboard.detail;
-  return <div className="flex flex-col gap-4" style={{ marginTop: 32 }}>
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-      <span style={{ color: 'var(--text-primary)', fontSize: 15, fontWeight: 600 }}>News Intelligence</span>
-      {status != null && <span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>STATUS: {display(status)}</span>}
-      {dashboard.partial && <span style={{ color: '#ff9f0a', fontFamily: 'var(--font-mono)', fontSize: 10 }}>PARTIAL</span>}
-    </div>
-    {detail != null && <div role="status" style={{ color: 'var(--text-dim)', fontSize: 12 }}>{display(detail)}</div>}
-    <Section title="What happened"><div className="flex flex-col gap-3"><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 14, lineHeight: 1.65 }}>{dashboard.trigger_event || 'No trigger event returned.'}</p><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.65 }}>{dashboard.executive_summary || 'No executive summary returned.'}</p></div></Section>
-    <Section title="Perspective"><p style={{ margin: 0, color: 'var(--text-primary)', fontSize: 15, fontWeight: 600 }}>{display(perspective.country ?? 'No perspective returned.')}{perspective.country_code ? ` (${display(perspective.country_code)})` : ''}</p></Section>
-    <Section title="What it means"><div className="flex flex-col gap-4"><div><h3 style={{ margin: '0 0 8px', color: 'var(--text-dim)', fontSize: 11 }}>Findings</h3><TextList items={dashboard.findings ?? []} empty="No findings returned." /></div><div><h3 style={{ margin: '0 0 8px', color: 'var(--text-dim)', fontSize: 11 }}>Market equilibrium shift</h3><p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13, lineHeight: 1.65 }}>{dashboard.market_equilibrium_shift || 'No market equilibrium shift returned.'}</p></div></div></Section>
-    <Section title="Impact chain"><TextList items={impactChain} empty="No impact chain returned." /></Section>
-    <Section title="Risks"><TextList items={dashboard.risks ?? []} empty="No risks returned." /></Section>
-    <Section title="Opportunities"><TextList items={dashboard.opportunities} empty="No opportunities returned." /></Section>
-    <Section title="Connections"><div className="flex flex-col gap-3"><JsonDetails title="Key entities" value={dashboard.key_entities ?? []} /><JsonDetails title="Source nodes" value={dashboard.source_nodes} /><JsonDetails title="Perspective nodes" value={dashboard.perspective_nodes} /><JsonDetails title="Cross-border bridges" value={dashboard.cross_border_bridges} /></div></Section>
-    <Section title="Evidence / intelligence"><div className="flex flex-col gap-3"><JsonDetails title="Structured intelligence" value={dashboard.structured_intelligence ?? []} /><JsonDetails title="Pipeline metadata" value={metadata} /><div style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>Intelligence ID: {dashboard.intelligence_id || 'Not returned'}</div></div></Section>
+  const d = dashboard as unknown as AnyRecord;
+  const meta = rec(d.pipeline_metadata); const perspective = rec(d.analytical_perspective ?? d.perspective);
+  const facts = arr(d.facts ?? d.findings); const meaning = arr(d.meaning); const impacts = arr(d.impact_domains); const chain = arr(d.impact_chain); const findings = arr(d.findings); const opportunities = arr(d.opportunities); const risks = arr(d.risks); const gaps = arr(d.gaps ?? d.research_required);
+  const [oppFilter, setOppFilter] = useState('All'); const [riskFilter, setRiskFilter] = useState('All');
+  const filteredOpps = useMemo(() => opportunities.filter((x) => oppFilter === 'All' || text(rec(x).status).toLowerCase() === oppFilter.toLowerCase()), [opportunities, oppFilter]);
+  const filteredRisks = useMemo(() => risks.filter((x) => riskFilter === 'All' || text(rec(x).severity).toLowerCase() === riskFilter.toLowerCase()), [risks, riskFilter]);
+  const graph = rec(d.graph_analysis); const bridges = arr(d.cross_border_analysis ?? d.cross_border_bridges);
+  return <div className="flex flex-col gap-8" style={{ marginTop: 40 }}>
+    <div style={{ padding: '18px 0', borderTop: '2px solid var(--text-primary)', borderBottom: '1px solid var(--border-default)' }}><div className="flex flex-wrap items-center gap-3"><span style={{ color: '#30d158', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '.12em', textTransform: 'uppercase' }}>{text(d.status, 'Complete')}</span>{d.partial === true && <span style={{ color: '#ff9f0a', fontFamily: 'var(--font-mono)', fontSize: 10 }}>PARTIAL</span>}</div><p style={{ margin: '12px 0 0', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>INTELLIGENCE ID · {text(d.intelligence_id)}</p></div>
+    <div className="grid grid-cols-2 gap-px sm:grid-cols-5" style={{ background: 'var(--border-default)', border: '1px solid var(--border-default)' }}>{[['Perspective', perspective.country ?? d.perspective_country], ['Source', d.source_country ?? meta.source_country], ['Event', d.event_country ?? meta.event_country], ['Status', d.status ?? 'Complete'], ['Processed', meta.processed_at]].map(([label, value]) => <div key={label as string} style={{ background: 'var(--bg-surface)', padding: '14px' }}><p style={{ margin: 0, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase' }}>{label as string}</p><p style={{ margin: '7px 0 0', color: 'var(--text-tertiary)', fontSize: 12 }}>{text(value)}</p></div>)}</div>
+    <Section eyebrow="Trigger event" title={text(d.trigger_event, 'Trigger event not returned')} tone="accent"><p style={{ margin: 0, maxWidth: 760, color: 'var(--text-tertiary)', fontSize: 15, lineHeight: 1.7 }}>{text(d.executive_summary, 'Executive summary not returned.')}</p></Section>
+    <Section eyebrow="Facts" title="What Happened"><div className="flex flex-col gap-3">{facts.length ? facts.map((x, i) => <div key={i} className="flex gap-3"><span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>F{i + 1}</span><Evidence item={x} /></div>) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No facts returned.</p>}</div></Section>
+    <Section eyebrow="Interpretation" title="What It Means"><div className="flex flex-col gap-3">{meaning.length ? meaning.map((x, i) => <Evidence key={i} item={x} />) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No interpretations returned.</p>}</div></Section>
+    <Section eyebrow="Impact intelligence" title="What It Affects"><div className="grid grid-cols-1 gap-3 md:grid-cols-2">{impacts.length ? impacts.map((x, i) => { const o = rec(x); return <div key={i} style={{ padding: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 8 }}><div className="flex items-center justify-between gap-3"><strong style={{ color: 'var(--text-primary)', fontSize: 13 }}>{text(o.domain ?? o.title, `Impact domain ${i + 1}`)}</strong><span style={{ color: '#ff9f0a', fontFamily: 'var(--font-mono)', fontSize: 10 }}>{text(o.priority, '—')}</span></div><p style={{ margin: '10px 0 0', color: 'var(--text-dim)', fontSize: 12, lineHeight: 1.6 }}>{text(o.why_relevant ?? o.mechanism, 'No explanation returned.')}</p></div> }) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No impact domains returned.</p>}</div></Section>
+    <Section eyebrow="Causal flow" title="Impact Chain"><div className="flex flex-col gap-2">{chain.length ? chain.map((x, i) => { const o = rec(x); return <div key={i} className="flex items-center gap-3" style={{ padding: '12px 14px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}><span style={{ color: '#5ac8fa', fontFamily: 'var(--font-mono)', fontSize: 10 }}>{text(o.stage, `Stage ${i + 1}`)}</span><span style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>{text(o.label ?? o.text ?? x)}</span></div> }) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No impact chain returned.</p>}</div></Section>
+    <Section eyebrow="Relationships" title="Relationship Intelligence"><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{[['Direct', graph.direct_nodes ?? graph.direct], ['First order', graph.first_order_nodes ?? graph.first_order], ['Second order', graph.second_order_nodes ?? graph.second_order], ['Paths', graph.paths ?? graph.relationship_paths]].map(([label, value]) => <div key={label as string} style={{ padding: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}><strong style={{ display: 'block', color: 'var(--text-primary)', fontSize: 20 }}>{text(value, '—')}</strong><span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 9, textTransform: 'uppercase' }}>{label as string}</span></div>)}</div><div className="flex flex-col gap-2"><Expandable title="Source nodes" value={d.source_nodes} /><Expandable title="Perspective nodes" value={d.perspective_nodes} /><Expandable title="Structured intelligence" value={d.structured_intelligence} /></div></Section>
+    <Section eyebrow="Verified findings" title="Evidence-backed Findings"><div className="flex flex-col gap-3">{findings.length ? findings.map((x, i) => <Evidence key={i} item={x} />) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No findings returned.</p>}</div></Section>
+    <Section eyebrow="Opportunity intelligence" title={`${opportunities.length} identified opportunities`} tone="accent"><div className="flex flex-wrap gap-2"><button onClick={() => setOppFilter('All')} style={{ padding: '6px 10px', border: '1px solid var(--border-hover)', background: oppFilter === 'All' ? 'var(--bg-control)' : 'transparent', color: 'var(--text-tertiary)', borderRadius: 6, cursor: 'pointer' }}>All</button><button onClick={() => setOppFilter('Supported')} style={{ padding: '6px 10px', border: '1px solid var(--border-hover)', background: oppFilter === 'Supported' ? 'var(--bg-control)' : 'transparent', color: 'var(--text-tertiary)', borderRadius: 6, cursor: 'pointer' }}>Supported</button><button onClick={() => setOppFilter('Research Required')} style={{ padding: '6px 10px', border: '1px solid var(--border-hover)', background: oppFilter === 'Research Required' ? 'var(--bg-control)' : 'transparent', color: 'var(--text-tertiary)', borderRadius: 6, cursor: 'pointer' }}>Research Required</button></div><div className="flex flex-col gap-3">{filteredOpps.length ? filteredOpps.map((x, i) => { const o = rec(x); return <div key={i} style={{ padding: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 8 }}><div className="flex items-center justify-between gap-3"><strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{text(o.title, `Opportunity ${i + 1}`)}</strong><span style={{ color: '#30d158', fontFamily: 'var(--font-mono)', fontSize: 10 }}>{text(o.status, '—')}</span></div><p style={{ margin: '10px 0', color: 'var(--text-dim)', fontSize: 12 }}>{text(o.justification, 'No justification returned.')}</p><div className="flex flex-wrap gap-4" style={{ color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)', fontSize: 10 }}><span>Confidence {percent(o.opportunity_confidence)}</span><span>Urgency {percent(o.urgency_score)}</span><span>Feasibility {percent(o.feasibility_score)}</span></div></div> }) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No opportunities returned.</p>}</div></Section>
+    <Section eyebrow="Risk intelligence" title="Risks" tone="warning"><div className="flex flex-wrap gap-2"><button onClick={() => setRiskFilter('All')} style={{ padding: '6px 10px', border: '1px solid var(--border-hover)', background: 'transparent', color: 'var(--text-tertiary)', borderRadius: 6 }}>All</button><button onClick={() => setRiskFilter('High')} style={{ padding: '6px 10px', border: '1px solid var(--border-hover)', background: 'transparent', color: 'var(--text-tertiary)', borderRadius: 6 }}>High</button></div><div className="flex flex-col gap-3">{filteredRisks.length ? filteredRisks.map((x, i) => <Evidence key={i} item={x} />) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No risks returned.</p>}</div></Section>
+    <Section eyebrow="Research gaps" title="Research Required"><div className="flex flex-col gap-3">{gaps.length ? gaps.map((x, i) => <div key={i} style={{ padding: 14, background: 'rgba(255,159,10,.06)', border: '1px solid rgba(255,159,10,.2)', borderRadius: 8 }}><div className="flex items-center gap-2"><CircleHelp size={14} color="#ff9f0a" /><strong style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>{listText(x)}</strong></div><button style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: 0, color: '#ff9f0a', fontSize: 11, cursor: 'pointer' }}><Search size={12} /> Investigate</button></div>) : <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>No research gaps returned.</p>}</div></Section>
+    <Section eyebrow="Cross-border intelligence" title="Cross-Border Bridges"><div className="flex flex-col gap-3">{bridges.length ? bridges.map((x, i) => { const o = rec(x); return <div key={i} className="flex items-center gap-3" style={{ padding: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}><Network size={15} color="#5ac8fa" /><span style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>{text(o.from_node ?? o.from)} → {text(o.to_node ?? o.to)} <small style={{ color: 'var(--text-dim)' }}>{text(o.relationship_type, '')}</small></span></div> }) : <div className="flex items-center gap-3" style={{ color: 'var(--text-dim)', fontSize: 13 }}><ShieldAlert size={15} /> No supported cross-border bridges identified.</div>}</div></Section>
+    <Section eyebrow="Technical provenance" title="Analysis Provenance"><div className="flex flex-col gap-2">{Object.entries(meta).map(([key, value]) => <div key={key} className="flex items-center justify-between gap-4" style={{ borderBottom: '1px solid var(--border-default)', padding: '7px 0', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}><span>{key}</span><span style={{ color: 'var(--text-tertiary)', textAlign: 'right' }}>{text(value)}</span></div>)}<span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>Analysis version · {text(d.analysis_version ?? meta.analysis_version)}</span></div></Section>
   </div>;
 }
-
 export default NewsIntelligencePanel;
