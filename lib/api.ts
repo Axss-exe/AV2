@@ -15,13 +15,15 @@ const API_BASE = '';
 const DEFAULT_TIMEOUT_MS = 120_000; // 2 minutes — Render cold-start can be slow
 
 export class APIError extends Error {
-  constructor(
-    message: string,
-    public readonly status?: number,
-    public readonly isTimeout?: boolean
-  ) {
+  readonly status?: number;
+  readonly isTimeout?: boolean;
+
+  constructor(message: string, status?: number, isTimeout?: boolean) {
     super(message);
-    this.name = 'APIError';
+    Object.defineProperty(this, 'name', { value: 'APIError', configurable: true });
+    Object.defineProperty(this, 'status', { value: status, enumerable: true, configurable: true });
+    Object.defineProperty(this, 'isTimeout', { value: isTimeout, enumerable: true, configurable: true });
+    Object.setPrototypeOf(this, APIError.prototype);
   }
 }
 

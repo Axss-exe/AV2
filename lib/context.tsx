@@ -165,74 +165,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     return; /* The current backend response is handled by its existing synchronous result contract. */
   }, [perspectiveCountry, perspectiveCountryCode]);
 
-    /*
-      const status: NewsJobStatus = await getNewsJobStatus(jobId);
-      const normalizedStatus = String(status.status ?? '').toLowerCase();
-      if (normalizedStatus === 'failed' || normalizedStatus === 'error') throw new Error(status.error ?? status.detail ?? 'The intelligence pipeline could not complete this analysis.');
-      if (normalizedStatus === 'cancelled' || normalizedStatus === 'canceled') throw new Error('Analysis cancelled.');
-      const progress = typeof status.progress === 'number' ? Math.min(99, Math.max(0, status.progress)) : Math.min(95, analysisProgress + 4);
-      setAnalysisProgress(progress);
-      setAnalysisStage(status.current_stage ?? status.stage ?? (normalizedStatus === 'queued' ? 'Waiting for processing' : 'Processing intelligence'));
-      setAnalysisStatusText(normalizedStatus === 'queued' ? 'Analysis queued. Waiting for processing...' : status.current_stage ?? status.stage ?? 'Processing intelligence...');
-      setAnalysisCompletedStages(Array.isArray(status.completed_stages) ? status.completed_stages : []);
-      setAnalysisPositionInQueue(status.position_in_queue);
-      if (normalizedStatus === 'completed' || normalizedStatus === 'complete' || normalizedStatus === 'succeeded') {
-        const result = normalizeATISNewsResponse(await getNewsJobResult(jobId));
-        if (!hasMeaningfulATISData(result)) throw new Error('The analysis completed without usable intelligence data.');
-        setAnalysisQueued(false); setAnalysisProgress(100); setAnalysisStatusText('Analysis complete.'); setAnalysisLoading(false); setCurrentDashboard(result);
-try { localStorage.removeItem('atis_active_news_job'); } catch { }
-        return;
-      }
-      setAnalysisQueued(normalizedStatus === 'queued');
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      delay = 5000;
-      await poll();
-    };
 
-    try {
-      await poll();
-    } catch (error) {
-      transientFailures += 1;
-      if (transientFailures < 3) {
-        setAnalysisConnectionWarning('Connection temporarily unavailable. We\'ll keep trying.');
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        await poll();
-      } else {
-        setAnalysisError(error instanceof Error ? error.message : 'An unexpected error occurred.');
-        setAnalysisLoading(false);
-      }
-    }
-  }, [perspectiveCountry, perspectiveCountryCode]);
-
-  // Reconnect to a backend-owned job after a browser refresh.
-  useEffect(() => {
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    try {
-      const saved = JSON.parse(localStorage.getItem('atis_active_news_job') ?? 'null') as { jobId?: string; article?: NewsArticle } | null;
-      if (!saved?.jobId) return () => { cancelled = true; };
-      setAnalysisJobId(saved.jobId); setCurrentNewsArticle(saved.article ?? null); setAnalysisLoading(true); setAnalysisQueued(true);
-      const reconnect = async (): Promise<void> => {
-        if (cancelled) return;
-        try {
-          const status = await getNewsJobStatus(saved.jobId!);
-          const state = String(status.status ?? '').toLowerCase();
-          if (state === 'completed' || state === 'complete' || state === 'succeeded') {
-            const result = normalizeATISNewsResponse(await getNewsJobResult(saved.jobId!));
-            if (!cancelled) { setCurrentDashboard(result); setAnalysisProgress(100); setAnalysisLoading(false); setAnalysisQueued(false); setAnalysisStatusText('Analysis complete.'); }
-            localStorage.removeItem('atis_active_news_job'); return;
-          }
-          if (state === 'failed' || state === 'error' || state === 'cancelled') { if (!cancelled) { setAnalysisError(status.error ?? status.detail ?? 'The analysis is no longer available.'); setAnalysisLoading(false); } return; }
-          if (!cancelled) { setAnalysisStage(status.current_stage ?? status.stage ?? 'Processing intelligence'); setAnalysisProgress(status.progress ?? 0); setAnalysisCompletedStages(status.completed_stages ?? []); }
-          timer = setTimeout(reconnect, 5000);
-        } catch { if (!cancelled) { setAnalysisConnectionWarning("Connection temporarily unavailable. We'll keep trying."); timer = setTimeout(reconnect, 5000); } }
-      };
-      void reconnect();
-    } catch { }
-    return () => { cancelled = true; if (timer) clearTimeout(timer); };
-  }, []);
-
-    */
 
   const clearAnalysis = useCallback(() => {
     setCurrentNewsArticle(null);
