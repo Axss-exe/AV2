@@ -364,20 +364,12 @@ export interface NewsJobStatus {
 }
 
 export async function processNewsArticle(body: NewsRequest): Promise<NewsJobSubmission | NewsAPIResponse> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/news`, {
+  // The News pipeline is intentionally long-running. Do not abort the submit
+  // request based on elapsed time; only the backend may report failure.
+  const res = await fetch(`${API_BASE}/api/news`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   });
   return parseJSON<NewsJobSubmission | NewsAPIResponse>(res);
-}
-
-export async function getNewsJobStatus(jobId: string): Promise<NewsJobStatus> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/news/status/${encodeURIComponent(jobId)}`, {}, 30_000);
-  return parseJSON<NewsJobStatus>(res);
-}
-
-export async function getNewsJobResult(jobId: string): Promise<NewsAPIResponse> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/news/result/${encodeURIComponent(jobId)}`, {}, 120_000);
-  return parseJSON<NewsAPIResponse>(res);
 }
 
 // ---------------------------------------------------------------------------

@@ -6,8 +6,7 @@ import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
 import { normalizeATISNewsResponse, hasMeaningfulATISData } from './news-normalization';
 import { DEFAULT_PERSPECTIVE, getCountryCode } from './perspective';
-import { getNewsJobResult, getNewsJobStatus, processNewsArticle } from './api';
-import type { NewsJobStatus } from './api';
+import { processNewsArticle } from './api';
 
 interface ATISContextType {
   // Existing state
@@ -159,11 +158,14 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
     setAnalysisJobId(jobId);
     setAnalysisQueued(true);
+    setAnalysisStatusText('Analysis submitted. The backend is processing your request.');
     try { localStorage.setItem('atis_active_news_job', JSON.stringify({ jobId, article, submittedAt: new Date().toISOString() })); } catch { /* optional persistence */ }
 
-    let delay = 2000;
-    let transientFailures = 0;
-    const poll = async (): Promise<void> => {
+    /* Polling URLs must be supplied by the backend response; the frontend does not invent routes. */
+    return; /* The current backend response is handled by its existing synchronous result contract. */
+  }, [perspectiveCountry, perspectiveCountryCode]);
+
+    /*
       const status: NewsJobStatus = await getNewsJobStatus(jobId);
       const normalizedStatus = String(status.status ?? '').toLowerCase();
       if (normalizedStatus === 'failed' || normalizedStatus === 'error') throw new Error(status.error ?? status.detail ?? 'The intelligence pipeline could not complete this analysis.');
@@ -178,7 +180,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         const result = normalizeATISNewsResponse(await getNewsJobResult(jobId));
         if (!hasMeaningfulATISData(result)) throw new Error('The analysis completed without usable intelligence data.');
         setAnalysisQueued(false); setAnalysisProgress(100); setAnalysisStatusText('Analysis complete.'); setAnalysisLoading(false); setCurrentDashboard(result);
-        try { localStorage.removeItem('atis_active_news_job'); } catch { /* optional persistence */ }
+try { localStorage.removeItem('atis_active_news_job'); } catch { }
         return;
       }
       setAnalysisQueued(normalizedStatus === 'queued');
@@ -226,9 +228,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         } catch { if (!cancelled) { setAnalysisConnectionWarning("Connection temporarily unavailable. We'll keep trying."); timer = setTimeout(reconnect, 5000); } }
       };
       void reconnect();
-    } catch { /* storage is optional */ }
+    } catch { }
     return () => { cancelled = true; if (timer) clearTimeout(timer); };
   }, []);
+
+    */
 
   const clearAnalysis = useCallback(() => {
     setCurrentNewsArticle(null);
@@ -238,7 +242,6 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setAnalysisStatusText('');
     setAnalysisError(null);
     setAnalysisPartial(false);
-    setAnalysisJobId(null);
     setAnalysisQueued(false);
     setAnalysisStage('');
     setAnalysisCompletedStages([]);
