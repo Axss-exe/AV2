@@ -19,8 +19,16 @@ export class APIError extends Error {
   readonly isTimeout?: boolean;
 
   constructor(message: string, status?: number, isTimeout?: boolean) {
-    super(message);
-    Object.defineProperty(this, 'name', { value: 'APIError', configurable: true });
+    super();
+    // Explicitly create a writable own `message` property. Some runtimes
+    // expose Error.message through a getter-only prototype descriptor.
+    Object.defineProperty(this, 'message', {
+      value: String(message),
+      writable: true,
+      configurable: true,
+      enumerable: false,
+    });
+    Object.defineProperty(this, 'name', { value: 'APIError', writable: true, configurable: true });
     Object.defineProperty(this, 'status', { value: status, enumerable: true, configurable: true });
     Object.defineProperty(this, 'isTimeout', { value: isTimeout, enumerable: true, configurable: true });
     Object.setPrototypeOf(this, APIError.prototype);
