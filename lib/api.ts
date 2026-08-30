@@ -341,12 +341,42 @@ export interface NewsAPIResponse {
   [key: string]: unknown;
 }
 
-export async function processNewsArticle(body: NewsRequest): Promise<NewsAPIResponse> {
+export interface NewsJobSubmission {
+  status?: string;
+  job_id: string;
+  analysis_version?: string;
+  schema_version?: string;
+  [key: string]: unknown;
+}
+
+export interface NewsJobStatus {
+  status?: string;
+  job_id?: string;
+  stage?: string;
+  current_stage?: string;
+  completed_stages?: string[];
+  progress?: number;
+  position_in_queue?: number;
+  estimated_time_remaining?: number;
+  error?: string;
+  detail?: string;
+  [key: string]: unknown;
+}
+
+export async function processNewsArticle(body: NewsRequest): Promise<NewsJobSubmission | NewsAPIResponse> {
   const res = await fetchWithTimeout(`${API_BASE}/api/news`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   });
+  return parseJSON<NewsJobSubmission | NewsAPIResponse>(res);
+}
+
+export async function getNewsJobStatus(jobId: string): Promise<NewsJobStatus> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/news/status/${encodeURIComponent(jobId)}`, {}, 30_000);
+  return parseJSON<NewsJobStatus>(res);
+}
+
+export async function getNewsJobResult(jobId: string): Promise<NewsAPIResponse> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/news/result/${encodeURIComponent(jobId)}`, {}, 120_000);
   return parseJSON<NewsAPIResponse>(res);
 }
 

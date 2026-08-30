@@ -6,6 +6,12 @@ import { X, AlertCircle } from 'lucide-react';
 interface AnalysisLoaderProps {
   progress: number;
   statusText: string;
+  jobId?: string | null;
+  queued?: boolean;
+  stage?: string;
+  completedStages?: string[];
+  positionInQueue?: number;
+  connectionWarning?: string | null;
   error: string | null;
   onCancel: () => void;
   onRetry: () => void;
@@ -14,6 +20,12 @@ interface AnalysisLoaderProps {
 export function AnalysisLoader({
   progress,
   statusText,
+  jobId,
+  queued,
+  stage,
+  completedStages = [],
+  positionInQueue,
+  connectionWarning,
   error,
   onCancel,
   onRetry,
@@ -126,8 +138,15 @@ export function AnalysisLoader({
                 margin: '0 0 24px 0',
               }}
             >
-              This may take up to 60 seconds. Do not close this window.
+              Analyses can take 2–5 minutes. You can keep this window open while the pipeline runs.
             </p>
+            <div className="flex flex-wrap gap-3" style={{ marginBottom: 20, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)' }}>
+              {jobId && <span>JOB {jobId}</span>}
+              {queued && <span>QUEUED{positionInQueue !== undefined ? ` · POSITION ${positionInQueue}` : ''}</span>}
+              {!queued && stage && <span>STAGE {stage}</span>}
+            </div>
+            {connectionWarning && <p role="status" style={{ color: '#ff9f0a', fontSize: 11, margin: '-8px 0 16px' }}>{connectionWarning}</p>}
+            {completedStages.length > 0 && <div className="flex flex-wrap gap-2" style={{ marginBottom: 18 }} aria-label="Completed analysis stages">{completedStages.map((completedStage) => <span key={completedStage} style={{ border: '1px solid var(--border-hover)', borderRadius: 4, padding: '3px 6px', color: 'var(--text-dim)', fontSize: 10 }}>{completedStage}</span>)}</div>}
 
             {/* Progress bar */}
             <div

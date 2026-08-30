@@ -59,6 +59,12 @@ export default function ArticleDetailPage({
     analysisLoading,
     analysisProgress,
     analysisStatusText,
+    analysisJobId,
+    analysisQueued,
+    analysisStage,
+    analysisCompletedStages,
+    analysisPositionInQueue,
+    analysisConnectionWarning,
     analysisError,
     currentDashboard,
   } = useATIS();
@@ -102,6 +108,12 @@ export default function ArticleDetailPage({
         <AnalysisLoader
           progress={analysisProgress}
           statusText={analysisStatusText}
+          jobId={analysisJobId}
+          queued={analysisQueued}
+          stage={analysisStage}
+          completedStages={analysisCompletedStages}
+          positionInQueue={analysisPositionInQueue}
+          connectionWarning={analysisConnectionWarning}
           error={analysisError}
           onCancel={clearAnalysis}
           onRetry={handleAnalyze}

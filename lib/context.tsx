@@ -6,6 +6,8 @@ import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
 import { normalizeATISNewsResponse, hasMeaningfulATISData } from './news-normalization';
 import { DEFAULT_PERSPECTIVE, getCountryCode } from './perspective';
+import { getNewsJobResult, getNewsJobStatus, processNewsArticle } from './api';
+import type { NewsJobStatus } from './api';
 
 interface ATISContextType {
   // Existing state
@@ -35,6 +37,12 @@ interface ATISContextType {
   analysisLoading: boolean;
   analysisProgress: number;
   analysisStatusText: string;
+  analysisJobId: string | null;
+  analysisQueued: boolean;
+  analysisStage: string;
+  analysisCompletedStages: string[];
+  analysisPositionInQueue?: number;
+  analysisConnectionWarning: string | null;
   analysisError: string | null;
   analysisPartial: boolean;
   currentDashboard: Dashboard | null;
@@ -93,6 +101,12 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisStatusText, setAnalysisStatusText] = useState('');
+  const [analysisJobId, setAnalysisJobId] = useState<string | null>(null);
+  const [analysisQueued, setAnalysisQueued] = useState(false);
+  const [analysisStage, setAnalysisStage] = useState('');
+  const [analysisCompletedStages, setAnalysisCompletedStages] = useState<string[]>([]);
+  const [analysisPositionInQueue, setAnalysisPositionInQueue] = useState<number | undefined>();
+  const [analysisConnectionWarning, setAnalysisConnectionWarning] = useState<string | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisPartial, setAnalysisPartial] = useState(false);
   const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(null);
@@ -113,118 +127,125 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setAnalysisPartial(false);
     setCurrentDashboard(null);
 
-    // Animate progress over 60s while the API runs
-    let elapsed = 0;
-    const TOTAL = 60;
-    const TICK = 500;
-    let messageIndex = 0;
-    setAnalysisStatusText(STATUS_MESSAGES[0]);
+    setAnalysisStatusText('Submitting analysis request...');
+    setAnalysisStage('Submitting');
+    setAnalysisCompletedStages([]);
+    setAnalysisQueued(false);
+    setAnalysisConnectionWarning(null);
 
-    const timer = setInterval(() => {
-      elapsed += TICK / 1000;
-      const pct = Math.min(98, (elapsed / TOTAL) * 100);
-      setAnalysisProgress(pct);
-      const newIndex = Math.floor((elapsed / TOTAL) * STATUS_MESSAGES.length);
-      if (newIndex !== messageIndex && newIndex < STATUS_MESSAGES.length) {
-        messageIndex = newIndex;
-        setAnalysisStatusText(STATUS_MESSAGES[messageIndex]);
+    let submitted: Awaited<ReturnType<typeof processNewsArticle>>;
+    try {
+      submitted = await processNewsArticle({
+        article_text: article.article_text,
+        perspective_country: perspectiveCountry,
+        perspective_country_code: perspectiveCountryCode,
+      });
+    } catch (error) {
+      setAnalysisError(error instanceof Error ? error.message : 'Unable to submit analysis.');
+      setAnalysisLoading(false);
+      return;
+    }
+    const jobId = 'job_id' in submitted && typeof submitted.job_id === 'string' ? submitted.job_id : null;
+
+    if (!jobId) {
+      const dashboard = normalizeATISNewsResponse(submitted);
+      if (!hasMeaningfulATISData(dashboard)) throw new Error('The analysis returned no usable intelligence data. Please try again.');
+      setAnalysisProgress(100);
+      setAnalysisStatusText('Analysis complete.');
+      setAnalysisLoading(false);
+      setCurrentDashboard(dashboard);
+      return;
+    }
+
+    setAnalysisJobId(jobId);
+    setAnalysisQueued(true);
+    try { localStorage.setItem('atis_active_news_job', JSON.stringify({ jobId, article, submittedAt: new Date().toISOString() })); } catch { /* optional persistence */ }
+
+    let delay = 2000;
+    let transientFailures = 0;
+    const poll = async (): Promise<void> => {
+      const status: NewsJobStatus = await getNewsJobStatus(jobId);
+      const normalizedStatus = String(status.status ?? '').toLowerCase();
+      if (normalizedStatus === 'failed' || normalizedStatus === 'error') throw new Error(status.error ?? status.detail ?? 'The intelligence pipeline could not complete this analysis.');
+      if (normalizedStatus === 'cancelled' || normalizedStatus === 'canceled') throw new Error('Analysis cancelled.');
+      const progress = typeof status.progress === 'number' ? Math.min(99, Math.max(0, status.progress)) : Math.min(95, analysisProgress + 4);
+      setAnalysisProgress(progress);
+      setAnalysisStage(status.current_stage ?? status.stage ?? (normalizedStatus === 'queued' ? 'Waiting for processing' : 'Processing intelligence'));
+      setAnalysisStatusText(normalizedStatus === 'queued' ? 'Analysis queued. Waiting for processing...' : status.current_stage ?? status.stage ?? 'Processing intelligence...');
+      setAnalysisCompletedStages(Array.isArray(status.completed_stages) ? status.completed_stages : []);
+      setAnalysisPositionInQueue(status.position_in_queue);
+      if (normalizedStatus === 'completed' || normalizedStatus === 'complete' || normalizedStatus === 'succeeded') {
+        const result = normalizeATISNewsResponse(await getNewsJobResult(jobId));
+        if (!hasMeaningfulATISData(result)) throw new Error('The analysis completed without usable intelligence data.');
+        setAnalysisQueued(false); setAnalysisProgress(100); setAnalysisStatusText('Analysis complete.'); setAnalysisLoading(false); setCurrentDashboard(result);
+        try { localStorage.removeItem('atis_active_news_job'); } catch { /* optional persistence */ }
+        return;
       }
-    }, TICK);
-
-    const MAX_RETRIES = 10;
-    const RETRY_DELAY = 5000;
-
-    const attempt = async (): Promise<Dashboard> => {
-      for (let i = 0; i < MAX_RETRIES; i++) {
-        const res = await fetch('/api/news', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            article_text: article.article_text,
-            perspective_country: perspectiveCountry,
-            perspective_country_code: perspectiveCountryCode,
-          }),
-        });
-
-        const json = await res.json();
-
-        // Handle busy response — retry
-        if (json.status === 'busy' || res.status === 503) {
-          if (i < MAX_RETRIES - 1) {
-            await new Promise((r) => setTimeout(r, RETRY_DELAY));
-            continue;
-          }
-          throw new Error('Analysis engine is busy. Please try again in a moment.');
-        }
-
-        if (!res.ok) {
-          throw new Error(json.detail ?? json.error ?? `Request failed (${res.status})`);
-        }
-
-        // Normalize once at the API boundary so every dashboard consumer receives
-        // predictable arrays and safe scalar values, regardless of backend shape.
-        const dashboard = normalizeATISNewsResponse(json);
-        if (process.env.NODE_ENV === 'development') {
-          const rawData = json && typeof json === 'object' && json.data && typeof json.data === 'object' ? json.data : json;
-          const schemaVersion = rawData && typeof rawData === 'object' && 'schema_version' in rawData
-            ? rawData.schema_version
-            : json?.schema_version ?? 'unknown';
-          const usabilityReason = dashboard.market_equilibrium_shift
-            ? 'market_equilibrium_shift present'
-            : dashboard.trigger_event
-              ? 'trigger_event present'
-              : dashboard.pipeline_metadata?.core_event
-                ? 'pipeline_metadata.core_event present'
-                : dashboard.structured_intelligence.length > 0
-                  ? 'structured_intelligence present'
-                  : 'no recognized intelligence fields';
-          console.log('[ATIS NEWS] Raw API response:', json);
-          console.log('[ATIS NEWS] Detected schema version:', schemaVersion);
-          console.log('[ATIS NEWS] Normalized payload:', dashboard);
-          console.log('[ATIS NEWS] Usability check:', Boolean(hasMeaningfulATISData(dashboard)), `reason: ${usabilityReason}`);
-          console.log('[ATIS NEWS] Sections:', {
-            executiveSummary: Boolean(dashboard.executive_summary),
-            structuredIntelligence: dashboard.structured_intelligence.length,
-            findings: dashboard.findings.length,
-            opportunities: dashboard.opportunities.length,
-            risks: dashboard.risks.length,
-            keyEntities: dashboard.key_entities.length,
-            sourceNodes: dashboard.source_nodes.length,
-            perspectiveNodes: dashboard.perspective_nodes.length,
-            crossBorderBridges: dashboard.cross_border_bridges.length,
-          });
-        }
-        if (!hasMeaningfulATISData(dashboard)) {
-          throw new Error('The analysis returned no usable intelligence data. Please try again.');
-        }
-        return dashboard;
-      }
-      throw new Error('Max retries exceeded. Please try again.');
+      setAnalysisQueued(normalizedStatus === 'queued');
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay = 5000;
+      await poll();
     };
 
     try {
-      const dashboard = await attempt();
-      clearInterval(timer);
-      setAnalysisProgress(100);
-      setAnalysisStatusText('Analysis complete.');
-      setAnalysisPartial(dashboard.partial);
-      setCurrentDashboard(dashboard);
-    } catch (err) {
-      clearInterval(timer);
-      setAnalysisError(err instanceof Error ? err.message : 'An unexpected error occurred.');
-    } finally {
-      setAnalysisLoading(false);
+      await poll();
+    } catch (error) {
+      transientFailures += 1;
+      if (transientFailures < 3) {
+        setAnalysisConnectionWarning('Connection temporarily unavailable. We\'ll keep trying.');
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await poll();
+      } else {
+        setAnalysisError(error instanceof Error ? error.message : 'An unexpected error occurred.');
+        setAnalysisLoading(false);
+      }
     }
   }, [perspectiveCountry, perspectiveCountryCode]);
+
+  // Reconnect to a backend-owned job after a browser refresh.
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const saved = JSON.parse(localStorage.getItem('atis_active_news_job') ?? 'null') as { jobId?: string; article?: NewsArticle } | null;
+      if (!saved?.jobId) return () => { cancelled = true; };
+      setAnalysisJobId(saved.jobId); setCurrentNewsArticle(saved.article ?? null); setAnalysisLoading(true); setAnalysisQueued(true);
+      const reconnect = async (): Promise<void> => {
+        if (cancelled) return;
+        try {
+          const status = await getNewsJobStatus(saved.jobId!);
+          const state = String(status.status ?? '').toLowerCase();
+          if (state === 'completed' || state === 'complete' || state === 'succeeded') {
+            const result = normalizeATISNewsResponse(await getNewsJobResult(saved.jobId!));
+            if (!cancelled) { setCurrentDashboard(result); setAnalysisProgress(100); setAnalysisLoading(false); setAnalysisQueued(false); setAnalysisStatusText('Analysis complete.'); }
+            localStorage.removeItem('atis_active_news_job'); return;
+          }
+          if (state === 'failed' || state === 'error' || state === 'cancelled') { if (!cancelled) { setAnalysisError(status.error ?? status.detail ?? 'The analysis is no longer available.'); setAnalysisLoading(false); } return; }
+          if (!cancelled) { setAnalysisStage(status.current_stage ?? status.stage ?? 'Processing intelligence'); setAnalysisProgress(status.progress ?? 0); setAnalysisCompletedStages(status.completed_stages ?? []); }
+          timer = setTimeout(reconnect, 5000);
+        } catch { if (!cancelled) { setAnalysisConnectionWarning("Connection temporarily unavailable. We'll keep trying."); timer = setTimeout(reconnect, 5000); } }
+      };
+      void reconnect();
+    } catch { /* storage is optional */ }
+    return () => { cancelled = true; if (timer) clearTimeout(timer); };
+  }, []);
 
   const clearAnalysis = useCallback(() => {
     setCurrentNewsArticle(null);
     setAnalysisLoading(false);
     setAnalysisProgress(0);
+    setAnalysisJobId(null);
     setAnalysisStatusText('');
     setAnalysisError(null);
     setAnalysisPartial(false);
+    setAnalysisJobId(null);
+    setAnalysisQueued(false);
+    setAnalysisStage('');
+    setAnalysisCompletedStages([]);
+    setAnalysisPositionInQueue(undefined);
+    setAnalysisConnectionWarning(null);
     setCurrentDashboard(null);
+    try { localStorage.removeItem('atis_active_news_job'); } catch { /* optional persistence */ }
   }, []);
 
   return (
@@ -254,6 +275,12 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         analysisLoading,
         analysisProgress,
         analysisStatusText,
+        analysisJobId,
+        analysisQueued,
+        analysisStage,
+        analysisCompletedStages,
+        analysisPositionInQueue,
+        analysisConnectionWarning,
         analysisError,
         analysisPartial,
         currentDashboard,
