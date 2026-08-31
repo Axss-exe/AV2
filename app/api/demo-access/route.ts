@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 
-const DEMO_PASSCODE = process.env.DEMO_PASSCODE ?? 'ATIS-2026-ZIMBABWE';
+const DEMO_PASSCODE = process.env.DEMO_PASSCODE;
 const COOKIE_NAME = 'atis-demo-access';
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { passcode?: unknown };
     const passcode = typeof body.passcode === 'string' ? body.passcode.trim() : '';
+
+    if (!DEMO_PASSCODE) {
+      return NextResponse.json({ error: 'Demo access is not configured.' }, { status: 503 });
+    }
 
     if (!passcode || passcode !== DEMO_PASSCODE) {
       return NextResponse.json({ error: 'Incorrect passcode.' }, { status: 401 });
@@ -36,4 +40,3 @@ export async function DELETE() {
 }
 
 export const DEMO_ACCESS_COOKIE = COOKIE_NAME;
-export const DEMO_ACCESS_DEFAULT = DEMO_PASSCODE;

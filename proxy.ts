@@ -4,6 +4,13 @@ import type { NextRequest } from 'next/server';
 const COOKIE_NAME = 'atis-demo-access';
 
 export function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // The landing page and this endpoint are the only public entry points.
+  if (pathname === '/' || pathname === '/api/demo-access') {
+    return NextResponse.next();
+  }
+
   const hasAccess = request.cookies.get(COOKIE_NAME)?.value === 'granted';
   if (hasAccess) return NextResponse.next();
 
@@ -14,14 +21,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/atis-dashboard/:path*',
-    '/query/:path*',
-    '/investigations/:path*',
-    '/opportunities/:path*',
-    '/history/:path*',
-    '/entities/:path*',
-    '/news/:path*',
-    '/execute/:path*',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)'],
 };
