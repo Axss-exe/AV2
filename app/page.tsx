@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { AtisSymbol } from '@/components/brand';
+import { DemoAccessGate } from '@/components/demo-access-gate';
 
 export const metadata: Metadata = {
   title: 'ATIS Pilot Briefing — Africa Trade Intelligence System',
@@ -205,23 +204,8 @@ export default function AtisDemoPage() {
         </section>
 
         {/* ── Enter Demo ───────────────────────────────────────────────── */}
-        <section
-          className="flex justify-center px-6 md:px-12 pb-24 md:pb-28"
-        >
-          <Link
-            href="/atis-dashboard"
-            className="inline-flex items-center justify-center gap-2.5 font-mono uppercase transition-opacity duration-150 hover:opacity-80"
-            style={{
-              background: INK,
-              color: '#ffffff',
-              fontSize: 12,
-              letterSpacing: '0.12em',
-              padding: '16px 32px',
-            }}
-          >
-            Enter ATIS Demo
-            <ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
-          </Link>
+        <section className="px-6 md:px-12 pb-24 md:pb-28">
+          <DemoAccessGate />
         </section>
       </main>
     </div>
