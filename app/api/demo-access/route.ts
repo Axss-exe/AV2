@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const DEMO_PASSCODE = process.env.DEMO_PASSCODE;
+const DEMO_PASSCODE = process.env.DEMO_PASSCODE?.trim();
 const COOKIE_NAME = 'atis-demo-access';
 
 export async function POST(request: Request) {

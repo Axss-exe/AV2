@@ -25,9 +25,9 @@ export function DemoAccessGate() {
         setError(result.error ?? 'Access denied.');
         return;
       }
-      // Use a full navigation so the newly-set HTTP-only cookie is included
-      // when the protected dashboard request reaches the proxy.
-      window.location.replace('/atis-dashboard');
+      // Navigate only after the API confirms the cookie was set. A full
+      // navigation ensures the protected dashboard request includes it.
+      window.location.href = `${window.location.origin}/atis-dashboard`;
     } catch {
       setError('Unable to verify access. Please try again.');
     } finally {
