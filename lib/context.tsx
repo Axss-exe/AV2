@@ -420,10 +420,21 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       const submitJson = await submitRes.json();
       const normalizedStatus = normalizeStatus(submitJson.status || '');
 
-      // Extract job_id from response
-      const jobId = submitJson.job_id || submitJson.id || submitJson.data?.job_id || submitJson.data?.id;
+      // Extract job_id from response - try multiple possible locations
+      // Backend may return: {job_id: "..."} or {id: "..."} or {data: {job_id: "..."}}
+      // Also check nested structures
+      const jobId = 
+        submitJson.job_id ||
+        submitJson.id ||
+        submitJson.data?.job_id ||
+        submitJson.data?.id ||
+        submitJson.result?.job_id ||
+        submitJson.result?.id ||
+        submitJson.response?.job_id ||
+        submitJson.response?.id;
       
       if (!jobId) {
+        console.error('Submission response:', submitJson);
         throw new Error('No job ID returned from submission');
       }
 
