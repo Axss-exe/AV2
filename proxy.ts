@@ -21,5 +21,17 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)'],
+  // Protect platform pages without intercepting their data/API requests.
+  // Intercepting API redirects can turn a failed fetch into an unexpected
+  // navigation back to the landing page.
+  matcher: [
+    '/atis-dashboard/:path*',
+    '/query/:path*',
+    '/investigations/:path*',
+    '/opportunities/:path*',
+    '/history/:path*',
+    '/entities/:path*',
+    '/news/:path*',
+    '/execute/:path*',
+  ],
 };
