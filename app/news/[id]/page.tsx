@@ -74,21 +74,30 @@ export default function ArticleDetailPage({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     async function fetchArticle() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/articles?id=${id}`);
-        const json = await res.json();
-        if (!res.ok || json.error) throw new Error(json.error ?? 'Article not found');
-        setArticle(json.article);
+        const res = await fetch(`/api/articles?id=${encodeURIComponent(id)}`, {
+          signal: controller.signal,
+          headers: { Accept: 'application/json' },
+        });
+        const json: unknown = await res.json();
+        const payload = json && typeof json === 'object' ? json as { article?: Article; error?: string; detail?: string } : {};
+        if (!res.ok || payload.error || !payload.article) {
+          throw new Error(payload.error ?? payload.detail ?? 'Article not found');
+        }
+        setArticle(payload.article);
       } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Failed to load article');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
-    fetchArticle();
+    void fetchArticle();
+    return () => controller.abort();
   }, [id]);
 
 

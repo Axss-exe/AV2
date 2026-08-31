@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import type { Article, Opportunity, QueryResult } from './types';
 import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
@@ -109,6 +109,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisPartial, setAnalysisPartial] = useState(false);
   const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(null);
+  const analysisRunRef = useRef(0);
 
   const addQueryToHistory = useCallback((result: QueryResult) => {
     setQueryHistory((prev) => [result, ...prev]);
@@ -119,6 +120,8 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const runAnalysis = useCallback(async (article: NewsArticle) => {
+    const runId = ++analysisRunRef.current;
+    const isCurrentRun = () => analysisRunRef.current === runId;
     setCurrentNewsArticle(article);
     setAnalysisLoading(true);
     setAnalysisProgress(0);
@@ -159,7 +162,9 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
     let delay = 2000;
     const monitor = async (): Promise<void> => {
+      if (!isCurrentRun()) return;
       const status = await getNewsJobStatus(jobId);
+      if (!isCurrentRun()) return;
       const state = String(status.status ?? '').toLowerCase();
       setAnalysisStage(String(status.current_stage ?? status.stage ?? 'Processing'));
       setAnalysisStatusText(state === 'queued' ? 'Analysis queued...' : String(status.current_stage ?? status.stage ?? 'Analysis in progress...'));
@@ -188,6 +193,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
 
   const clearAnalysis = useCallback(() => {
+    analysisRunRef.current += 1;
     setCurrentNewsArticle(null);
     setAnalysisLoading(false);
     setAnalysisProgress(0);

@@ -395,10 +395,13 @@ export async function fetchNewsLifecycle(url: string): Promise<Record<string, un
 }
 
 export async function processNewsArticle(body: NewsRequest): Promise<NewsJobSubmission | NewsAPIResponse> {
-  // The News pipeline is intentionally long-running. Do not abort the submit
-  // request based on elapsed time; only the backend may report failure.
+  const articleText = body.article_text.trim();
+  if (articleText.length < 20) throw new APIError('Article text must be at least 20 characters.');
+  if (articleText.length > 100_000) throw new APIError('Article text must be 100,000 characters or fewer.');
   const res = await fetch(`${API_BASE}/api/news`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ ...body, article_text: articleText }),
   });
   return parseJSON<NewsJobSubmission | NewsAPIResponse>(res);
 }
