@@ -6,7 +6,7 @@ import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
 import { normalizeATISNewsResponse, hasMeaningfulATISData } from './news-normalization';
 import { DEFAULT_PERSPECTIVE, getCountryCode } from './perspective';
-import { fetchNewsLifecycle, processNewsArticle } from './api';
+import { getNewsJobResult, getNewsJobStatus, processNewsArticle } from './api';
 
 interface ATISContextType {
   // Existing state
@@ -147,24 +147,8 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     const jobId = 'job_id' in submitted && typeof submitted.job_id === 'string' ? submitted.job_id : null;
 
     if (!jobId) {
-      const responseStatus = typeof submitted === 'object' && submitted !== null && 'status' in submitted
-        ? String(submitted.status).toLowerCase()
-        : '';
-      if (responseStatus === 'queued' || responseStatus === 'processing' || responseStatus === 'pending') {
-        setAnalysisError('The backend accepted the analysis but did not return a job ID for monitoring.');
-        setAnalysisLoading(false);
-        return;
-      }
-      const dashboard = normalizeATISNewsResponse(submitted);
-      if (!hasMeaningfulATISData(dashboard)) {
-        setAnalysisError('The completed analysis returned no usable intelligence data. Please try again.');
-        setAnalysisLoading(false);
-        return;
-      }
-      setAnalysisProgress(100);
-      setAnalysisStatusText('Analysis complete.');
+      setAnalysisError('We couldn\'t submit this analysis because the backend did not return a job ID.');
       setAnalysisLoading(false);
-      setCurrentDashboard(dashboard);
       return;
     }
 
@@ -173,17 +157,9 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setAnalysisStatusText('Analysis submitted. The backend is processing your request.');
     try { localStorage.setItem('atis_active_news_job', JSON.stringify({ jobId, article, submittedAt: new Date().toISOString() })); } catch { /* optional persistence */ }
 
-    const submission = submitted as Record<string, unknown>;
-    const statusUrl = typeof submission.status_url === 'string' ? submission.status_url : null;
-    const resultUrl = typeof submission.result_url === 'string' ? submission.result_url : null;
-    if (!statusUrl || !resultUrl) {
-      setAnalysisError('The backend accepted the analysis but did not provide lifecycle URLs.');
-      setAnalysisLoading(false);
-      return;
-    }
     let delay = 2000;
     const monitor = async (): Promise<void> => {
-      const status = await fetchNewsLifecycle(statusUrl);
+      const status = await getNewsJobStatus(jobId);
       const state = String(status.status ?? '').toLowerCase();
       setAnalysisStage(String(status.current_stage ?? status.stage ?? 'Processing'));
       setAnalysisStatusText(state === 'queued' ? 'Analysis queued...' : String(status.current_stage ?? status.stage ?? 'Analysis in progress...'));
@@ -193,7 +169,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       if (state === 'failed' || state === 'error') throw new Error(String(status.error ?? status.detail ?? 'The analysis failed.'));
       if (state === 'cancelled' || state === 'canceled') throw new Error('The analysis was cancelled.');
       if (state === 'completed' || state === 'complete' || state === 'succeeded') {
-        const result = normalizeATISNewsResponse(await fetchNewsLifecycle(resultUrl));
+        const result = normalizeATISNewsResponse(await getNewsJobResult(jobId));
         if (!hasMeaningfulATISData(result)) throw new Error('The completed analysis returned no usable intelligence data. Please try again.');
         setAnalysisQueued(false); setAnalysisProgress(100); setAnalysisStatusText('Analysis complete.'); setAnalysisLoading(false); setCurrentDashboard(result);
         return;

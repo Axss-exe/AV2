@@ -49,7 +49,7 @@ async function fetchWithTimeout(
   } catch (err: unknown) {
     if (err instanceof Error && err.name === 'AbortError') {
       throw new APIError(
-        'The intelligence pipeline is taking longer than expected. Please retry or reduce the scope of the request.',
+        'We couldn\'t submit this analysis. Please try again.',
         undefined,
         true
       );
@@ -373,6 +373,16 @@ export interface NewsJobStatus {
   error?: string;
   detail?: string;
   [key: string]: unknown;
+}
+
+export async function getNewsJobStatus(jobId: string): Promise<NewsJobStatus> {
+  const res = await fetchWithTimeout(`/api/news/status/${encodeURIComponent(jobId)}`, {}, 30_000);
+  return parseJSON<NewsJobStatus>(res);
+}
+
+export async function getNewsJobResult(jobId: string): Promise<NewsAPIResponse> {
+  const res = await fetchWithTimeout(`/api/news/result/${encodeURIComponent(jobId)}`, {}, 120_000);
+  return parseJSON<NewsAPIResponse>(res);
 }
 
 export async function fetchNewsLifecycle(url: string): Promise<Record<string, unknown>> {
