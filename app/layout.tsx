@@ -5,7 +5,7 @@ import { IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { ATISProvider } from '@/lib/context'
 import { EntityProvider } from '@/components/entity-provider'
-import { ThemeProvider, themeNoFlashScript } from '@/components/theme-provider'
+import { ThemeProvider } from '@/components/theme-provider'
 
 // Inter Display — ATIS editable production font (Regular + Medium).
 const _interDisplay = localFont({
@@ -45,9 +45,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${_interDisplay.variable} ${_ibmPlexMono.variable} bg-bg-primary`}>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
-      </head>
       <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
         <ThemeProvider>
           <ATISProvider>
