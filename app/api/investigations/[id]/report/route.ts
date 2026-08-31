@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateText, Output, NoObjectGeneratedError, gateway } from 'ai';
+import { generateText, Output, NoObjectGeneratedError } from 'ai';
 import { z } from 'zod';
 import { sql, getInvestigationDetail } from '@/lib/investigation-db';
 
@@ -76,7 +76,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     let output: z.infer<typeof reportSchema>;
     try {
       const result = await generateText({
-        model: gateway(REPORT_MODEL),
+        model: REPORT_MODEL,
         output: Output.object({ schema: reportSchema }),
         system:
           'You are an intelligence analyst synthesizing a knowledge report from an already-completed ' +
@@ -92,21 +92,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       if (NoObjectGeneratedError.isInstance(err)) {
         return NextResponse.json({ error: 'The report model did not return a valid report. Please retry.' }, { status: 502 });
       }
-      const message = err instanceof Error ? err.message : String(err);
-      if (/credit card|free credits|billing/i.test(message)) {
-        output = {
-          executiveAssessment: `This report summarizes ${findings.length} findings, ${risks.length} risks, and ${opportunities.length} opportunities from the completed investigation. It is generated from the stored investigation evidence while AI report generation is unavailable.`,
-          keyFindings: findings,
-          actorLandscape: dataPayload.entities.map((entity) => `${entity.name}${entity.type ? ` (${entity.type})` : ''}`).join(', '),
-          relationshipsNarrative: dataPayload.relationships.map((relationship) => `${relationship.from} → ${relationship.to}${relationship.label ? ` (${relationship.label})` : ''}`).join('; '),
-          risks,
-          opportunities,
-          knowledgeGaps: [],
-          sourceTrail: dataPayload.sources,
-        };
-      } else {
-        throw err;
-      }
+      throw err;
     }
 
     const generatedAt = new Date().toISOString();
