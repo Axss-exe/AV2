@@ -149,7 +149,7 @@ export default function OpportunitiesPage() {
     const savedRow = saved.find((r) => r.opportunity_id === opportunityId);
     const dashboardJson = savedRow
       ? savedRow.dashboard_json
-      : currentDashboard ?? {};
+      : (currentDashboard as unknown as Record<string, unknown>) ?? {};
 
     // The opportunity's own perspective (from the backend) is authoritative.
     // Fall back to the user's currently selected perspective only if absent.
@@ -312,16 +312,16 @@ export default function OpportunitiesPage() {
                 </div>
 
                 {/* Meta row */}
-                {currentDashboard.pipeline_metadata && (
+                {currentDashboard?.pipeline_metadata && (
                   <div className="flex flex-wrap items-center gap-3 mt-4">
-                    {(currentDashboard.pipeline_metadata as Record<string, unknown>).extracted_entities_count != null && (
+                    {(currentDashboard.pipeline_metadata.extracted_entities_count != null) && (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 8px' }}>
-                        <Hash size={9} aria-hidden="true" /> {(currentDashboard.pipeline_metadata as Record<string, unknown>).extracted_entities_count as number} entities
+                        <Hash size={9} aria-hidden="true" /> {currentDashboard.pipeline_metadata.extracted_entities_count} entities
                       </span>
                     )}
-                    {(currentDashboard.pipeline_metadata as Record<string, unknown>).processed_at && (
+                    {currentDashboard.pipeline_metadata.processed_at && (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 5, padding: '3px 8px' }}>
-                        <Clock size={9} aria-hidden="true" /> {formatTimestamp((currentDashboard.pipeline_metadata as Record<string, unknown>).processed_at as string)}
+                        <Clock size={9} aria-hidden="true" /> {formatTimestamp(currentDashboard.pipeline_metadata.processed_at)}
                       </span>
                     )}
                   </div>
@@ -331,14 +331,14 @@ export default function OpportunitiesPage() {
               {/* Opportunity cards from analysis */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', gap: 16 }}>
                 {(Array.isArray(currentDashboard.opportunities) ? currentDashboard.opportunities : [])
-                  .sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.urgency_score as number) - (a.urgency_score as number))
-                  .map((opp: Record<string, unknown>, i: number) => (
-                    <motion.div key={(opp.opportunity_id as string) ?? i} custom={i} variants={cardVariants} initial="hidden" animate="visible">
+                  .sort((a, b) => b.urgency_score - a.urgency_score)
+                  .map((opp, i) => (
+                    <motion.div key={opp.opportunity_id ?? i} custom={i} variants={cardVariants} initial="hidden" animate="visible">
                       <OpportunityCard
-                        opportunity={opp as Parameters<typeof OpportunityCard>[0]['opportunity']}
-                        initialSaved={savedIds.has(opp.opportunity_id as string) || justSaved.has(opp.opportunity_id as string)}
+                        opportunity={opp}
+                        initialSaved={savedIds.has(opp.opportunity_id) || justSaved.has(opp.opportunity_id)}
                         onSaved={(dbId) => {
-                          setJustSaved((prev) => new Set([...prev, opp.opportunity_id as string]));
+                          setJustSaved((prev) => new Set([...prev, opp.opportunity_id]));
                           load(); // refresh saved list
                           void dbId;
                         }}

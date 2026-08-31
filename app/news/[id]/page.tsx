@@ -56,12 +56,16 @@ export default function ArticleDetailPage({
   const router = useRouter();
   const {
     runAnalysis,
+    cancelAnalysis,
     clearAnalysis,
     analysisLoading,
     analysisProgress,
     analysisStatusText,
     analysisError,
     currentDashboard,
+    currentJobId,
+    currentJobStatus,
+    jobCheckpoint,
   } = useATIS();
 
   const [article, setArticle] = useState<Article | null>(null);
@@ -95,6 +99,8 @@ export default function ArticleDetailPage({
 
   const handleAnalyze = async () => {
     if (!article) return;
+    // Clear any existing job before starting new analysis
+    clearAnalysis();
     await runAnalysis(article);
   };
 
@@ -110,7 +116,10 @@ export default function ArticleDetailPage({
           progress={analysisProgress}
           statusText={analysisStatusText}
           error={analysisError}
-          onCancel={clearAnalysis}
+          jobId={currentJobId}
+          jobStatus={currentJobStatus}
+          checkpoint={jobCheckpoint}
+          onCancel={analysisLoading ? cancelAnalysis : clearAnalysis}
           onRetry={handleAnalyze}
         />
       )}

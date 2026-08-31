@@ -1,20 +1,64 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, AlertCircle } from 'lucide-react';
+import { X, AlertCircle, Clock, CheckCircle, Loader2 } from 'lucide-react';
+
+// Pipeline stages in order for display
+const PIPELINE_STAGES = [
+  'Input Validation',
+  'Article Understanding',
+  'Perspective Ecosystem Loading',
+  'Perspective Impact Mapping',
+  'Target Resolution',
+  'Graph Traversal',
+  'Impact Analysis',
+  'Final Synthesis',
+  'Validation Grounding',
+  'Output Assembly',
+];
 
 interface AnalysisLoaderProps {
   progress: number;
   statusText: string;
   error: string | null;
+  jobId: string | null;
+  jobStatus: string | null;
+  checkpoint: {
+    current_stage?: string;
+    completed_stages?: string[];
+    stage_durations?: Record<string, number>;
+  } | null;
   onCancel: () => void;
   onRetry: () => void;
+}
+
+// User-friendly stage names mapping
+const STAGE_LABELS: Record<string, string> = {
+  'INPUT_VALIDATION': 'Input Validation',
+  'ARTICLE_UNDERSTANDING': 'Article Understanding',
+  'PERSPECTIVE_ECOSYSTEM_LOADING': 'Perspective Ecosystem Loading',
+  'PERSPECTIVE_IMPACT_MAPPING': 'Perspective Impact Mapping',
+  'TARGET_RESOLUTION': 'Target Resolution',
+  'GRAPH_TRAVERSAL': 'Graph Traversal',
+  'IMPACT_ANALYSIS': 'Impact Analysis',
+  'FINAL_SYNTHESIS': 'Final Synthesis',
+  'VALIDATION_GROUNDING': 'Validation Grounding',
+  'OUTPUT_ASSEMBLY': 'Output Assembly',
+  'COMPLETE': 'Finalizing',
+};
+
+function normalizeStatus(status: string | null): string {
+  if (!status) return '';
+  return String(status).trim().toUpperCase();
 }
 
 export function AnalysisLoader({
   progress,
   statusText,
   error,
+  jobId,
+  jobStatus,
+  checkpoint,
   onCancel,
   onRetry,
 }: AnalysisLoaderProps) {
@@ -32,6 +76,37 @@ export function AnalysisLoader({
     }, 40);
     return () => clearTimeout(timer);
   }, [progress, displayProgress]);
+
+  // Determine current stage from checkpoint or status
+  const getCurrentStage = (): string => {
+    if (checkpoint?.current_stage) {
+      return STAGE_LABELS[checkpoint.current_stage.toUpperCase()] || checkpoint.current_stage;
+    }
+    
+    const normalized = normalizeStatus(jobStatus);
+    if (normalized === 'QUEUED') return 'Waiting in queue';
+    if (normalized === 'PROCESSING') return 'Processing';
+    if (normalized === 'COMPLETED') return 'Complete';
+    
+    return statusText || 'Initializing...';
+  };
+
+  // Get completed stages from checkpoint
+  const getCompletedStages = (): string[] => {
+    if (checkpoint?.completed_stages) {
+      return checkpoint.completed_stages.map(
+        (stage) => STAGE_LABELS[stage.toUpperCase()] || stage
+      );
+    }
+    return [];
+  };
+
+  const currentStage = getCurrentStage();
+  const completedStages = getCompletedStages();
+  const normalizedStatus = normalizeStatus(jobStatus);
+  const isQueued = normalizedStatus === 'QUEUED';
+  const isProcessing = normalizedStatus === 'PROCESSING' || (normalizedStatus === '' && progress < 100);
+  const isComplete = normalizedStatus === 'COMPLETED' || progress >= 100;
 
   return (
     <div
@@ -114,7 +189,7 @@ export function AnalysisLoader({
                 transition: 'opacity 0.3s',
               }}
             >
-              {statusText || 'Initialising...'}
+              {statusText || currentStage || 'Initializing...'}
             </p>
 
             <p
@@ -126,8 +201,89 @@ export function AnalysisLoader({
                 margin: '0 0 24px 0',
               }}
             >
-              This may take up to 60 seconds. Do not close this window.
+              {isQueued ? 'Job queued - waiting for processing to start' : 
+               isProcessing ? 'The intelligence engine is processing the article. This may take several minutes.' :
+               isComplete ? 'Analysis complete' :
+               'Analyzing article from a ' + (statusText.includes('Zimbabwe') ? 'Zimbabwe' : 'selected') + ' perspective'}
+              {jobId && ` (Job: ${jobId.slice(0, 8)}...)`}
             </p>
+
+            {/* Pipeline stage visualization */}
+            {isProcessing && completedStages.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.06em',
+                    color: 'var(--text-dim)',
+                    textTransform: 'uppercase',
+                    marginBottom: 10,
+                  }}
+                >
+                  Pipeline Progress
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {PIPELINE_STAGES.map((stage, index) => {
+                    const isCompleted = completedStages.some(
+                      (s) => s.toUpperCase() === stage.toUpperCase()
+                    );
+                    const isCurrent = stage === currentStage || 
+                      (currentStage === 'Processing' && !isCompleted && index === completedStages.length);
+                    
+                    return (
+                      <div
+                        key={stage}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          fontFamily: 'var(--font-sans)',
+                          fontSize: 12,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 10,
+                            background: isCompleted 
+                              ? 'var(--text-primary)' 
+                              : isCurrent 
+                                ? '#007aff' 
+                                : 'transparent',
+                            border: isCompleted 
+                              ? 'none' 
+                              : isCurrent 
+                                ? '2px solid #007aff' 
+                                : '1px solid var(--border-default)',
+                            color: isCompleted ? 'var(--bg-primary)' : isCurrent ? '#007aff' : 'var(--border-default)',
+                          }}
+                        >
+                          {isCompleted ? <CheckCircle size={10} /> : isCurrent ? <Loader2 size={10} style={{ animation: 'spin 1s linear infinite' }} /> : null}
+                        </span>
+                        <span
+                          style={{
+                            color: isCompleted 
+                              ? 'var(--text-primary)' 
+                              : isCurrent 
+                                ? 'var(--text-tertiary)' 
+                                : 'var(--text-dim)',
+                            fontWeight: isCompleted || isCurrent ? 600 : 300,
+                          }}
+                        >
+                          {stage}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Progress bar */}
             <div
@@ -163,7 +319,7 @@ export function AnalysisLoader({
                 color: 'var(--border-default)',
               }}
             >
-              <span>Analysis in progress</span>
+              <span>{isQueued ? 'Waiting in queue' : isProcessing ? 'Analysis in progress' : 'Finalizing'}</span>
               <span>{Math.round(displayProgress)}%</span>
             </div>
           </>
@@ -182,7 +338,7 @@ export function AnalysisLoader({
                     margin: '0 0 4px 0',
                   }}
                 >
-                  Analysis failed
+                  {normalizedStatus === 'CANCELLED' ? 'Analysis cancelled' : 'Analysis failed'}
                 </p>
                 <p
                   style={{

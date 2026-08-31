@@ -317,6 +317,51 @@ export async function processNewsArticle(body: NewsRequest): Promise<NewsAPIResp
 }
 
 // ---------------------------------------------------------------------------
+// GET /api/news/status/{job_id}
+// Returns job status: queued, processing, completed, partial, failed, cancelled
+// ---------------------------------------------------------------------------
+
+export interface JobStatus {
+  status: string;
+  job_id: string;
+  message?: string;
+  checkpoint?: {
+    current_stage?: string;
+    completed_stages?: string[];
+    stage_durations?: Record<string, number>;
+  };
+  analysis_version?: string;
+  schema_version?: string;
+}
+
+export async function getNewsJobStatus(jobId: string): Promise<JobStatus> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/news/status/${jobId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return parseJSON<JobStatus>(res);
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/news/result/{job_id}
+// Returns the final intelligence result after job completion
+// ---------------------------------------------------------------------------
+
+export interface NewsResult {
+  status: string;
+  job_id: string;
+  data: NewsAPIResponse;
+}
+
+export async function getNewsJobResult(jobId: string): Promise<NewsResult> {
+  const res = await fetchWithTimeout(`${API_BASE}/api/news/result/${jobId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return parseJSON<NewsResult>(res);
+}
+
+// ---------------------------------------------------------------------------
 // POST /api/execute
 // ---------------------------------------------------------------------------
 
