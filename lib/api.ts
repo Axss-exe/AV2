@@ -354,6 +354,8 @@ export interface NewsAPIResponse {
 export interface NewsJobSubmission {
   status?: string;
   job_id: string;
+  status_url?: string;
+  result_url?: string;
   analysis_version?: string;
   schema_version?: string;
   [key: string]: unknown;
@@ -371,6 +373,15 @@ export interface NewsJobStatus {
   error?: string;
   detail?: string;
   [key: string]: unknown;
+}
+
+export async function fetchNewsLifecycle(url: string): Promise<Record<string, unknown>> {
+  const parsed = new URL(url, typeof window === 'undefined' ? 'http://localhost' : window.location.origin);
+  if (parsed.origin !== (typeof window === 'undefined' ? parsed.origin : window.location.origin)) {
+    throw new APIError('Invalid News lifecycle URL.');
+  }
+  const res = await fetchWithTimeout(parsed.toString(), {}, 30_000);
+  return parseJSON<Record<string, unknown>>(res);
 }
 
 export async function processNewsArticle(body: NewsRequest): Promise<NewsJobSubmission | NewsAPIResponse> {

@@ -6,7 +6,7 @@ import type { Article as NewsArticle } from '@/types/article';
 import type { Dashboard } from '@/types/dashboard';
 import { normalizeATISNewsResponse, hasMeaningfulATISData } from './news-normalization';
 import { DEFAULT_PERSPECTIVE, getCountryCode } from './perspective';
-import { processNewsArticle } from './api';
+import { fetchNewsLifecycle, processNewsArticle } from './api';
 
 interface ATISContextType {
   // Existing state
@@ -147,8 +147,20 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     const jobId = 'job_id' in submitted && typeof submitted.job_id === 'string' ? submitted.job_id : null;
 
     if (!jobId) {
+      const responseStatus = typeof submitted === 'object' && submitted !== null && 'status' in submitted
+        ? String(submitted.status).toLowerCase()
+        : '';
+      if (responseStatus === 'queued' || responseStatus === 'processing' || responseStatus === 'pending') {
+        setAnalysisError('The backend accepted the analysis but did not return a job ID for monitoring.');
+        setAnalysisLoading(false);
+        return;
+      }
       const dashboard = normalizeATISNewsResponse(submitted);
-      if (!hasMeaningfulATISData(dashboard)) throw new Error('The analysis returned no usable intelligence data. Please try again.');
+      if (!hasMeaningfulATISData(dashboard)) {
+        setAnalysisError('The completed analysis returned no usable intelligence data. Please try again.');
+        setAnalysisLoading(false);
+        return;
+      }
       setAnalysisProgress(100);
       setAnalysisStatusText('Analysis complete.');
       setAnalysisLoading(false);
@@ -161,8 +173,40 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setAnalysisStatusText('Analysis submitted. The backend is processing your request.');
     try { localStorage.setItem('atis_active_news_job', JSON.stringify({ jobId, article, submittedAt: new Date().toISOString() })); } catch { /* optional persistence */ }
 
-    /* Polling URLs must be supplied by the backend response; the frontend does not invent routes. */
-    return; /* The current backend response is handled by its existing synchronous result contract. */
+    const submission = submitted as Record<string, unknown>;
+    const statusUrl = typeof submission.status_url === 'string' ? submission.status_url : null;
+    const resultUrl = typeof submission.result_url === 'string' ? submission.result_url : null;
+    if (!statusUrl || !resultUrl) {
+      setAnalysisError('The backend accepted the analysis but did not provide lifecycle URLs.');
+      setAnalysisLoading(false);
+      return;
+    }
+    let delay = 2000;
+    const monitor = async (): Promise<void> => {
+      const status = await fetchNewsLifecycle(statusUrl);
+      const state = String(status.status ?? '').toLowerCase();
+      setAnalysisStage(String(status.current_stage ?? status.stage ?? 'Processing'));
+      setAnalysisStatusText(state === 'queued' ? 'Analysis queued...' : String(status.current_stage ?? status.stage ?? 'Analysis in progress...'));
+      if (Array.isArray(status.completed_stages)) setAnalysisCompletedStages(status.completed_stages.filter((item): item is string => typeof item === 'string'));
+      if (typeof status.progress === 'number') setAnalysisProgress(Math.min(99, Math.max(0, status.progress)));
+      if (typeof status.position_in_queue === 'number') setAnalysisPositionInQueue(status.position_in_queue);
+      if (state === 'failed' || state === 'error') throw new Error(String(status.error ?? status.detail ?? 'The analysis failed.'));
+      if (state === 'cancelled' || state === 'canceled') throw new Error('The analysis was cancelled.');
+      if (state === 'completed' || state === 'complete' || state === 'succeeded') {
+        const result = normalizeATISNewsResponse(await fetchNewsLifecycle(resultUrl));
+        if (!hasMeaningfulATISData(result)) throw new Error('The completed analysis returned no usable intelligence data. Please try again.');
+        setAnalysisQueued(false); setAnalysisProgress(100); setAnalysisStatusText('Analysis complete.'); setAnalysisLoading(false); setCurrentDashboard(result);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay = 5000;
+      return monitor();
+    };
+    void monitor().catch((error: unknown) => {
+      setAnalysisError(error instanceof Error ? error.message : 'The analysis failed.');
+      setAnalysisLoading(false);
+      setAnalysisQueued(false);
+    });
   }, [perspectiveCountry, perspectiveCountryCode]);
 
 
