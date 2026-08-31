@@ -176,26 +176,31 @@ export default function OpportunitiesPage() {
       });
 
       // Auto-save roadmap and navigate to its dashboard
+      if (!res || typeof res !== 'object' || typeof res.roadmap !== 'string' || !res.roadmap.trim()) {
+        throw new APIError('The opportunity pipeline returned no roadmap. Please try again.');
+      }
+
       const saveRes = await fetch('/api/roadmaps', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           opportunity_id: opportunityId,
           opportunity_title: savedRow?.title ?? (dashboardJson as Record<string, unknown>)?.trigger_event ?? opportunityId,
           saved_opportunity_id: savedRow?.id ?? null,
-          roadmap_text: res.roadmap ?? null,
+          roadmap_text: res.roadmap,
           lineage_traces: res.lineage_traces ?? [],
           raw_response: res,
         }),
       });
-      const saved_ = await saveRes.json();
-      const roadmapId = saved_?.id;
-
-      if (roadmapId) {
-        router.push(`/execute/roadmap/${roadmapId}`);
+      const saved_: unknown = await saveRes.json();
+      const roadmapId = saved_ && typeof saved_ === 'object' && 'id' in saved_ ? (saved_ as { id?: number }).id : undefined;
+      if (!saveRes.ok || !roadmapId) {
+        const detail = saved_ && typeof saved_ === 'object' && 'error' in saved_ ? String((saved_ as { error?: unknown }).error) : 'Unable to save the generated roadmap.';
+        throw new APIError(detail);
       }
+      router.push(`/execute/roadmap/${roadmapId}`);
     } catch (err) {
-      const msg = err instanceof APIError ? err.message : 'Pipeline execution failed. Please try again.';
+      const msg = err instanceof APIError ? err.message : err instanceof Error ? err.message : 'Pipeline execution failed. Please try again.';
       setExecuteError(msg);
       setExecutingId(null);
     }
@@ -417,7 +422,7 @@ export default function OpportunitiesPage() {
             <div className="grid grid-cols-3 gap-3" style={{ marginBottom: 20 }}>
               {[
                 { label: 'Total Saved', value: saved.length, color: 'var(--text-tertiary)' },
-                { label: 'Avg Urgency', value: (saved.reduce((s, r) => s + r.urgency_score, 0) / saved.length).toFixed(1), color: urgencyColor(saved.reduce((s, r) => s + r.urgency_score, 0) / saved.length) },
+                { label: 'Avg Urgency', value: (() => { const scores = saved.map((r) => Number(r.urgency_score)).filter(Number.isFinite); const average = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0; return average.toFixed(1); })(), color: (() => { const scores = saved.map((r) => Number(r.urgency_score)).filter(Number.isFinite); const average = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0; return urgencyColor(average); })() },
                 { label: 'With Roadmap', value: saved.filter((r) => r.latest_roadmap_id).length, color: 'var(--text-primary)' },
               ].map(({ label, value, color }) => (
                 <div key={label} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 10, padding: '12px 16px' }}>

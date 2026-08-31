@@ -187,6 +187,7 @@ export function OpportunityCard({
         }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? data?.detail ?? 'Unable to save opportunity.');
       if (data.id) {
         setSaved(true);
         setSavedDbId(data.id);
@@ -206,7 +207,11 @@ export function OpportunityCard({
     if (!savedDbId || unsaving) return;
     setUnsaving(true);
     try {
-      await fetch(`/api/saved-opportunities/${savedDbId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/saved-opportunities/${savedDbId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? 'Unable to remove saved opportunity.');
+      }
       setSaved(false);
       onDeleted?.(savedDbId);
       setSavedDbId(undefined);
@@ -520,7 +525,7 @@ export function OpportunityCard({
             ) : (
               <Zap size={13} aria-hidden="true" />
             )}
-            {executing ? 'Executing...' : 'Execute'}
+            {executing ? 'Checking...' : 'Check Opportunity'}
           </button>
         </div>
       )}
