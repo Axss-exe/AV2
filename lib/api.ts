@@ -436,9 +436,12 @@ export interface LineageTrace {
 }
 
 export async function executeOpportunity(body: ExecuteRequest): Promise<ExecuteAPIResponse> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/execute`, {
+  // Opportunity analysis is a long-running backend job. Keep this request
+  // open until the backend returns its complete JSON roadmap; the shared
+  // two-minute timeout must not turn a valid in-flight job into a UI error.
+  const res = await fetch(`${API_BASE}/api/execute`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(body),
   });
   return parseJSON<ExecuteAPIResponse>(res);
