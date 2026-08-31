@@ -15,7 +15,10 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ ok: true });
     response.cookies.set(COOKIE_NAME, 'granted', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      // Preview sandboxes can run over HTTP even when NODE_ENV is production.
+      // Marking this cookie Secure there makes the browser store it but omit it
+      // on the redirected HTTP dashboard request, which causes an access loop.
+      secure: request.url.startsWith('https://'),
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 8,

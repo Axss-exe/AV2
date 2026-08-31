@@ -16,6 +16,7 @@ export function DemoAccessGate() {
     try {
       const response = await fetch('/api/demo-access', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ passcode }),
       });
