@@ -4,11 +4,11 @@
  * merges real accumulated query results into deduped `AggregatedKnowledge`.
  * Mirrors the existing `roadmaps`/`saved_opportunities` pattern.
  */
-import { neon } from '@neondatabase/serverless';
+import { getNeonClient } from './neon';
 import type { QueryResult, KeyEntity, GraphEdge } from './types';
 import type { AggregatedKnowledge, Investigation, InvestigationQuery, InvestigationReport } from './investigation-types';
 
-export const sql = neon(process.env.DATABASE_URL!);
+export const sql = (strings: TemplateStringsArray, ...values: unknown[]) => getNeonClient()(strings, ...values);
 
 export interface InvestigationRow {
   id: number;

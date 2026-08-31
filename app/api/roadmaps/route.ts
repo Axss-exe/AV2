@@ -1,7 +1,7 @@
-import { neon } from '@neondatabase/serverless';
+import { getNeonClient } from '@/lib/neon';
 import { NextRequest, NextResponse } from 'next/server';
 
-const sql = neon(process.env.DATABASE_URL!);
+const sql = (strings: TemplateStringsArray, ...values: unknown[]) => getNeonClient()(strings, ...values);
 
 // POST /api/roadmaps — save a roadmap result after execute
 export async function POST(req: NextRequest) {

@@ -1,9 +1,9 @@
-import { neon } from '@neondatabase/serverless';
+import { getNeonClient } from '@/lib/neon';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-const sql = neon(process.env.DATABASE_URL!);
+const sql = (strings: TemplateStringsArray, ...values: unknown[]) => getNeonClient()(strings, ...values);
 
 type ArticleRow = Record<string, unknown>;
 
