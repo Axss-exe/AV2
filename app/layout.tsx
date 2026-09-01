@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/brand/atis-symbol.svg',
     shortcut: '/brand/atis-symbol.svg',
-    apple: '/apple-icon.png',
+    apple: '/brand/atis-symbol.svg',
   },
 }
 
