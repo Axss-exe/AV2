@@ -28,6 +28,11 @@ export const metadata: Metadata = {
   title: 'ATIS — Africa Trade & Intelligence System',
   description: 'Professional intelligence dashboard for African trade analysis. Real-time insights, validation traces, and market intelligence.',
   generator: 'v0.app',
+  icons: {
+    icon: '/brand/atis-symbol.svg',
+    shortcut: '/brand/atis-symbol.svg',
+    apple: '/apple-icon.png',
+  },
 }
 
 export const viewport: Viewport = {
