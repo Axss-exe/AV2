@@ -231,12 +231,17 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
           : 'Processing intelligence analysis');
       }
 
-      if (status === 'COMPLETED') {
-        stopPolling();
-        const fetchResult = fetchJobResultRef.current;
-        if (!fetchResult) throw new Error('Result handler is not ready.');
+    if (status === 'COMPLETED') {
+      stopPolling();
+      const fetchResult = fetchJobResultRef.current;
+      if (!fetchResult) throw new Error('Result handler is not ready.');
+      try {
         await fetchResult(jobId);
-      } else if (status === 'FAILED') {
+      } catch {
+        // Result failures are terminal; do not restart status polling for a completed job.
+        return 'FAILED';
+      }
+    } else if (status === 'FAILED') {
         stopPolling();
         setAnalysisError(String(job?.error ?? 'Backend processing failed. Please try again.'));
         setAnalysisLoading(false);
@@ -270,10 +275,9 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       }
 
       const dashboard = normalizeDashboardData(json.data as Record<string, unknown>);
-      if (!hasMeaningfulDashboardData(dashboard)) {
-        throw new Error('The analysis returned no usable intelligence data. Please try again.');
-      }
-
+      // A completed backend job is authoritative. Some valid analyses contain
+      // only nested or newly-added intelligence fields, so do not reject them
+      // based on a narrow frontend field check.
       setCurrentDashboard(dashboard);
       setAnalysisProgress(100);
       setAnalysisStatusText('Analysis complete');
