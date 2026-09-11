@@ -109,7 +109,7 @@ function calculateProgressFromStages(completedStages: string[] = []): number {
 const TERMINAL_STATES = new Set(['COMPLETED', 'PARTIAL', 'FAILED', 'CANCELLED']);
 
 // Non-terminal states where polling should continue
-const PROCESSING_STATES = new Set(['QUEUED', 'RUNNING', 'PROCESSING']);
+const PROCESSING_STATES = new Set(['QUEUED', 'RUNNING', 'PROCESSING', 'FORMATTING']);
 
 export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [currentView, setCurrentView] = useState('home');
@@ -165,9 +165,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     stage_durations?: Record<string, number>;
   } | null>(null);
   
-  // Polling interval ref for cleanup
-  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Self-scheduling polling and request lifecycle refs
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollInFlightRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
 
   const addQueryToHistory = useCallback((result: QueryResult) => {
     setQueryHistory((prev) => [result, ...prev]);
@@ -177,20 +179,24 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     setQueryHistory((prev) => prev.filter((r) => r.query !== query));
   }, []);
 
-  // Stop polling and cleanup
+  // Stop future polling without aborting the current request/result fetch.
   const stopPolling = useCallback(() => {
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-      pollIntervalRef.current = null;
-    }
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
     }
   }, []);
 
-  // Poll job status
+  const abortAnalysis = useCallback(() => {
+    stopPolling();
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+  }, [stopPolling]);
+
+  // Poll one status request. The caller owns scheduling so requests never overlap.
   const pollJobStatus = useCallback(async (jobId: string) => {
+    if (!mountedRef.current || pollInFlightRef.current) return null;
+    pollInFlightRef.current = true;
     try {
       const res = await fetch(`/api/news/status/${jobId}`, {
         method: 'GET',
@@ -231,7 +237,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         stopPolling();
         // Fetch the result
         await fetchJobResult(jobId);
-        return;
+        return 'COMPLETED';
       }
 
       // Check for terminal failure states
@@ -255,8 +261,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
     } catch (err) {
       // Network error - continue polling
+      if (err instanceof DOMException && err.name === 'AbortError') return null;
       console.warn('Job status polling failed, will retry:', err);
       return null;
+    } finally {
+      pollInFlightRef.current = false;
     }
   }, [stopPolling]);
 
@@ -472,24 +481,18 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         setAnalysisStatusText('Job queued - waiting for processing...');
         setAnalysisProgress(0);
 
-        // Start polling immediately, then every 2-3 seconds
-        const POLL_INTERVAL = 2500; // 2.5 seconds
-        
-        pollIntervalRef.current = setInterval(async () => {
-          try {
-            const status = await pollJobStatus(jobId);
-            
-            // If polling returned a terminal state, stop
-            if (status && TERMINAL_STATES.has(normalizeStatus(status))) {
-              stopPolling();
-            }
-          } catch (err) {
-            console.warn('Polling error:', err);
+        const poll = async (): Promise<void> => {
+          if (!mountedRef.current) return;
+          const status = await pollJobStatus(jobId);
+          if (status && TERMINAL_STATES.has(normalizeStatus(status))) return;
+          if (mountedRef.current && !pollTimeoutRef.current) {
+            pollTimeoutRef.current = setTimeout(() => {
+              pollTimeoutRef.current = null;
+              void poll();
+            }, 2500);
           }
-        }, POLL_INTERVAL);
-
-        // Initial poll right away
-        await pollJobStatus(jobId);
+        };
+        await poll();
       }
 
     } catch (err) {
@@ -573,15 +576,19 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
           setAnalysisLoading(false);
         }
       } else {
-        // Still processing - start polling
-        const POLL_INTERVAL = 2500;
-        pollIntervalRef.current = setInterval(async () => {
-          try {
-            await pollJobStatus(jobId);
-          } catch (err) {
-            console.warn('Polling error:', err);
+        // Still processing - continue with the same non-overlapping loop.
+        const poll = async (): Promise<void> => {
+          if (!mountedRef.current) return;
+          const nextStatus = await pollJobStatus(jobId);
+          if (nextStatus && TERMINAL_STATES.has(normalizeStatus(nextStatus))) return;
+          if (mountedRef.current && !pollTimeoutRef.current) {
+            pollTimeoutRef.current = setTimeout(() => {
+              pollTimeoutRef.current = null;
+              void poll();
+            }, 2500);
           }
-        }, POLL_INTERVAL);
+        };
+        await poll();
       }
 
     } catch (err) {
@@ -637,9 +644,10 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopPolling();
+      mountedRef.current = false;
+      abortAnalysis();
     };
-  }, [stopPolling]);
+  }, [abortAnalysis]);
 
   return (
     <ATISContext.Provider
