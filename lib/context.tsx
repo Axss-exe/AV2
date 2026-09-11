@@ -109,7 +109,7 @@ function calculateProgressFromStages(completedStages: string[] = []): number {
 const TERMINAL_STATES = new Set(['COMPLETED', 'PARTIAL', 'FAILED', 'CANCELLED']);
 
 // Non-terminal states where polling should continue
-const PROCESSING_STATES = new Set(['QUEUED', 'PROCESSING']);
+const PROCESSING_STATES = new Set(['QUEUED', 'RUNNING', 'PROCESSING']);
 
 export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [currentView, setCurrentView] = useState('home');
@@ -222,7 +222,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         setAnalysisStatusText(`Stage: ${stageLabel}`);
       } else if (normalizedStatus === 'QUEUED') {
         setAnalysisStatusText('Job queued - waiting for processing to start');
-      } else if (normalizedStatus === 'PROCESSING') {
+      } else if (PROCESSING_STATES.has(normalizedStatus) && normalizedStatus !== 'QUEUED') {
         setAnalysisStatusText('Processing intelligence analysis');
       }
 
@@ -325,6 +325,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   function normalizeDashboardData(data: Record<string, unknown>): Dashboard {
     const pm = data.pipeline_metadata as Record<string, unknown> | undefined;
     return {
+      ...data,
       intelligence_id: String(data.intelligence_id ?? data.job_id ?? ''),
       trigger_event: String(data.trigger_event ?? data.core_event ?? ''),
       market_equilibrium_shift: String(data.market_equilibrium_shift ?? ''),
@@ -333,6 +334,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
             const o = opp as Record<string, unknown>;
             const cf = o.capital_flow as Record<string, unknown> | undefined;
             return {
+              ...o,
               opportunity_id: String(o.id ?? o.opportunity_id ?? ''),
               title: String(o.title ?? ''),
               type: String(o.type ?? 'Primary'),
@@ -342,6 +344,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
                 ? o.required_missing_nodes as string[]
                 : [],
               capital_flow: {
+                ...cf,
                 beneficiary: String(cf?.beneficiary ?? ''),
                 likely_funder: String(cf?.likely_funder ?? ''),
               },
@@ -350,6 +353,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
           })
         : [],
       pipeline_metadata: {
+          ...pm,
         processed_at: String(pm?.processed_at ?? new Date().toISOString()),
         source_article: String(pm?.source_article ?? (data.article_text?.toString().slice(0, 100) ?? '')),
         extracted_entities_count: Number(pm?.extracted_entities_count ?? 0),
@@ -462,8 +466,9 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         throw new Error(submitJson.message || 'Job submission failed');
       }
 
-      // STEP 4: For queued/processing, start polling
-      if (PROCESSING_STATES.has(normalizedStatus) || normalizedStatus === '') {
+      // ACCEPTED acknowledges submission; a valid job ID is enough to poll the durable job.
+      // STEP 4: A valid job ID means the durable job was submitted; poll its status.
+      if (jobId) {
         setAnalysisStatusText('Job queued - waiting for processing...');
         setAnalysisProgress(0);
 
