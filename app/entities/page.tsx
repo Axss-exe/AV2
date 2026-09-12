@@ -45,7 +45,7 @@ export default function EntitiesPage() {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.28, delay: Math.min(i * 0.03, 0.5), ease: [0.4, 0, 0.2, 1] as number[] },
+      transition: { duration: 0.28, delay: Math.min(i * 0.03, 0.5), ease: [0.4, 0, 0.2, 1] as const },
     }),
     exit: { opacity: 0, scale: 0.97, transition: { duration: 0.15 } },
   };
