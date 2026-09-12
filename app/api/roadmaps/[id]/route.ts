@@ -1,7 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 
-const sql = neon(process.env.DATABASE_URL!);
+function getSql() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) throw new Error('Database configuration is missing');
+  return neon(dbUrl);
+}
 
 // GET /api/roadmaps/[id] — fetch a single roadmap record
 export async function GET(
@@ -14,7 +18,7 @@ export async function GET(
     if (isNaN(numId)) {
       return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
     }
-    const rows = await sql`SELECT * FROM roadmaps WHERE id = ${numId} LIMIT 1`;
+    const rows = await getSql()`SELECT * FROM roadmaps WHERE id = ${numId} LIMIT 1`;
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Roadmap not found' }, { status: 404 });
     }

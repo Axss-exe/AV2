@@ -1,7 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 
-const sql = neon(process.env.DATABASE_URL!);
+function getSql() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) throw new Error('Database configuration is missing');
+  return neon(dbUrl);
+}
 
 // POST /api/roadmaps — save a roadmap result after execute
 export async function POST(req: NextRequest) {
@@ -20,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'opportunity_id and raw_response are required' }, { status: 400 });
     }
 
-    const result = await sql`
+    const result = await getSql()`
       INSERT INTO roadmaps (
         saved_opportunity_id, opportunity_id, opportunity_title,
         roadmap_text, lineage_traces, raw_response
@@ -48,11 +52,11 @@ export async function GET(req: NextRequest) {
 
     let rows;
     if (savedId) {
-      rows = await sql`SELECT * FROM roadmaps WHERE saved_opportunity_id = ${parseInt(savedId, 10)} ORDER BY executed_at DESC`;
+      rows = await getSql()`SELECT * FROM roadmaps WHERE saved_opportunity_id = ${parseInt(savedId, 10)} ORDER BY executed_at DESC`;
     } else if (opportunityId) {
-      rows = await sql`SELECT * FROM roadmaps WHERE opportunity_id = ${opportunityId} ORDER BY executed_at DESC`;
+      rows = await getSql()`SELECT * FROM roadmaps WHERE opportunity_id = ${opportunityId} ORDER BY executed_at DESC`;
     } else {
-      rows = await sql`SELECT * FROM roadmaps ORDER BY executed_at DESC LIMIT 20`;
+      rows = await getSql()`SELECT * FROM roadmaps ORDER BY executed_at DESC LIMIT 20`;
     }
     return NextResponse.json({ status: 'ok', data: rows });
   } catch (err) {

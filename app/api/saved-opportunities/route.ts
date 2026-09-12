@@ -1,12 +1,16 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 
-const sql = neon(process.env.DATABASE_URL!);
+function getSql() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) throw new Error('Database configuration is missing');
+  return neon(dbUrl);
+}
 
 // GET /api/saved-opportunities — list all saved opportunities
 export async function GET() {
   try {
-    const rows = await sql`
+    const rows = await getSql()`
       SELECT
         id, opportunity_id, title, type,
         urgency_score, feasibility_score, justification,
@@ -49,14 +53,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Prevent duplicate saves of the same opportunity
-    const existing = await sql`
+    const existing = await getSql()`
       SELECT id FROM saved_opportunities WHERE opportunity_id = ${opportunity_id} LIMIT 1
     `;
     if (existing.length > 0) {
       return NextResponse.json({ status: 'already_saved', id: existing[0].id });
     }
 
-    const result = await sql`
+    const result = await getSql()`
       INSERT INTO saved_opportunities (
         opportunity_id, title, type, urgency_score, feasibility_score,
         justification, required_missing_nodes, capital_flow, dashboard_json,

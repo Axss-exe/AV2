@@ -4,11 +4,20 @@
  * merges real accumulated query results into deduped `AggregatedKnowledge`.
  * Mirrors the existing `roadmaps`/`saved_opportunities` pattern.
  */
-import { neon } from '@neondatabase/serverless';
-import type { QueryResult, KeyEntity, GraphEdge } from './types';
-import type { AggregatedKnowledge, Investigation, InvestigationQuery, InvestigationReport } from './investigation-types';
+'use server';
 
-export const sql = neon(process.env.DATABASE_URL!);
+import { neon } from '@neondatabase/serverless';
+import type { QueryResult } from './types';
+import type { Investigation, InvestigationQuery, InvestigationReport } from './investigation-types';
+import { computeAggregated } from './investigation-aggregation';
+
+function getSql() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error('No database connection string was provided to `neon()`. Perhaps an environment variable has not been set?');
+  }
+  return neon(dbUrl);
+}
 
 export interface InvestigationRow {
   id: number;
@@ -43,54 +52,6 @@ export function mapQueryRow(row: InvestigationQueryRow): InvestigationQuery {
   };
 }
 
-/**
- * Merge the already-real accumulated QueryResults from every query in an
- * investigation into deduped entities/relationships/sources. Never invents
- * data — only reorganizes what the backend already returned.
- */
-export function computeAggregated(results: QueryResult[]): AggregatedKnowledge {
-  const entityByName = new Map<string, KeyEntity>();
-  const relationshipByKey = new Map<string, GraphEdge>();
-  const sourceNames = new Set<string>();
-  const findingTexts = new Set<string>();
-
-  for (const result of results) {
-    for (const entity of result.keyEntities ?? []) {
-      if (!entityByName.has(entity.entity_name)) {
-        entityByName.set(entity.entity_name, entity);
-      }
-    }
-    for (const edge of result.graphEdges ?? []) {
-      const key = `${edge.from}|${edge.to}|${edge.label}`;
-      if (!relationshipByKey.has(key)) {
-        relationshipByKey.set(key, edge);
-      }
-    }
-    for (const row of result.tableRows ?? []) {
-      if (row.entity) sourceNames.add(row.entity);
-    }
-    if (result.findingsCited && result.findingsCited.length > 0) {
-      for (const f of result.findingsCited) findingTexts.add(f.text);
-    } else {
-      for (const f of result.findings ?? []) findingTexts.add(f);
-    }
-  }
-
-  const entities = Array.from(entityByName.values());
-  const relationships = Array.from(relationshipByKey.values());
-  const sources = Array.from(sourceNames);
-
-  return {
-    entities,
-    relationships,
-    sources,
-    findingsCount: findingTexts.size,
-    entitiesCount: entities.length,
-    relationshipsCount: relationships.length,
-    sourcesCount: sources.length,
-  };
-}
-
 /** Derive a readable title from the root question when no explicit title was given. */
 export function deriveTitle(rootQuestion: string): string {
   const trimmed = rootQuestion.trim();
@@ -100,6 +61,7 @@ export function deriveTitle(rootQuestion: string): string {
 
 /** Full investigation detail: metadata + ordered queries[] + computed aggregated knowledge + report. */
 export async function getInvestigationDetail(investigationId: number): Promise<Investigation | null> {
+  const sql = getSql();
   const [investigation] = (await sql`
     SELECT * FROM investigations WHERE id = ${investigationId}
   `) as unknown as InvestigationRow[];

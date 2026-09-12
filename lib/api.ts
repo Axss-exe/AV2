@@ -7,7 +7,7 @@ import type { PerspectiveContext } from './perspective';
 import type { QueryResult } from './types';
 import type { Investigation, InvestigationSummary, InvestigationReport, AggregatedKnowledge } from './investigation-types';
 import { mapAPIResponseToQueryResult } from './query-mapping';
-import { computeAggregated } from './investigation-db';
+import { computeAggregated } from './investigation-aggregation';
 
 // Client-side requests go through the Next.js proxy routes (/api/*)
 // to avoid CORS issues. The proxy routes (lib/proxy.ts) forward to
