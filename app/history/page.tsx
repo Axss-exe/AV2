@@ -169,8 +169,6 @@ export default function HistoryPage() {
           <EmptyState
             title="No queries yet"
             description="Start by asking a question in the Query dashboard."
-            actionLabel="Go to Query"
-            actionHref="/query"
           />
         ) : (
           <div
