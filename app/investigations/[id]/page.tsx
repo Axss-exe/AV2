@@ -15,18 +15,16 @@ import {
   fetchInvestigation,
   addInvestigationQuery,
   generateInvestigationReport,
-  queryAPI,
   APIError,
 } from '@/lib/api';
-import { mapAPIResponseToQueryResult } from '@/lib/query-mapping';
 
 export default function InvestigationWorkspacePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const investigationId = Number(params.id);
+  const investigationId = params.id;
 
   const { data: investigation, error, isLoading, mutate } = useSWR(
-    Number.isFinite(investigationId) ? `/api/investigations/${investigationId}` : null,
+    investigationId ? `/api/investigations/${investigationId}` : null,
     () => fetchInvestigation(investigationId)
   );
 
@@ -57,13 +55,11 @@ export default function InvestigationWorkspacePage() {
     setContinueLoading(true);
     setContinueError(null);
     try {
-      const res = await queryAPI({
+      const parent = investigation.queries[investigation.queries.length - 1];
+      const updated = await addInvestigationQuery(investigation.investigation_id, {
         question,
-        perspective_country: investigation.perspectiveCountry,
-        perspective_country_code: investigation.perspectiveCountryCode,
+        parent_query_id: parent?.query_id,
       });
-      const result = mapAPIResponseToQueryResult(question, res);
-      const updated = await addInvestigationQuery(investigation.id, { question, result });
       await mutate(updated);
       setSelectedSequence(updated.queries[updated.queries.length - 1]?.sequence ?? null);
       return true;
@@ -82,8 +78,8 @@ export default function InvestigationWorkspacePage() {
     setGeneratingReport(true);
     setReportError(null);
     try {
-      await generateInvestigationReport(investigation.id);
-      router.push(`/investigations/${investigation.id}/report`);
+      await generateInvestigationReport(investigation.investigation_id);
+      router.push(`/investigations/${investigation.investigation_id}/report`);
     } catch (err: unknown) {
       setReportError(
         err instanceof APIError ? err.message : 'Failed to generate the report. Please try again.'

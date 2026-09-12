@@ -85,12 +85,8 @@ function UrgencyBar({ score }: { score: number }) {
 }
 
 function EntityChip({ name }: { name: string }) {
-  const { entities } = useEntities();
-  const normalized = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const matched = entities.find((e) => {
-    const en = e.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return en.includes(normalized) || normalized.includes(en);
-  });
+  const { getEntityById, getEntityBySlug } = useEntities();
+  const matched = getEntityById(name) ?? getEntityBySlug(name);
 
   if (matched) {
     return (
@@ -137,7 +133,7 @@ function EntityChip({ name }: { name: string }) {
         borderRadius: 5,
         padding: '3px 8px',
       }}
-      title="Entity not yet mapped in ATIS"
+      title="Backend entity identifier is not available in the entity index"
     >
       {name}
     </span>
@@ -159,9 +155,10 @@ export function OpportunityCard({
   const [saving, setSaving] = useState(false);
   const [unsaving, setUnsaving] = useState(false);
   // pg returns NUMERIC columns as strings — coerce to number before any arithmetic
-  const urgencyScore = Number(opportunity.urgency_score);
-  const feasibilityScore = Number(opportunity.feasibility_score);
+  const urgencyScore = Number(opportunity.urgency_score ?? 0);
+  const feasibilityScore = Number(opportunity.feasibility_score ?? 0);
   const uColor = urgencyColor(urgencyScore);
+  const executionEligible = opportunity.status === 'VALID';
 
   const handleSave = async () => {
     if (saved || saving) return;
@@ -187,6 +184,9 @@ export function OpportunityCard({
         }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? `Save failed (${res.status})`);
+      }
       if (data.id) {
         setSaved(true);
         setSavedDbId(data.id);
@@ -194,9 +194,11 @@ export function OpportunityCard({
       } else if (data.status === 'already_saved') {
         setSaved(true);
         setSavedDbId(data.id);
+      } else {
+        throw new Error('Save response did not contain an opportunity ID.');
       }
     } catch (err) {
-      console.error('[OpportunityCard save]', err);
+      setExecuteError(err instanceof Error ? err.message : 'Failed to save opportunity.');
     } finally {
       setSaving(false);
     }
@@ -206,19 +208,20 @@ export function OpportunityCard({
     if (!savedDbId || unsaving) return;
     setUnsaving(true);
     try {
-      await fetch(`/api/saved-opportunities/${savedDbId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/saved-opportunities/${savedDbId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`Remove failed (${res.status})`);
       setSaved(false);
       onDeleted?.(savedDbId);
       setSavedDbId(undefined);
     } catch (err) {
-      console.error('[OpportunityCard unsave]', err);
+      setExecuteError(err instanceof Error ? err.message : 'Failed to remove opportunity.');
     } finally {
       setUnsaving(false);
     }
   };
 
   const handleExecute = async () => {
-    if (!onExecute) return;
+    if (!onExecute || !executionEligible) return;
     setExecuting(true);
     setExecuteError(null);
     try {
@@ -271,7 +274,7 @@ export function OpportunityCard({
                 fontFamily: 'var(--font-sans)',
               }}
             >
-              {opportunity.type}
+              {opportunity.type ?? opportunity.opportunity_type ?? 'Unknown'}
             </span>
           </div>
           <h3
@@ -390,7 +393,7 @@ export function OpportunityCard({
             margin: 0,
           }}
         >
-          {opportunity.justification}
+          {opportunity.justification ?? 'No justification returned.'}
         </p>
       </blockquote>
 
@@ -451,7 +454,7 @@ export function OpportunityCard({
                 color: 'var(--text-tertiary)',
               }}
             >
-              {opportunity.capital_flow.likely_funder}
+              {opportunity.capital_flow.likely_funder ?? '—'}
             </span>
             <ArrowRight size={12} color="var(--border-default)" aria-hidden="true" />
             <span
@@ -486,7 +489,7 @@ export function OpportunityCard({
           )}
           <button
             onClick={handleExecute}
-            disabled={executing}
+            disabled={executing || !executionEligible}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -499,12 +502,12 @@ export function OpportunityCard({
               fontWeight: 600,
               fontSize: 12,
               color: uColor,
-              cursor: executing ? 'not-allowed' : 'pointer',
-              opacity: executing ? 0.6 : 1,
+              cursor: executing || !executionEligible ? 'not-allowed' : 'pointer',
+              opacity: executing || !executionEligible ? 0.6 : 1,
               transition: 'background 0.15s, border-color 0.15s',
             }}
             onMouseEnter={(e) => {
-              if (!executing)
+              if (!executing && executionEligible)
                 (e.currentTarget as HTMLElement).style.background = `${uColor}10`;
             }}
             onMouseLeave={(e) => {
@@ -520,7 +523,7 @@ export function OpportunityCard({
             ) : (
               <Zap size={13} aria-hidden="true" />
             )}
-            {executing ? 'Executing...' : 'Execute'}
+            {executing ? 'Executing...' : executionEligible ? 'Execute' : 'Execution unavailable'}
           </button>
         </div>
       )}

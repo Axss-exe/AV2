@@ -85,7 +85,7 @@ export function AnalysisLoader({
     
     const normalized = normalizeStatus(jobStatus);
     if (normalized === 'QUEUED') return 'Waiting in queue';
-    if (normalized === 'RUNNING' || normalized === 'PROCESSING') return 'Processing';
+    if (normalized === 'RUNNING') return 'Processing';
     if (normalized === 'COMPLETED') return 'Complete';
     
     return statusText || 'Initializing...';
@@ -105,7 +105,7 @@ export function AnalysisLoader({
   const completedStages = getCompletedStages();
   const normalizedStatus = normalizeStatus(jobStatus);
   const isQueued = normalizedStatus === 'QUEUED';
-  const isProcessing = normalizedStatus === 'RUNNING' || normalizedStatus === 'PROCESSING' || (normalizedStatus === '' && progress < 100);
+  const isProcessing = normalizedStatus === 'RUNNING' || (normalizedStatus === '' && progress < 100);
   const isComplete = normalizedStatus === 'COMPLETED' || progress >= 100;
 
   return (
@@ -155,7 +155,7 @@ export function AnalysisLoader({
           }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)')}
           onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-dim)')}
-          aria-label="Cancel analysis"
+          aria-label="Close analysis progress"
         >
           <X size={16} aria-hidden="true" />
         </button>
@@ -338,7 +338,7 @@ export function AnalysisLoader({
                     margin: '0 0 4px 0',
                   }}
                 >
-                  {normalizedStatus === 'CANCELLED' ? 'Analysis cancelled' : 'Analysis failed'}
+                  Analysis failed
                 </p>
                 <p
                   style={{

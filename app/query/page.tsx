@@ -17,9 +17,11 @@ import { RelatedNewsPanel } from '@/components/query/related-news-panel';
 import { RisksPanel } from '@/components/query/risks-panel';
 import { IntelDrawer, type DrawerView } from '@/components/query/intel-drawer';
 import { useATIS } from '@/lib/context';
-import { queryAPI, APIError, createInvestigation } from '@/lib/api';
+import { queryAPI, APIError, createInvestigation, executeOpportunity } from '@/lib/api';
 import { mapAPIResponseToQueryResult } from '@/lib/query-mapping';
 import { buildIntelligenceViewModel } from '@/lib/intelligence-view-model';
+import { OpportunityCard } from '@/components/opportunity-card';
+import type { Opportunity } from '@/types/dashboard';
 
 const SUGGESTIONS = [
   'What are the opportunities in Zimbabwe?',
@@ -40,7 +42,7 @@ export default function QueryPage() {
   } = useATIS();
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const [hasResult, setHasResult] = useState(!!currentQueryResult);
+  const [hasResult, setHasResult] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [drawerStack, setDrawerStack] = useState<DrawerView[]>([]);
   const [startingInvestigation, setStartingInvestigation] = useState(false);
@@ -52,7 +54,7 @@ export default function QueryPage() {
   const closeDrawer = () => setDrawerStack([]);
 
   useEffect(() => {
-    if (currentQueryResult) setHasResult(true);
+    setHasResult(!!currentQueryResult);
   }, [currentQueryResult]);
 
   const handleSubmit = async (query: string) => {
@@ -61,6 +63,8 @@ export default function QueryPage() {
     setLoading(true);
     setApiError(null);
     setDrawerStack([]);
+    setHasResult(false);
+    setCurrentQueryResult(null);
 
     try {
       const res = await queryAPI({
@@ -88,13 +92,12 @@ export default function QueryPage() {
     setStartingInvestigation(true);
     setInvestigationError(null);
     try {
-      const { id } = await createInvestigation({
+      const investigation = await createInvestigation({
         question: currentQueryResult.query,
-        result: currentQueryResult,
-        perspectiveCountry,
-        perspectiveCountryCode,
+        perspective_country: perspectiveCountry,
+        perspective_country_code: perspectiveCountryCode,
       });
-      router.push(`/investigations/${id}`);
+      router.push(`/investigations/${investigation.investigation_id}`);
     } catch (err: unknown) {
       setInvestigationError(
         err instanceof APIError ? err.message : 'Failed to start the investigation. Please try again.'
@@ -102,6 +105,38 @@ export default function QueryPage() {
     } finally {
       setStartingInvestigation(false);
     }
+  };
+
+  const handleExecuteOpportunity = async (opportunityId: string) => {
+    const source = currentQueryResult?.opportunitiesCited?.find(
+      (opportunity) => opportunity.opportunity_id === opportunityId
+    );
+    if (!source) throw new Error('The selected opportunity is no longer available.');
+
+    const result = await executeOpportunity({
+      dashboard_json: source as Record<string, unknown>,
+      opportunity_id: opportunityId,
+      perspective_country: source.perspective_country ?? perspectiveCountry,
+      perspective_country_code: source.perspective_country_code ?? perspectiveCountryCode,
+    });
+    if (result.status !== 'EXECUTED') {
+      throw new Error(result.validation_message ?? `Execution status: ${result.status}`);
+    }
+
+    const saved = await fetch('/api/roadmaps', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        opportunity_id: result.opportunity_id,
+        opportunity_title: source.title ?? opportunityId,
+        roadmap_text: result.final_roadmap ?? null,
+        lineage_traces: result.compiled_lineage_traces ?? [],
+        raw_response: result,
+      }),
+    });
+    if (!saved.ok) throw new Error(`Roadmap persistence failed (${saved.status})`);
+    const savedRoadmap = await saved.json();
+    if (savedRoadmap.id) router.push(`/execute/roadmap/${savedRoadmap.id}`);
   };
 
   const handleReset = () => {
@@ -366,6 +401,19 @@ export default function QueryPage() {
                       </motion.div>
                     ) : (
                       <>
+                        {vm.opportunities.length > 0 && (
+                          <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
+                            <div className="flex flex-col gap-4">
+                              {vm.opportunities.map((opportunity) => (
+                                <OpportunityCard
+                                  key={opportunity.opportunityId}
+                                  opportunity={opportunity as unknown as Opportunity}
+                                  onExecute={handleExecuteOpportunity}
+                                />
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
                         <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
                           <FindingsPanel
                             findings={vm.findings}

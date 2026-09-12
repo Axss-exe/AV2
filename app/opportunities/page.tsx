@@ -65,6 +65,20 @@ function formatTimestamp(ts: string) {
   } catch { return ts; }
 }
 
+function opportunityFromDashboard(
+  dashboard: { opportunities?: unknown[] } | null,
+  opportunityId: string
+): Record<string, unknown> {
+  const opportunity = dashboard?.opportunities?.find((candidate) => {
+    if (!candidate || typeof candidate !== 'object') return false;
+    const value = candidate as Record<string, unknown>;
+    return String(value.opportunity_id ?? value.id ?? '') === opportunityId;
+  });
+  return opportunity && typeof opportunity === 'object'
+    ? opportunity as Record<string, unknown>
+    : {};
+}
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function SkeletonCard() {
@@ -149,7 +163,9 @@ export default function OpportunitiesPage() {
     const savedRow = saved.find((r) => r.opportunity_id === opportunityId);
     const dashboardJson = savedRow
       ? savedRow.dashboard_json
-      : (currentDashboard as unknown as Record<string, unknown>) ?? {};
+      : {
+          ...opportunityFromDashboard(currentDashboard, opportunityId),
+        };
 
     // The opportunity's own perspective (from the backend) is authoritative.
     // Fall back to the user's currently selected perspective only if absent.
@@ -165,6 +181,10 @@ export default function OpportunitiesPage() {
           ?? perspectiveCountryCode,
       });
 
+      if (res.status !== 'EXECUTED') {
+        throw new Error(res.validation_message ?? `Execution status: ${res.status}`);
+      }
+
       // Auto-save roadmap and navigate to its dashboard
       const saveRes = await fetch('/api/roadmaps', {
         method: 'POST',
@@ -173,11 +193,14 @@ export default function OpportunitiesPage() {
           opportunity_id: opportunityId,
           opportunity_title: savedRow?.title ?? (dashboardJson as Record<string, unknown>)?.trigger_event ?? opportunityId,
           saved_opportunity_id: savedRow?.id ?? null,
-          roadmap_text: res.roadmap ?? null,
-          lineage_traces: res.lineage_traces ?? [],
+          roadmap_text: res.final_roadmap ?? null,
+          lineage_traces: res.compiled_lineage_traces ?? [],
           raw_response: res,
         }),
       });
+      if (!saveRes.ok) {
+        throw new Error(`Roadmap persistence failed (${saveRes.status})`);
+      }
       const saved_ = await saveRes.json();
       const roadmapId = saved_?.id;
 

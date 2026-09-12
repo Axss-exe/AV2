@@ -237,6 +237,9 @@ export default function ExecutePage() {
         perspective_country: perspectiveCountry,
         perspective_country_code: perspectiveCountryCode,
       });
+      if (res.status !== 'EXECUTED') {
+        throw new Error(res.validation_message ?? `Execution status: ${res.status}`);
+      }
       setResult(res);
 
       // Auto-save roadmap to DB
@@ -247,8 +250,8 @@ export default function ExecutePage() {
           body: JSON.stringify({
             opportunity_id: selectedOpportunity.id,
             opportunity_title: selectedOpportunity.title,
-            roadmap_text: res.roadmap ?? null,
-            lineage_traces: res.lineage_traces ?? [],
+            roadmap_text: res.final_roadmap ?? null,
+            lineage_traces: res.compiled_lineage_traces ?? [],
             raw_response: res,
           }),
         });
@@ -279,11 +282,11 @@ export default function ExecutePage() {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.35, delay: i * 0.06, ease: [0.4, 0, 0.2, 1] as number[] },
+      transition: { duration: 0.35, delay: i * 0.06, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
     }),
   };
 
-  const traces: LineageTrace[] = result?.lineage_traces ?? [];
+  const traces: LineageTrace[] = result?.compiled_lineage_traces ?? [];
 
   return (
     <AppShell>
@@ -672,9 +675,9 @@ export default function ExecutePage() {
                 </motion.div>
               )}
 
-              <div className={`grid gap-6 ${result?.roadmap ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+              <div className={`grid gap-6 ${result?.final_roadmap ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
                 {/* Roadmap */}
-                {result?.roadmap && (
+                {result?.final_roadmap && (
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -714,7 +717,7 @@ export default function ExecutePage() {
                           whiteSpace: 'pre-wrap',
                         }}
                       >
-                        {result.roadmap}
+                        {result.final_roadmap}
                       </p>
                     </div>
                   </motion.div>
@@ -775,7 +778,7 @@ export default function ExecutePage() {
                 )}
 
                 {/* Raw output if no structured data */}
-                {!result.roadmap && traces.length === 0 && (
+                {!result.final_roadmap && traces.length === 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}

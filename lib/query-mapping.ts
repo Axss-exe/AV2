@@ -37,11 +37,12 @@ export function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnTy
       : rawStatus === 'Gap' ? 'Gap'
       : 'External';
     return {
-      source:       row.entity ?? row.source ?? 'Unknown',
+      entity:       row.entity ?? 'Unknown',
       relationship: row.relationship ?? row.type ?? '',
-      confidence:   row.priority ?? row.confidence ?? '—',
+      priority:     row.priority ?? '—',
       status,
-      last_updated: row.insight ?? row.last_updated ?? row.source_node ?? '',
+      insight:      row.insight ?? '',
+      source_node:  row.source_node ?? '',
     };
   });
 
@@ -94,30 +95,7 @@ export function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnTy
     : undefined;
 
   const opportunitiesCited = Array.isArray(res.opportunities_cited)
-    ? res.opportunities_cited.map((o) => ({
-        opportunityId: o.opportunity_id,
-        title: o.title,
-        type: o.type,
-        perspectiveCountry: o.perspective_country,
-        perspectiveCountryCode: o.perspective_country_code,
-        sourceCountry: o.source_country,
-        eventCountry: o.event_country,
-        opportunityCountry: o.opportunity_country,
-        crossBorder: o.cross_border,
-        crossBorderCountries: o.cross_border_countries,
-        perspectiveActor: o.perspective_actor,
-        perspectiveCapability: o.perspective_capability,
-        pathway: o.pathway,
-        urgencyScore: o.urgency_score,
-        feasibilityScore: o.feasibility_score,
-        requiredMissingNodes: o.required_missing_nodes,
-        capitalFlow: o.capital_flow
-          ? { beneficiary: o.capital_flow.beneficiary, likelyFunder: o.capital_flow.likely_funder }
-          : undefined,
-        justification: o.justification,
-        sourceNodes: Array.isArray(o.source_nodes) ? o.source_nodes : [],
-        status: o.status,
-      }))
+    ? res.opportunities_cited.map((o) => ({ ...o, source_nodes: Array.isArray(o.source_nodes) ? o.source_nodes : [] }))
     : undefined;
 
   const intent = res.intent
@@ -160,5 +138,15 @@ export function mapAPIResponseToQueryResult(query: string, res: Awaited<ReturnTy
     cached: res.cached,
     elapsedSeconds: res.elapsed_seconds,
     entityGraphRaw: res.entity_graph,
+    backendData: res as unknown as Record<string, unknown>,
+    analysisVersion: res.analysis_version,
+    schemaVersion: res.schema_version,
+    analysisFingerprint: res.analysis_fingerprint,
+    knowledgeState: res.knowledge_state,
+    cacheKey: res.cache_key,
+    sourceNodes: res.source_nodes,
+    perspectiveNodes: res.perspective_nodes,
+    crossBorderBridges: res.cross_border_bridges,
+    filesWritten: res.files_written,
   };
 }

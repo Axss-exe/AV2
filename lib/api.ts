@@ -6,6 +6,7 @@
 import type { PerspectiveContext } from './perspective';
 import type { QueryResult } from './types';
 import type { Investigation, InvestigationSummary, InvestigationReport } from './investigation-types';
+import { mapAPIResponseToQueryResult } from './query-mapping';
 
 // Client-side requests go through the Next.js proxy routes (/api/*)
 // to avoid CORS issues. The proxy routes (lib/proxy.ts) forward to
@@ -188,6 +189,15 @@ export interface QueryAPIResponse {
   source_nodes?: SourceNode[];
   intent?: QueryIntent;
   filter_stats?: FilterStats;
+  analysis_version?: string;
+  schema_version?: string;
+  analysis_fingerprint?: string;
+  knowledge_state?: unknown;
+  cache_hit?: boolean;
+  cache_key?: string;
+  files_written?: Record<string, unknown>;
+  perspective_nodes?: SourceNode[];
+  cross_border_bridges?: unknown[];
 }
 
 export interface IntelligenceRow {
@@ -307,39 +317,62 @@ export interface NewsAPIResponse {
   [key: string]: unknown;
 }
 
-export async function processNewsArticle(body: NewsRequest): Promise<NewsAPIResponse> {
+export interface NewsSubmissionResponse {
+  status: 'accepted';
+  job_id: string;
+  execution_model: string;
+  resume_available: boolean;
+  analysis_version?: string;
+  schema_version?: string;
+}
+
+export async function processNewsArticle(body: NewsRequest): Promise<NewsSubmissionResponse> {
   const res = await fetchWithTimeout(`${API_BASE}/api/news`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  return parseJSON<NewsAPIResponse>(res);
+  return parseJSON<NewsSubmissionResponse>(res);
 }
 
 // ---------------------------------------------------------------------------
 // GET /api/news/status/{job_id}
-// Returns job status: queued, processing, completed, partial, failed, cancelled
+// Returns the durable job status inside response.data.
 // ---------------------------------------------------------------------------
 
 export interface JobStatus {
-  status: string;
+  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
   job_id: string;
-  message?: string;
+  attempts?: number;
+  created_at?: number;
+  updated_at?: number;
+  completed_at?: number | null;
+  error?: string | null;
+  worker_id?: string | null;
+  lease_until?: number | null;
   checkpoint?: {
+    status?: 'IN_PROGRESS' | 'PARTIAL' | 'COMPLETED';
     current_stage?: string;
     completed_stages?: string[];
-    stage_durations?: Record<string, number>;
+    updated_at?: number;
+    error_count?: number;
+    resume_available?: boolean;
   };
-  analysis_version?: string;
-  schema_version?: string;
 }
 
-export async function getNewsJobStatus(jobId: string): Promise<JobStatus> {
+export interface NewsStatusResponse {
+  status: 'success';
+  analysis_version?: string;
+  schema_version?: string;
+  data: JobStatus;
+}
+
+export async function getNewsJobStatus(jobId: string): Promise<NewsStatusResponse> {
   const res = await fetchWithTimeout(`${API_BASE}/api/news/status/${jobId}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
-  return parseJSON<JobStatus>(res);
+  return parseJSON<NewsStatusResponse>(res);
 }
 
 // ---------------------------------------------------------------------------
@@ -348,8 +381,9 @@ export async function getNewsJobStatus(jobId: string): Promise<JobStatus> {
 // ---------------------------------------------------------------------------
 
 export interface NewsResult {
-  status: string;
-  job_id: string;
+  status: 'success';
+  analysis_version?: string;
+  schema_version?: string;
   data: NewsAPIResponse;
 }
 
@@ -375,10 +409,29 @@ export interface ExecuteRequest {
 }
 
 export interface ExecuteAPIResponse {
-  roadmap?: string;
-  reasoning_graph?: unknown;
-  lineage_traces?: LineageTrace[];
+  opportunity_id: string;
+  stable_opportunity_id?: string;
+  status: 'EXECUTED' | 'EXECUTION_BLOCKED' | string;
+  validation_message?: string;
+  final_roadmap?: string;
+  ui_thinking_graph?: string;
+  compiled_lineage_traces?: LineageTrace[];
+  perspective?: PerspectiveContext;
+  files_written?: Record<string, unknown>;
+  analysis_version?: string;
+  schema_version?: string;
+  analysis_fingerprint?: string;
+  knowledge_state?: unknown;
   [key: string]: unknown;
+}
+
+export interface ExecuteResponse {
+  status: 'success' | 'busy' | 'error' | string;
+  elapsed_seconds?: number;
+  analysis_version?: string;
+  schema_version?: string;
+  data: ExecuteAPIResponse;
+  detail?: string;
 }
 
 export interface LineageTrace {
@@ -396,11 +449,15 @@ export async function executeOpportunity(body: ExecuteRequest): Promise<ExecuteA
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  return parseJSON<ExecuteAPIResponse>(res);
+  const json = await parseJSON<ExecuteResponse>(res);
+  if (json.status !== 'success' || !json.data) {
+    throw new APIError(json.detail ?? `Execution request returned ${json.status}`);
+  }
+  return json.data;
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/history  (if the endpoint exists)
+// History is AV2-local. ATISv2 does not expose /api/history.
 // ---------------------------------------------------------------------------
 
 export interface HistoryItem {
@@ -413,11 +470,7 @@ export interface HistoryItem {
 }
 
 export async function fetchHistory(): Promise<HistoryItem[]> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/history`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return parseJSON<HistoryItem[]>(res);
+  return [];
 }
 
 // ---------------------------------------------------------------------------
@@ -550,17 +603,16 @@ export interface EntityAPIItem {
 
 export async function createInvestigation(body: {
   question: string;
-  result: QueryResult;
-  perspectiveCountry?: string;
-  perspectiveCountryCode?: string;
-}): Promise<{ id: number }> {
+  perspective_country?: string;
+  perspective_country_code?: string;
+}): Promise<Investigation> {
   const res = await fetchWithTimeout(`${API_BASE}/api/investigations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const json = await parseJSON<{ status: string; id: number }>(res);
-  return { id: json.id };
+  const json = await parseJSON<{ status: string; investigation: NativeInvestigation }>(res);
+  return normalizeInvestigation(json.investigation);
 }
 
 export async function fetchInvestigations(): Promise<InvestigationSummary[]> {
@@ -568,38 +620,91 @@ export async function fetchInvestigations(): Promise<InvestigationSummary[]> {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
-  const json = await parseJSON<{ status: string; data: InvestigationSummary[] }>(res);
-  return json.data;
+  const json = await parseJSON<{ status: string; count: number; investigations: NativeInvestigationSummary[] }>(res);
+  return json.investigations;
 }
 
-export async function fetchInvestigation(id: number): Promise<Investigation> {
+export async function fetchInvestigation(id: string): Promise<Investigation> {
   const res = await fetchWithTimeout(`${API_BASE}/api/investigations/${id}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
-  const json = await parseJSON<{ status: string; data: Investigation }>(res);
-  return json.data;
+  const json = await parseJSON<{ status: string; investigation: NativeInvestigation }>(res);
+  return normalizeInvestigation(json.investigation);
 }
 
 export async function addInvestigationQuery(
-  id: number,
-  body: { question: string; result: QueryResult }
+  id: string,
+  body: { question: string; parent_query_id?: string }
 ): Promise<Investigation> {
   const res = await fetchWithTimeout(`${API_BASE}/api/investigations/${id}/queries`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const json = await parseJSON<{ status: string; data: Investigation }>(res);
-  return json.data;
+  const json = await parseJSON<{ status: string; investigation: NativeInvestigation }>(res);
+  return normalizeInvestigation(json.investigation);
 }
 
-export async function generateInvestigationReport(id: number): Promise<InvestigationReport> {
+export async function generateInvestigationReport(id: string): Promise<InvestigationReport> {
   const res = await fetchWithTimeout(
     `${API_BASE}/api/investigations/${id}/report`,
     { method: 'POST', headers: { 'Content-Type': 'application/json' } },
     120_000
   );
-  const json = await parseJSON<{ status: string; data: InvestigationReport }>(res);
-  return json.data;
+  const json = await parseJSON<{ status: string; report: InvestigationReport }>(res);
+  return json.report;
+}
+
+interface NativeInvestigationSummary {
+  investigation_id: string;
+  title: string;
+  status: string;
+  query_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface NativeInvestigation {
+  investigation_id: string;
+  title: string;
+  status: string;
+  root_question: string;
+  original_question?: string;
+  perspective?: { country?: string; country_code?: string };
+  queries: Array<{
+    query_id: string;
+    sequence: number;
+    parent_query_id?: string | null;
+    question: string;
+    result: QueryAPIResponse;
+    created_at: string;
+  }>;
+  aggregated_context?: Record<string, unknown>;
+  report?: InvestigationReport | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function normalizeInvestigation(native: NativeInvestigation): Investigation {
+  return {
+    investigation_id: native.investigation_id,
+    title: native.title,
+    status: native.status,
+    root_question: native.root_question,
+    original_question: native.original_question ?? native.root_question,
+    perspective: native.perspective,
+    queries: native.queries.map((query) => ({
+      query_id: query.query_id,
+      sequence: query.sequence,
+      parent_query_id: query.parent_query_id ?? null,
+      question: query.question,
+      result: mapAPIResponseToQueryResult(query.question, query.result as QueryAPIResult),
+      created_at: query.created_at,
+    })),
+    aggregated_context: native.aggregated_context ?? {},
+    report: native.report ?? null,
+    created_at: native.created_at,
+    updated_at: native.updated_at,
+  };
 }

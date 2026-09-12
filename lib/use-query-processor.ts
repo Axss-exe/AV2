@@ -88,21 +88,21 @@ function generateTableRows(query: string): IntelTableRow[] {
   const now = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
 
   const baseRows: IntelTableRow[] = [
-    { source: 'EAC Trade Portal', relationship: 'POLICY:EAC-CET → TARIFF:ZERO', confidence: '94%', status: 'Validated', last_updated: now },
-    { source: 'Local Partner Network', relationship: 'PARTNER:LOCAL → DISTRIBUTION', confidence: '71%', status: 'External', last_updated: now },
-    { source: 'Regulatory Authority DB', relationship: 'REG:CERT → IMPORT:APPROVAL', confidence: '88%', status: 'Validated', last_updated: now },
-    { source: 'Market Intelligence Report', relationship: 'MARKET:SIZE → SEGMENT:TARGET', confidence: '65%', status: 'External', last_updated: now },
-    { source: 'Legal Opinion 2026', relationship: 'LEGAL:FRAMEWORK → COMPLIANCE', confidence: '82%', status: 'Validated', last_updated: now },
+    { entity: 'EAC Trade Portal', relationship: 'POLICY:EAC-CET → TARIFF:ZERO', priority: 'High', status: 'Validated', insight: '—', source_node: '' },
+    { entity: 'Local Partner Network', relationship: 'PARTNER:LOCAL → DISTRIBUTION', priority: 'Medium', status: 'External', insight: '—', source_node: '' },
+    { entity: 'Regulatory Authority DB', relationship: 'REG:CERT → IMPORT:APPROVAL', priority: 'High', status: 'Validated', insight: '—', source_node: '' },
+    { entity: 'Market Intelligence Report', relationship: 'MARKET:SIZE → SEGMENT:TARGET', priority: 'Medium', status: 'External', insight: '—', source_node: '' },
+    { entity: 'Legal Opinion 2026', relationship: 'LEGAL:FRAMEWORK → COMPLIANCE', priority: 'Medium', status: 'Validated', insight: '—', source_node: '' },
   ];
 
   if (q.includes('gap') || q.includes('risk')) {
     baseRows.push(
-      { source: 'Gap Analysis Report', relationship: 'GAP:REGULATORY → STATUS:UNKNOWN', confidence: '—', status: 'Gap', last_updated: now },
-      { source: 'Risk Assessment', relationship: 'RISK:FX → EXPOSURE:HIGH', confidence: '—', status: 'Gap', last_updated: now },
+      { entity: 'Gap Analysis Report', relationship: 'GAP:REGULATORY → STATUS:UNKNOWN', priority: 'Low', status: 'Gap', insight: '—', source_node: '' },
+      { entity: 'Risk Assessment', relationship: 'RISK:FX → EXPOSURE:HIGH', priority: 'High', status: 'Gap', insight: '—', source_node: '' },
     );
   } else {
     baseRows.push(
-      { source: 'Development Finance Inst.', relationship: 'FUNDING:DFI → FACILITY:CREDIT', confidence: '79%', status: 'Validated', last_updated: now },
+      { entity: 'Development Finance Inst.', relationship: 'FUNDING:DFI → FACILITY:CREDIT', priority: 'Medium', status: 'Validated', insight: '—', source_node: '' },
     );
   }
 

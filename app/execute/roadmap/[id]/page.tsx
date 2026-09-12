@@ -380,8 +380,8 @@ export default function RoadmapDashboardPage({ params }: { params: Promise<{ id:
 
   // ── Derive structured content from the raw pipeline response ──
   const raw = (record?.raw_response ?? {}) as Record<string, unknown>;
-  const data = (raw.data ?? {}) as ExecuteData;
-  const pipelineError = !raw.data && (raw.detail || raw.error);
+  const data = (raw.data && typeof raw.data === 'object' ? raw.data : raw) as ExecuteData;
+  const pipelineError = (raw.detail || raw.error) as string | undefined;
   const elapsed = typeof raw.elapsed_seconds === 'number' ? raw.elapsed_seconds : null;
 
   const finalRoadmap = data.final_roadmap ?? record?.roadmap_text ?? '';

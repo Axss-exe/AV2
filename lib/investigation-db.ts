@@ -66,7 +66,7 @@ export function computeAggregated(results: QueryResult[]): AggregatedKnowledge {
       }
     }
     for (const row of result.tableRows ?? []) {
-      if (row.source) sourceNames.add(row.source);
+      if (row.entity) sourceNames.add(row.entity);
     }
     if (result.findingsCited && result.findingsCited.length > 0) {
       for (const f of result.findingsCited) findingTexts.add(f.text);

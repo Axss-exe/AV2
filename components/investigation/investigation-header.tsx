@@ -20,8 +20,8 @@ export function InvestigationHeader({
   const isActive = investigation.status === 'active';
 
   const counters = [
-    { label: 'Queries', value: investigation.queriesCount },
-    { label: 'Sources', value: investigation.sourcesCount },
+    { label: 'Queries', value: investigation.queries.length },
+    { label: 'Updated', value: investigation.updated_at },
     { label: 'Entities', value: investigation.entitiesCount },
     { label: 'Relationships', value: investigation.aggregated.relationshipsCount },
   ];

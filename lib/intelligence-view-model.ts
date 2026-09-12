@@ -21,7 +21,30 @@ export interface CitedItem {
   severity?: 'Critical' | 'High' | 'Medium' | 'Low';
 }
 
-export type ValidOpportunity = OpportunityCited;
+export interface ValidOpportunity {
+  opportunityId?: string;
+  stableOpportunityId?: string;
+  title?: string;
+  type?: string;
+  status?: string;
+  perspectiveCountry?: string;
+  perspectiveCountryCode?: string;
+  sourceCountry?: string;
+  eventCountry?: string;
+  opportunityCountry?: string;
+  crossBorder?: boolean;
+  crossBorderCountries?: string[];
+  perspectiveActor?: string;
+  perspectiveCapability?: string;
+  pathway?: string;
+  urgencyScore?: number;
+  feasibilityScore?: number;
+  requiredMissingNodes?: string[];
+  capitalFlow?: { beneficiary?: string; likelyFunder?: string };
+  justification?: string;
+  sourceNodes: string[];
+  [key: string]: unknown;
+}
 
 export interface ResearchRequiredInfo {
   isResearchRequired: boolean;
@@ -87,16 +110,15 @@ const PRIORITY_RANK: Record<string, number> = { Critical: 4, High: 3, Medium: 2,
 
 function resolveSeverity(
   sourceNodes: string[] | undefined,
-  intelRows: { source?: string; last_updated?: string; confidence?: string }[]
+  intelRows: { entity?: string; insight?: string; priority?: string }[]
 ): CitedItem['severity'] {
   if (!sourceNodes || sourceNodes.length === 0) return undefined;
   let best: string | undefined;
   for (const node of sourceNodes) {
-    // tableRows (IntelTableRow) stores entity name in `source` and priority in `confidence`
-    const row = intelRows.find((r) => r.source === node);
-    if (row?.confidence && PRIORITY_RANK[row.confidence] !== undefined) {
-      if (!best || PRIORITY_RANK[row.confidence] > PRIORITY_RANK[best]) {
-        best = row.confidence;
+    const row = intelRows.find((r) => r.entity === node);
+    if (row?.priority && PRIORITY_RANK[row.priority] !== undefined) {
+      if (!best || PRIORITY_RANK[row.priority] > PRIORITY_RANK[best]) {
+        best = row.priority;
       }
     }
   }
@@ -134,9 +156,34 @@ export function buildIntelligenceViewModel(result: QueryResult): IntelligenceVie
           .map((t) => ({ text: t, sourceNodes: [] as string[], severity: undefined }));
 
   const opportunitiesCited = Array.isArray(result.opportunitiesCited) ? result.opportunitiesCited : [];
-  const opportunities: ValidOpportunity[] = opportunitiesCited.filter(
-    (o) => o.title && o.title.trim().length > 0 && !isPlaceholder(o.title) && !isPlaceholder(o.justification)
-  );
+  const opportunities: ValidOpportunity[] = opportunitiesCited
+    .filter((o) => o.title && o.title.trim().length > 0 && !isPlaceholder(o.title) && !isPlaceholder(o.justification))
+    .map((o) => ({
+      ...o,
+      opportunityId: o.opportunity_id,
+      stableOpportunityId: o.stable_opportunity_id,
+      title: o.title,
+      type: o.type ?? o.opportunity_type,
+      status: o.status,
+      perspectiveCountry: o.perspective_country,
+      perspectiveCountryCode: o.perspective_country_code,
+      sourceCountry: o.source_country,
+      eventCountry: o.event_country,
+      opportunityCountry: o.opportunity_country,
+      crossBorder: o.cross_border,
+      crossBorderCountries: o.cross_border_countries,
+      perspectiveActor: o.perspective_actor,
+      perspectiveCapability: o.perspective_capability,
+      pathway: o.pathway,
+      urgencyScore: o.urgency_score,
+      feasibilityScore: o.feasibility_score,
+      requiredMissingNodes: o.required_missing_nodes,
+      capitalFlow: o.capital_flow
+        ? { beneficiary: o.capital_flow.beneficiary, likelyFunder: o.capital_flow.likely_funder }
+        : undefined,
+      justification: o.justification,
+      sourceNodes: o.source_nodes ?? [],
+    }));
 
   const risksCited = Array.isArray(result.risksCited) ? result.risksCited : [];
   const risks: CitedItem[] =

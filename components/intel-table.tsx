@@ -8,8 +8,8 @@ const statusStyles: Record<string, { color: string; border: string }> = {
 
 interface IntelTableProps {
   rows: IntelTableRow[];
-  /** Optional — when provided, rows become clickable and pass their source name. */
-  onRowClick?: (source: string) => void;
+  /** Optional — when provided, rows become clickable and pass their entity name. */
+  onRowClick?: (entity: string) => void;
 }
 
 export function IntelTable({ rows: rowsProp, onRowClick }: IntelTableProps) {
@@ -41,7 +41,7 @@ export function IntelTable({ rows: rowsProp, onRowClick }: IntelTableProps) {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              {['Source', 'Relationship', 'Confidence', 'Status', 'Last Updated'].map((col) => (
+              {['Entity', 'Relationship', 'Priority', 'Status', 'Insight'].map((col) => (
                 <th
                   key={col}
                   style={{
@@ -93,24 +93,24 @@ export function IntelTable({ rows: rowsProp, onRowClick }: IntelTableProps) {
                     transition: 'background 0.15s',
                     cursor: onRowClick ? 'pointer' : 'default',
                   }}
-                  onClick={() => onRowClick?.(row.source)}
+                  onClick={() => onRowClick?.(row.entity)}
                   onKeyDown={(e) => {
                     if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault();
-                      onRowClick(row.source);
+                      onRowClick(row.entity);
                     }
                   }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-control)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}
                 >
                   <td style={{ padding: '10px', fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 12, color: 'var(--text-secondary)' }}>
-                    {row.source}
+                    {row.entity}
                   </td>
                   <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 10, color: 'var(--text-dim)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.relationship}
                   </td>
                   <td style={{ padding: '10px', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
-                    {row.confidence}
+                    {row.priority}
                   </td>
                   <td style={{ padding: '10px' }}>
                     <span
@@ -132,7 +132,7 @@ export function IntelTable({ rows: rowsProp, onRowClick }: IntelTableProps) {
                     </span>
                   </td>
                   <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 400, fontSize: 10, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
-                    {row.last_updated}
+                    {row.insight}
                   </td>
                 </tr>
               );

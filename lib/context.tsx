@@ -32,6 +32,7 @@ interface ATISContextType {
   // News analysis state
   currentNewsArticle: NewsArticle | null;
   analysisLoading: boolean;
+  analysisPhase: 'idle' | 'running' | 'success' | 'error';
   analysisProgress: number;
   analysisStatusText: string;
   analysisError: string | null;
@@ -105,11 +106,27 @@ function calculateProgressFromStages(completedStages: string[] = []): number {
   return Math.min(98, Math.max(0, progress));
 }
 
-// Terminal states where polling should stop
-const TERMINAL_STATES = new Set(['COMPLETED', 'PARTIAL', 'FAILED', 'CANCELLED']);
+type BackendJobStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 
-// Non-terminal states where polling should continue
-const PROCESSING_STATES = new Set(['QUEUED', 'RUNNING', 'PROCESSING']);
+interface JobCheckpoint {
+  status?: 'IN_PROGRESS' | 'PARTIAL' | 'COMPLETED';
+  current_stage?: string;
+  completed_stages?: string[];
+  updated_at?: number;
+  error_count?: number;
+  resume_available?: boolean;
+}
+
+interface NewsExecutionState {
+  phase: 'idle' | 'running' | 'success' | 'error';
+  jobId?: string;
+  backendStatus?: BackendJobStatus;
+  checkpoint?: JobCheckpoint;
+  dashboard?: Dashboard;
+  error?: string;
+}
+
+const POLL_INTERVAL_MS = 2500;
 
 export function ATISProvider({ children }: { children: React.ReactNode }) {
   const [currentView, setCurrentView] = useState('home');
@@ -150,24 +167,20 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
   // News analysis state
   const [currentNewsArticle, setCurrentNewsArticle] = useState<NewsArticle | null>(null);
-  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [executionState, setExecutionState] = useState<NewsExecutionState>({ phase: 'idle' });
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisStatusText, setAnalysisStatusText] = useState('');
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(null);
-  
-  // Async job tracking
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
-  const [currentJobStatus, setCurrentJobStatus] = useState<string | null>(null);
-  const [jobCheckpoint, setJobCheckpoint] = useState<{
-    current_stage?: string;
-    completed_stages?: string[];
-    stage_durations?: Record<string, number>;
-  } | null>(null);
-  
-  // Polling interval ref for cleanup
-  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const statusAbortRef = useRef<AbortController | null>(null);
+  const pollInFlightRef = useRef(false);
+  const lifecycleRef = useRef(0);
+
+  const analysisLoading = executionState.phase === 'running';
+  const analysisError = executionState.phase === 'error' ? executionState.error ?? null : null;
+  const currentDashboard = executionState.dashboard ?? null;
+  const currentJobId = executionState.jobId ?? null;
+  const currentJobStatus = executionState.backendStatus ?? null;
+  const jobCheckpoint = executionState.checkpoint ?? null;
 
   const addQueryToHistory = useCallback((result: QueryResult) => {
     setQueryHistory((prev) => [result, ...prev]);
@@ -179,94 +192,20 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
   // Stop polling and cleanup
   const stopPolling = useCallback(() => {
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-      pollIntervalRef.current = null;
-    }
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
+    lifecycleRef.current += 1;
+    if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    pollTimerRef.current = null;
+    statusAbortRef.current?.abort();
+    statusAbortRef.current = null;
+    pollInFlightRef.current = false;
   }, []);
 
-  // Poll job status
-  const pollJobStatus = useCallback(async (jobId: string) => {
-    try {
-      const res = await fetch(`/api/news/status/${jobId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        signal: abortControllerRef.current?.signal,
-      });
-
-      if (!res.ok) {
-        throw new Error(`Status request failed (${res.status})`);
-      }
-
-      const json = await res.json();
-      const normalizedStatus = normalizeStatus(json.status || json.job_status || '');
-      
-      // Update job status and checkpoint
-      setCurrentJobStatus(normalizedStatus);
-      setJobCheckpoint(json.checkpoint || null);
-
-      // Calculate progress from completed stages if available
-      if (json.checkpoint?.completed_stages) {
-        const progress = calculateProgressFromStages(json.checkpoint.completed_stages);
-        setAnalysisProgress(progress);
-      }
-
-      // Update status text based on current stage
-      if (json.checkpoint?.current_stage) {
-        const stageLabel = STAGE_LABELS[json.checkpoint.current_stage.toUpperCase()] || 
-          json.checkpoint.current_stage;
-        setAnalysisStatusText(`Stage: ${stageLabel}`);
-      } else if (normalizedStatus === 'QUEUED') {
-        setAnalysisStatusText('Job queued - waiting for processing to start');
-      } else if (PROCESSING_STATES.has(normalizedStatus) && normalizedStatus !== 'QUEUED') {
-        setAnalysisStatusText('Processing intelligence analysis');
-      }
-
-      // Check if job is complete
-      if (normalizedStatus === 'COMPLETED') {
-        stopPolling();
-        // Fetch the result
-        await fetchJobResult(jobId);
-        return;
-      }
-
-      // Check for terminal failure states
-      if (TERMINAL_STATES.has(normalizedStatus)) {
-        stopPolling();
-        if (normalizedStatus === 'FAILED') {
-          setAnalysisError('Backend processing failed. Please try again.');
-          setAnalysisLoading(false);
-        } else if (normalizedStatus === 'PARTIAL') {
-          // Try to fetch partial result
-          await fetchJobResult(jobId);
-        } else if (normalizedStatus === 'CANCELLED') {
-          setAnalysisLoading(false);
-          setAnalysisStatusText('Analysis cancelled');
-        }
-        return;
-      }
-
-      // Continue polling for non-terminal states
-      return normalizedStatus;
-
-    } catch (err) {
-      // Network error - continue polling
-      console.warn('Job status polling failed, will retry:', err);
-      return null;
-    }
-  }, [stopPolling]);
-
-  // Fetch job result after completion
+  // Fetch the result only after the durable queue reaches COMPLETED.
   const fetchJobResult = useCallback(async (jobId: string) => {
     try {
       const res = await fetch(`/api/news/result/${jobId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        signal: abortControllerRef.current?.signal,
       });
 
       if (!res.ok) {
@@ -274,52 +213,104 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       }
 
       const json = await res.json();
-      const normalizedStatus = normalizeStatus(json.status || '');
-
-      // Handle the result response
-      if (normalizedStatus === 'COMPLETED' || normalizedStatus === 'PARTIAL') {
-        // Extract the dashboard data
-        const resultData = json.data ?? json;
-        
-        // Validate that we have meaningful intelligence data
-        const dashboard = normalizeDashboardData(resultData);
-        
-        if (!hasMeaningfulDashboardData(dashboard)) {
-          if (normalizedStatus === 'PARTIAL') {
-            setAnalysisStatusText('Partial result - some intelligence available');
-          } else {
-            throw new Error('The analysis returned no usable intelligence data. Please try again.');
-          }
-        }
-
-        setCurrentDashboard(dashboard);
-        setAnalysisProgress(100);
-        setAnalysisStatusText(normalizedStatus === 'PARTIAL' 
-          ? 'Partial analysis complete'
-          : 'Analysis complete');
-        setAnalysisLoading(false);
-        
-        // Persist completed job ID for recovery
-        try {
-          localStorage.setItem('atis_last_job_id', jobId);
-          localStorage.setItem('atis_last_job_status', normalizedStatus);
-        } catch {
-          // ignore persistence failure
-        }
-
-        return dashboard;
+      if (json.status !== 'success' || !json.data || typeof json.data !== 'object') {
+        throw new Error('The analysis result did not contain a dashboard.');
       }
 
-      throw new Error(`Unexpected result status: ${json.status}`);
+      const dashboard = normalizeDashboardData(json.data as Record<string, unknown>);
+      if (!hasMeaningfulDashboardData(dashboard)) {
+        throw new Error('The analysis returned no usable intelligence data. Please try again.');
+      }
 
+      setExecutionState((current) => ({
+        ...current,
+        phase: 'success',
+        dashboard,
+        backendStatus: 'COMPLETED',
+      }));
+      setAnalysisProgress(100);
+      setAnalysisStatusText('Analysis complete');
+      try {
+        localStorage.setItem('atis_last_job_id', jobId);
+        localStorage.setItem('atis_last_job_status', 'COMPLETED');
+      } catch {
+        // ignore persistence failure
+      }
+      return dashboard;
     } catch (err) {
-      stopPolling();
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch analysis result';
-      setAnalysisError(errorMessage);
-      setAnalysisLoading(false);
+      setExecutionState((current) => ({
+        ...current,
+        phase: 'error',
+        error: errorMessage,
+      }));
+      setAnalysisStatusText('Analysis failed');
       throw err;
     }
-  }, [stopPolling]);
+  }, []);
+
+  // One recursive controller prevents overlapping status requests.
+  const pollJobStatus = useCallback(async (jobId: string, lifecycle: number): Promise<void> => {
+    if (lifecycle !== lifecycleRef.current || pollInFlightRef.current) return;
+    pollInFlightRef.current = true;
+    const controller = new AbortController();
+    statusAbortRef.current = controller;
+
+    try {
+      const res = await fetch(`/api/news/status/${jobId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        throw new Error(`Status request failed (${res.status})`);
+      }
+      const json = await res.json();
+      const job = json.data;
+      const status = normalizeStatus(job?.status) as BackendJobStatus;
+      if (!['QUEUED', 'RUNNING', 'COMPLETED', 'FAILED'].includes(status)) {
+        throw new Error('Status response contained an unknown job state.');
+      }
+
+      setExecutionState((current) => ({
+        ...current,
+        backendStatus: status,
+        checkpoint: job.checkpoint ?? undefined,
+      }));
+      if (job.checkpoint?.completed_stages) {
+        setAnalysisProgress(calculateProgressFromStages(job.checkpoint.completed_stages));
+      }
+      if (job.checkpoint?.current_stage) {
+        const stage = STAGE_LABELS[job.checkpoint.current_stage.toUpperCase()] ?? job.checkpoint.current_stage;
+        setAnalysisStatusText(`Stage: ${stage}`);
+      } else {
+        setAnalysisStatusText(status === 'QUEUED' ? 'Job queued - waiting for processing to start' : 'Processing intelligence analysis');
+      }
+
+      if (status === 'COMPLETED') {
+        stopPolling();
+        await fetchJobResult(jobId);
+        return;
+      }
+      if (status === 'FAILED') {
+        stopPolling();
+        const errorMessage = job.error || 'Backend processing failed. Please try again.';
+        setExecutionState((current) => ({ ...current, phase: 'error', error: errorMessage }));
+        setAnalysisStatusText('Analysis failed');
+        return;
+      }
+
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.warn('Job status polling failed, will retry:', err);
+    } finally {
+      pollInFlightRef.current = false;
+      if (statusAbortRef.current === controller) statusAbortRef.current = null;
+      if (lifecycle === lifecycleRef.current) {
+        pollTimerRef.current = setTimeout(() => void pollJobStatus(jobId, lifecycle), POLL_INTERVAL_MS);
+      }
+    }
+  }, [fetchJobResult, stopPolling]);
 
   // Normalize backend dashboard data to frontend Dashboard type
   function normalizeDashboardData(data: Record<string, unknown>): Dashboard {
@@ -332,24 +323,10 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       opportunities: Array.isArray(data.opportunities) 
         ? data.opportunities.map((opp: unknown) => {
             const o = opp as Record<string, unknown>;
-            const cf = o.capital_flow as Record<string, unknown> | undefined;
-            return {
-              ...o,
-              opportunity_id: String(o.id ?? o.opportunity_id ?? ''),
-              title: String(o.title ?? ''),
-              type: String(o.type ?? 'Primary'),
-              urgency_score: Number(o.urgency_score ?? o.urgency ?? 0),
-              feasibility_score: Number(o.feasibility_score ?? o.feasibility ?? 0),
-              required_missing_nodes: Array.isArray(o.required_missing_nodes) 
-                ? o.required_missing_nodes as string[]
-                : [],
-              capital_flow: {
-                ...cf,
-                beneficiary: String(cf?.beneficiary ?? ''),
-                likely_funder: String(cf?.likely_funder ?? ''),
-              },
-              justification: String(o.justification ?? ''),
-            };
+              return {
+                ...o,
+                opportunity_id: o.opportunity_id,
+              } as Dashboard['opportunities'][number];
           })
         : [],
       pipeline_metadata: {
@@ -384,21 +361,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
   // Main analysis function - implements proper async lifecycle
   const runAnalysis = useCallback(async (article: NewsArticle) => {
-    // Clean up any existing job
     stopPolling();
-    setCurrentJobId(null);
-    setCurrentJobStatus(null);
-    setJobCheckpoint(null);
-    
     setCurrentNewsArticle(article);
-    setAnalysisLoading(true);
     setAnalysisProgress(0);
-    setAnalysisError(null);
-    setCurrentDashboard(null);
     setAnalysisStatusText('Submitting article for analysis...');
-
-    // Create abort controller for this analysis
-    abortControllerRef.current = new AbortController();
+    setExecutionState({ phase: 'running' });
 
     try {
       // STEP 1: POST /api/news - Submit job
@@ -413,7 +380,6 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
           perspective_country: perspectiveCountry,
           perspective_country_code: perspectiveCountryCode,
         }),
-        signal: abortControllerRef.current.signal,
       });
 
       if (!submitRes.ok) {
@@ -422,81 +388,31 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       }
 
       const submitJson = await submitRes.json();
-      const normalizedStatus = normalizeStatus(submitJson.status || '');
-
-      // Extract job_id from response - try multiple possible locations
-      // Backend may return: {job_id: "..."} or {id: "..."} or {data: {job_id: "..."}}
-      // Also check nested structures
-      const jobId = 
-        submitJson.job_id ||
-        submitJson.id ||
-        submitJson.data?.job_id ||
-        submitJson.data?.id ||
-        submitJson.result?.job_id ||
-        submitJson.result?.id ||
-        submitJson.response?.job_id ||
-        submitJson.response?.id;
-      
+      const jobId = submitJson.job_id;
       if (!jobId) {
-        console.error('Submission response:', submitJson);
-        throw new Error('No job ID returned from submission');
+        throw new Error('Submission response did not contain job_id.');
       }
 
-      setCurrentJobId(jobId);
-      setCurrentJobStatus(normalizedStatus);
+      const lifecycle = lifecycleRef.current;
+      setExecutionState({ phase: 'running', jobId, backendStatus: 'QUEUED' });
+      setAnalysisStatusText('Job queued - waiting for processing...');
 
       // Persist job ID for recovery on page refresh
       try {
         localStorage.setItem('atis_last_job_id', jobId);
-        localStorage.setItem('atis_last_job_status', normalizedStatus);
+        localStorage.setItem('atis_last_job_status', 'QUEUED');
         localStorage.setItem('atis_last_article', JSON.stringify(article));
       } catch {
         // ignore persistence failure
       }
 
-      // STEP 2: Check if already complete
-      if (normalizedStatus === 'COMPLETED') {
-        setAnalysisStatusText('Job completed - fetching result...');
-        await fetchJobResult(jobId);
-        return;
-      }
-
-      // STEP 3: Check for immediate failure
-      if (normalizedStatus === 'FAILED') {
-        throw new Error(submitJson.message || 'Job submission failed');
-      }
-
-      // ACCEPTED acknowledges submission; a valid job ID is enough to poll the durable job.
-      // STEP 4: A valid job ID means the durable job was submitted; poll its status.
-      if (jobId) {
-        setAnalysisStatusText('Job queued - waiting for processing...');
-        setAnalysisProgress(0);
-
-        // Start polling immediately, then every 2-3 seconds
-        const POLL_INTERVAL = 2500; // 2.5 seconds
-        
-        pollIntervalRef.current = setInterval(async () => {
-          try {
-            const status = await pollJobStatus(jobId);
-            
-            // If polling returned a terminal state, stop
-            if (status && TERMINAL_STATES.has(normalizeStatus(status))) {
-              stopPolling();
-            }
-          } catch (err) {
-            console.warn('Polling error:', err);
-          }
-        }, POLL_INTERVAL);
-
-        // Initial poll right away
-        await pollJobStatus(jobId);
-      }
+      await pollJobStatus(jobId, lifecycle);
 
     } catch (err) {
       stopPolling();
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during submission.';
-      setAnalysisError(errorMessage);
-      setAnalysisLoading(false);
+      setExecutionState((current) => ({ ...current, phase: 'error', error: errorMessage }));
+      setAnalysisStatusText('Analysis failed');
       
       // Clean up persisted state on error
       try {
@@ -506,103 +422,40 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         // ignore
       }
     }
-  }, [perspectiveCountry, perspectiveCountryCode, stopPolling, pollJobStatus, fetchJobResult]);
+  }, [perspectiveCountry, perspectiveCountryCode, stopPolling, pollJobStatus]);
 
-  // Cancel analysis
+  // The backend has no cancellation endpoint; this only abandons the frontend view.
   const cancelAnalysis = useCallback(async () => {
-    if (!currentJobId) return;
-
-    try {
-      stopPolling();
-      
-      // Call cancel endpoint
-      await fetch(`/api/news/cancel/${currentJobId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      setAnalysisLoading(false);
-      setCurrentJobStatus('CANCELLED');
-      setAnalysisStatusText('Analysis cancelled');
-      setAnalysisError(null);
-      
-      // Clean up
-      try {
-        localStorage.removeItem('atis_last_job_id');
-        localStorage.removeItem('atis_last_job_status');
-      } catch {
-        // ignore
-      }
-
-    } catch (err) {
-      console.error('Failed to cancel analysis:', err);
-      setAnalysisError('Failed to cancel analysis. Please try again.');
-    }
-  }, [currentJobId, stopPolling]);
+    stopPolling();
+    setExecutionState({ phase: 'idle' });
+    setAnalysisProgress(0);
+    setAnalysisStatusText('');
+  }, [stopPolling]);
 
   // Resume analysis from persisted job ID
   const resumeAnalysis = useCallback(async (jobId: string) => {
     if (!jobId) return;
 
     stopPolling();
-    setAnalysisLoading(true);
     setAnalysisProgress(0);
-    setAnalysisError(null);
-    setCurrentJobId(jobId);
-    setCurrentJobStatus(null);
-    setJobCheckpoint(null);
+    setExecutionState({ phase: 'running', jobId });
     setAnalysisStatusText('Resuming analysis...');
 
-    abortControllerRef.current = new AbortController();
-
     try {
-      // Check current status
-      const status = await pollJobStatus(jobId);
-      
-      if (TERMINAL_STATES.has(normalizeStatus(status || ''))) {
-        // If already complete, fetch result
-        if (normalizeStatus(status || '') === 'COMPLETED' || normalizeStatus(status || '') === 'PARTIAL') {
-          await fetchJobResult(jobId);
-        }
-        // If failed or cancelled, show appropriate state
-        else if (normalizeStatus(status || '') === 'FAILED') {
-          setAnalysisError('Previous analysis failed. Please try again.');
-          setAnalysisLoading(false);
-        } else if (normalizeStatus(status || '') === 'CANCELLED') {
-          setAnalysisStatusText('Analysis was cancelled');
-          setAnalysisLoading(false);
-        }
-      } else {
-        // Still processing - start polling
-        const POLL_INTERVAL = 2500;
-        pollIntervalRef.current = setInterval(async () => {
-          try {
-            await pollJobStatus(jobId);
-          } catch (err) {
-            console.warn('Polling error:', err);
-          }
-        }, POLL_INTERVAL);
-      }
-
+      await pollJobStatus(jobId, lifecycleRef.current);
     } catch (err) {
       stopPolling();
-      setAnalysisError('Failed to resume analysis. Please try again.');
-      setAnalysisLoading(false);
+      setExecutionState((current) => ({ ...current, phase: 'error', error: 'Failed to resume analysis. Please try again.' }));
     }
-  }, [stopPolling, pollJobStatus, fetchJobResult]);
+  }, [stopPolling, pollJobStatus]);
 
   // Clear analysis
   const clearAnalysis = useCallback(() => {
     stopPolling();
     setCurrentNewsArticle(null);
-    setAnalysisLoading(false);
+    setExecutionState({ phase: 'idle' });
     setAnalysisProgress(0);
     setAnalysisStatusText('');
-    setAnalysisError(null);
-    setCurrentDashboard(null);
-    setCurrentJobId(null);
-    setCurrentJobStatus(null);
-    setJobCheckpoint(null);
     
     try {
       localStorage.removeItem('atis_last_job_id');
@@ -612,27 +465,6 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
   }, [stopPolling]);
-
-  // Auto-resume on mount if there's a persisted job
-  useEffect(() => {
-    try {
-      const savedJobId = localStorage.getItem('atis_last_job_id');
-      const savedStatus = localStorage.getItem('atis_last_job_status');
-      
-      if (savedJobId && !TERMINAL_STATES.has(normalizeStatus(savedStatus || ''))) {
-        // Job is still active, resume it
-        resumeAnalysis(savedJobId);
-      } else if (savedJobId && savedStatus && TERMINAL_STATES.has(normalizeStatus(savedStatus))) {
-        // Job is complete, we might want to fetch the result
-        // But only if we don't already have a dashboard
-        if (!currentDashboard) {
-          resumeAnalysis(savedJobId);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, [currentDashboard, resumeAnalysis]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -666,6 +498,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         setPerspectiveCountry,
         currentNewsArticle,
         analysisLoading,
+        analysisPhase: executionState.phase,
         analysisProgress,
         analysisStatusText,
         analysisError,

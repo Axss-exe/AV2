@@ -97,29 +97,38 @@ export interface CitedStatement {
 
 /** Real structured opportunity object from `opportunities_cited`. */
 export interface OpportunityCited {
-  opportunityId?: string;
+  opportunity_id?: string;
+  stable_opportunity_id?: string;
   title?: string;
   type?: string;
-  perspectiveCountry?: string;
-  perspectiveCountryCode?: string;
-  sourceCountry?: string;
-  eventCountry?: string;
-  opportunityCountry?: string;
-  crossBorder?: boolean;
-  crossBorderCountries?: string[];
-  perspectiveActor?: string;
-  perspectiveCapability?: string;
-  pathway?: string;
-  urgencyScore?: number;
-  feasibilityScore?: number;
-  requiredMissingNodes?: string[];
-  capitalFlow?: {
-    beneficiary?: string;
-    likelyFunder?: string;
-  };
-  justification?: string;
-  sourceNodes: string[];
+  opportunity_type?: string;
   status?: string;
+  perspective_country?: string;
+  perspective_country_code?: string;
+  source_country?: string;
+  event_country?: string;
+  opportunity_country?: string;
+  cross_border?: boolean;
+  cross_border_countries?: string[];
+  perspective_actor?: string;
+  perspective_capability?: string;
+  pathway?: string;
+  urgency_score?: number;
+  feasibility_score?: number;
+  required_missing_nodes?: string[];
+  capital_flow?: { beneficiary?: string; likely_funder?: string };
+  justification?: string;
+  source_nodes?: string[];
+  graph_paths?: unknown[];
+  validation_note?: string;
+  validation_errors?: string[];
+  validation_metadata?: Record<string, unknown>;
+  perspective_actor_evidence?: boolean;
+  perspective_capability_evidence?: boolean;
+  pathway_evidence?: boolean;
+  opportunity_confidence?: number;
+  scoring_factors?: Record<string, number>;
+  [key: string]: unknown;
 }
 
 export interface QueryIntent {
@@ -166,6 +175,16 @@ export interface QueryResult {
   cached?: boolean;
   elapsedSeconds?: number;
   entityGraphRaw?: unknown;
+  backendData: Record<string, unknown>;
+  analysisVersion?: string;
+  schemaVersion?: string;
+  analysisFingerprint?: string;
+  knowledgeState?: unknown;
+  cacheKey?: string;
+  sourceNodes?: { id?: string; type?: string }[];
+  perspectiveNodes?: { id?: string; type?: string }[];
+  crossBorderBridges?: unknown[];
+  filesWritten?: Record<string, unknown>;
 }
 
 export interface GraphNode {
@@ -183,9 +202,10 @@ export interface GraphEdge {
 }
 
 export interface IntelTableRow {
-  source: string;
+  entity: string;
   relationship: string;
-  confidence: string;
+  priority: string;
   status: 'Validated' | 'Gap' | 'External';
-  last_updated: string;
+  insight: string;
+  source_node: string;
 }
