@@ -34,11 +34,12 @@ export interface InvestigationQueryRow {
 
 export function mapQueryRow(row: InvestigationQueryRow): InvestigationQuery {
   return {
-    id: row.id,
+    query_id: String(row.id),
     sequence: row.sequence,
+    parent_query_id: null,
     question: row.question,
     result: row.result_json,
-    createdAt: row.created_at,
+    created_at: row.created_at,
   };
 }
 
@@ -113,19 +114,16 @@ export async function getInvestigationDetail(investigationId: number): Promise<I
   const aggregated = computeAggregated(queries.map((q) => q.result));
 
   return {
-    id: investigation.id,
+    investigation_id: String(investigation.id),
     title: investigation.title,
-    rootQuestion: investigation.root_question,
-    status: investigation.status as 'active' | 'completed',
-    perspectiveCountry: investigation.perspective_country ?? undefined,
-    perspectiveCountryCode: investigation.perspective_country_code ?? undefined,
-    queriesCount: queries.length,
-    sourcesCount: aggregated.sourcesCount,
-    entitiesCount: aggregated.entitiesCount,
-    createdAt: investigation.created_at,
-    updatedAt: investigation.updated_at,
+    status: investigation.status,
+    root_question: investigation.root_question,
+    original_question: investigation.root_question,
+    perspective: investigation.perspective_country ? { country: investigation.perspective_country, country_code: investigation.perspective_country_code ?? undefined } : undefined,
     queries,
-    aggregated,
+    aggregated_context: aggregated,
     report: investigation.report_json ?? null,
+    created_at: investigation.created_at,
+    updated_at: investigation.updated_at,
   };
 }

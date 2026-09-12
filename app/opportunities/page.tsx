@@ -138,7 +138,7 @@ export default function OpportunitiesPage() {
 
   const sortedSaved = [...saved].sort((a, b) =>
     sortBy === 'urgency_score'
-      ? b.urgency_score - a.urgency_score
+      ? (b.urgency_score ?? 0) - (a.urgency_score ?? 0)
       : new Date(b.saved_at).getTime() - new Date(a.saved_at).getTime()
   );
 
@@ -354,7 +354,7 @@ export default function OpportunitiesPage() {
               {/* Opportunity cards from analysis */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', gap: 16 }}>
                 {(Array.isArray(currentDashboard.opportunities) ? currentDashboard.opportunities : [])
-                  .sort((a, b) => b.urgency_score - a.urgency_score)
+                  .sort((a, b) => (b.urgency_score ?? 0) - (a.urgency_score ?? 0))
                   .map((opp, i) => (
                     <motion.div key={opp.opportunity_id ?? i} custom={i} variants={cardVariants} initial="hidden" animate="visible">
                       <OpportunityCard
@@ -397,7 +397,7 @@ export default function OpportunitiesPage() {
             <div className="grid grid-cols-3 gap-3" style={{ marginBottom: 20 }}>
               {[
                 { label: 'Total Saved', value: saved.length, color: 'var(--text-tertiary)' },
-                { label: 'Avg Urgency', value: (saved.reduce((s, r) => s + r.urgency_score, 0) / saved.length).toFixed(1), color: urgencyColor(saved.reduce((s, r) => s + r.urgency_score, 0) / saved.length) },
+                { label: 'Avg Urgency', value: (saved.reduce((s, r) => s + (r.urgency_score ?? 0), 0) / saved.length).toFixed(1), color: urgencyColor(saved.reduce((s, r) => s + (r.urgency_score ?? 0), 0) / saved.length) },
                 { label: 'With Roadmap', value: saved.filter((r) => r.latest_roadmap_id).length, color: 'var(--text-primary)' },
               ].map(({ label, value, color }) => (
                 <div key={label} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 10, padding: '12px 16px' }}>

@@ -42,7 +42,7 @@ export function InvestigationTimeline({ queries, selectedSequence, onSelect }: I
           const sourcesCount = q.result.tableRows?.length ?? 0;
 
           return (
-            <div key={q.id} className="flex gap-3">
+            <div key={q.query_id} className="flex gap-3">
               {/* Node + connecting line */}
               <div className="flex flex-col items-center flex-shrink-0" style={{ width: 20 }}>
                 <div

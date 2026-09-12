@@ -182,7 +182,7 @@ export default function InvestigationWorkspacePage() {
 
               <div className="hidden md:block" style={{ position: 'sticky', top: 24 }}>
                 <InvestigationContextPanel
-                  aggregated={investigation.aggregated}
+                  aggregated={investigation.aggregated_context}
                   onSelectEntity={(name) => pushDrawer({ type: 'entity', name })}
                 />
               </div>
@@ -207,7 +207,7 @@ export default function InvestigationWorkspacePage() {
               </summary>
               <div style={{ padding: '0 12px 16px' }}>
                 <InvestigationContextPanel
-                  aggregated={investigation.aggregated}
+                  aggregated={investigation.aggregated_context}
                   onSelectEntity={(name) => pushDrawer({ type: 'entity', name })}
                 />
               </div>

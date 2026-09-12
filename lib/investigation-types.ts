@@ -1,4 +1,14 @@
-import type { QueryResult } from './types';
+import type { QueryResult, KeyEntity, GraphEdge } from './types';
+
+export interface AggregatedKnowledge {
+  entities: KeyEntity[];
+  relationships: GraphEdge[];
+  sources: string[];
+  findingsCount: number;
+  entitiesCount: number;
+  relationshipsCount: number;
+  sourcesCount: number;
+}
 
 export interface InvestigationSummary {
   investigation_id: string;
@@ -46,7 +56,7 @@ export interface Investigation {
   original_question: string;
   perspective?: { country?: string; country_code?: string };
   queries: InvestigationQuery[];
-  aggregated_context: Record<string, unknown>;
+  aggregated_context: AggregatedKnowledge;
   report: InvestigationReport | null;
   created_at: string;
   updated_at: string;

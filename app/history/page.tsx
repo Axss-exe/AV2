@@ -111,7 +111,7 @@ export default function HistoryPage() {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.32, delay: i * 0.05, ease: [0.4, 0, 0.2, 1] as number[] },
+      transition: { duration: 0.32, delay: i * 0.05, ease: [0.4, 0, 0.2, 1] as const },
     }),
     exit: { opacity: 0, x: -20, transition: { duration: 0.25 } },
   };

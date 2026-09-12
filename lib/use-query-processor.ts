@@ -180,9 +180,12 @@ export function processQuery(query: string): QueryResult {
     summary: generateSummary(query),
     stats: generateStats(query),
     graphNodes: nodes,
+    graphEdges: [],
     tableRows: generateTableRows(query),
+    keyEntities: [],
     findings: generateFindings(query),
     opportunities: generateOpportunityLabels(query),
     riskFactors: generateRiskFactors(query),
+    backendData: {},
   };
 }

@@ -5,8 +5,9 @@
 
 import type { PerspectiveContext } from './perspective';
 import type { QueryResult } from './types';
-import type { Investigation, InvestigationSummary, InvestigationReport } from './investigation-types';
+import type { Investigation, InvestigationSummary, InvestigationReport, AggregatedKnowledge } from './investigation-types';
 import { mapAPIResponseToQueryResult } from './query-mapping';
+import { computeAggregated } from './investigation-db';
 
 // Client-side requests go through the Next.js proxy routes (/api/*)
 // to avoid CORS issues. The proxy routes (lib/proxy.ts) forward to
@@ -687,6 +688,7 @@ interface NativeInvestigation {
 }
 
 function normalizeInvestigation(native: NativeInvestigation): Investigation {
+  const aggregated = computeAggregated(native.queries.map((q) => mapAPIResponseToQueryResult(q.question, q.result as QueryAPIResult)));
   return {
     investigation_id: native.investigation_id,
     title: native.title,
@@ -702,7 +704,7 @@ function normalizeInvestigation(native: NativeInvestigation): Investigation {
       result: mapAPIResponseToQueryResult(query.question, query.result as QueryAPIResult),
       created_at: query.created_at,
     })),
-    aggregated_context: native.aggregated_context ?? {},
+    aggregated_context: aggregated,
     report: native.report ?? null,
     created_at: native.created_at,
     updated_at: native.updated_at,

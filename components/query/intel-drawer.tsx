@@ -165,11 +165,11 @@ function StatementView({ item, onPush }: { item: CitedItem; onPush: (v: DrawerVi
         {item.text}
       </p>
 
-      {item.sourceNodes.length > 0 && (
+      {(item.sourceNodes as string[] | undefined) && (item.sourceNodes as string[]).length > 0 && (
         <div>
           <SectionLabel>Cited Entities</SectionLabel>
           <div className="flex flex-col gap-2">
-            {item.sourceNodes.map((node) => (
+            {(item.sourceNodes as string[] | undefined)?.map((node) => (
               <EntityChip key={node} name={node} onClick={() => onPush({ type: 'entity', name: node })} />
             ))}
           </div>
@@ -181,6 +181,13 @@ function StatementView({ item, onPush }: { item: CitedItem; onPush: (v: DrawerVi
 
 /* ── Opportunity detail ── */
 function OpportunityView({ item, onPush }: { item: OpportunityCited; onPush: (v: DrawerView) => void }) {
+  const pathway = item.pathway as string | undefined;
+  const perspectiveActor = item.perspectiveActor as string | undefined;
+  const perspectiveCapability = item.perspectiveCapability as string | undefined;
+  const justification = item.justification as string | undefined;
+  const cf = item.capitalFlow as { likelyFunder?: string; beneficiary?: string } | undefined;
+
+  const crossBorderCountries = item.crossBorderCountries as string[] | undefined;
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -206,18 +213,18 @@ function OpportunityView({ item, onPush }: { item: OpportunityCited; onPush: (v:
         )}
       </div>
 
-      {item.pathway && <DetailRow label="Pathway" value={item.pathway} />}
-      {item.perspectiveActor && <DetailRow label="Perspective Actor" value={item.perspectiveActor} />}
-      {item.perspectiveCapability && <DetailRow label="Capability" value={item.perspectiveCapability} />}
-      {item.justification && <DetailRow label="Justification" value={item.justification} />}
+      {pathway && <DetailRow label="Pathway" value={pathway} />}
+      {perspectiveActor && <DetailRow label="Perspective Actor" value={perspectiveActor} />}
+      {perspectiveCapability && <DetailRow label="Capability" value={perspectiveCapability} />}
+      {justification && <DetailRow label="Justification" value={justification} />}
 
-      {item.capitalFlow && (item.capitalFlow.likelyFunder || item.capitalFlow.beneficiary) && (
+      {cf && (cf.likelyFunder || cf.beneficiary) && (
         <div>
           <SectionLabel>Capital Flow</SectionLabel>
           <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-secondary)' }}>
-            <span>{item.capitalFlow.likelyFunder ?? '—'}</span>
+            <span>{cf.likelyFunder ?? '—'}</span>
             <ArrowUpRight size={13} color="var(--text-dim)" aria-hidden="true" />
-            <span>{item.capitalFlow.beneficiary ?? '—'}</span>
+            <span>{cf.beneficiary ?? '—'}</span>
           </div>
         </div>
       )}
@@ -227,15 +234,15 @@ function OpportunityView({ item, onPush }: { item: OpportunityCited; onPush: (v:
         {typeof item.feasibilityScore === 'number' && <DetailRow label="Feasibility Score" value={item.feasibilityScore.toFixed(2)} inline />}
       </div>
 
-      {item.crossBorder && item.crossBorderCountries && item.crossBorderCountries.length > 0 && (
-        <DetailRow label="Cross-Border Countries" value={item.crossBorderCountries.join(', ')} />
+      {(item.crossBorder as boolean | undefined) && crossBorderCountries && (crossBorderCountries as string[]).length > 0 && (
+        <DetailRow label="Cross-Border Countries" value={crossBorderCountries?.join(', ') ?? ''} />
       )}
 
-      {item.sourceNodes.length > 0 && (
+      {(item.source_nodes as string[] | undefined) && (item.source_nodes as string[]).length > 0 && (
         <div>
           <SectionLabel>Cited Entities</SectionLabel>
           <div className="flex flex-col gap-2">
-            {item.sourceNodes.map((node) => (
+            {(item.source_nodes as string[] | undefined)?.map((node) => (
               <EntityChip key={node} name={node} onClick={() => onPush({ type: 'entity', name: node })} />
             ))}
           </div>
@@ -245,7 +252,7 @@ function OpportunityView({ item, onPush }: { item: OpportunityCited; onPush: (v:
   );
 }
 
-function DetailRow({ label, value, inline }: { label: string; value: string; inline?: boolean }) {
+function DetailRow({ label, value, inline }: { label: string; value: string | number; inline?: boolean }) {
   if (inline) {
     return (
       <div className="flex flex-col gap-1">

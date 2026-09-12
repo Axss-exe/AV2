@@ -22,8 +22,6 @@ export function InvestigationHeader({
   const counters = [
     { label: 'Queries', value: investigation.queries.length },
     { label: 'Updated', value: investigation.updated_at },
-    { label: 'Entities', value: investigation.entitiesCount },
-    { label: 'Relationships', value: investigation.aggregated.relationshipsCount },
   ];
 
   return (
