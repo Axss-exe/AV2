@@ -167,7 +167,7 @@ export default function HistoryPage() {
           </div>
         ) : allHistory.length === 0 ? (
           <EmptyState
-            title="No queries yet"
+            message="No queries yet"
             description="Start by asking a question in the Query dashboard."
           />
         ) : (
