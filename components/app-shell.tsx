@@ -6,6 +6,7 @@ import { TopBar } from './top-bar';
 import { useATIS } from '@/lib/context';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { FeaturePreviewHost } from '@/components/feature-access';
 
 const COLLAPSED_WIDTH = 60;
 const EXPANDED_WIDTH  = 240;
@@ -24,6 +25,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+      <FeaturePreviewHost />
       {/* Desktop sidebar — self-hidden on mobile via `hidden md:flex` */}
       <Sidebar />
 

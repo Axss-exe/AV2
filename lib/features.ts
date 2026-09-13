@@ -9,6 +9,7 @@ export const FEATURE_DEFINITIONS = [
   ['entities', 'Entities', 'Explore entity records and relationships.', ['admin', 'pilot', 'standard']],
   ['news', 'News intelligence', 'Analyze news and related articles.', ['admin', 'pilot', 'standard']],
   ['opportunities', 'Opportunities', 'Review and save opportunity records.', ['admin', 'pilot', 'standard']],
+  ['opportunity-analysis', 'ATIS Intelligence Analysis', 'Analyze articles for structural market opportunities, supply chain gaps, and investment openings using the ATIS constraint analysis pipeline.', ['admin', 'pilot']],
   ['country-map', 'Country map', 'Explore country-level intelligence views.', ['admin', 'pilot', 'standard']],
   ['execute', 'Execute and roadmaps', 'Turn analysis into execution roadmaps.', ['admin', 'pilot']],
 ] as const
