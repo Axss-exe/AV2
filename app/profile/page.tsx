@@ -60,21 +60,38 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-xl border p-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }}>
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: 'var(--text-muted)' }}>Workspace entitlement</p>
-            <div className="mt-5 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-3xl font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>{profile.tier}</p>
-                <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Current access tier</p>
+          <div className="relative overflow-hidden rounded-2xl border p-6 shadow-sm" style={{ background: 'var(--bg-control-active)', borderColor: 'var(--border-strong)' }}>
+            <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full border-[18px] opacity-20" style={{ borderColor: 'var(--accent-fg)' }} aria-hidden="true" />
+            <div className="pointer-events-none absolute -bottom-16 -left-10 h-36 w-36 rounded-full border-[14px] opacity-10" style={{ borderColor: 'var(--accent-fg)' }} aria-hidden="true" />
+            <div className="relative">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Workspace entitlement</p>
+                  <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em]" style={{ color: 'var(--text-secondary)' }}>ATIS access card</p>
+                </div>
+                <span className="rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ background: 'var(--accent-bg)', color: 'var(--accent-fg)' }}>
+                  {profile.status}
+                </span>
               </div>
-              <span className="rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ background: 'var(--accent-bg)', color: 'var(--accent-fg)' }}>
-                {profile.status}
-              </span>
-            </div>
-            <div className="mt-8 border-t pt-4" style={{ borderColor: 'var(--border-default)' }}>
-              <p className="text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
-                Your tier controls which intelligence workspace features and analysis capacity are available to this account.
-              </p>
+              <div className="mt-7 flex items-center gap-4">
+                <div className="h-9 w-12 rounded-md border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }} aria-hidden="true">
+                  <div className="mt-3 h-px w-full" style={{ background: 'var(--border-default)' }} />
+                </div>
+                <div>
+                  <p className="text-3xl font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>{profile.tier}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.12em]" style={{ color: 'var(--text-secondary)' }}>Current access tier</p>
+                </div>
+              </div>
+              <div className="mt-8 flex items-end justify-between gap-4 border-t pt-4" style={{ borderColor: 'var(--border-default)' }}>
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>Cardholder</p>
+                  <p className="mt-1 truncate text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{profile.name}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>Status</p>
+                  <p className="mt-1 text-sm font-medium capitalize" style={{ color: 'var(--text-primary)' }}>{profile.status}</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
