@@ -8,6 +8,9 @@ import type { Opportunity } from '@/types/dashboard';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
+  /** News-level context is passed through only when it exists in the backend result. */
+  signal?: string;
+  shift?: string;
   /** Pre-mark as saved (e.g. when rendered from DB list) */
   initialSaved?: boolean;
   /** DB row id if already saved */
@@ -142,6 +145,8 @@ function EntityChip({ name }: { name: string }) {
 
 export function OpportunityCard({
   opportunity,
+  signal,
+  shift,
   initialSaved = false,
   savedDbId: initialDbId,
   onSaved,
@@ -370,10 +375,40 @@ export function OpportunityCard({
         </div>
       </div>
 
+      {/* Grounded intelligence story */}
+      {(signal || opportunity.trigger_event) && (
+        <div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px' }}>Signal</p>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5, margin: 0 }}>{signal ?? opportunity.trigger_event}</p>
+        </div>
+      )}
+      {shift && (
+        <div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px' }}>Shift</p>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5, margin: 0 }}>{shift}</p>
+        </div>
+      )}
+      {(opportunity.perspective_actor || opportunity.source_nodes?.length) && (
+        <div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px' }}>Pressure</p>
+          <div className="flex flex-wrap gap-2">
+            {opportunity.perspective_actor && <EntityChip name={opportunity.perspective_actor} />}
+            {opportunity.source_nodes?.map((node) => <EntityChip key={node} name={node} />)}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px' }}>Opening</p>
+        <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.5, margin: 0 }}>{opportunity.title}</p>
+      </div>
+
       {/* Urgency bar */}
       <UrgencyBar score={urgencyScore} />
 
-      {/* Justification */}
+      {/* Connection / existing justification */}
+      <div>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px' }}>Connection</p>
       <blockquote
         style={{
           margin: 0,
@@ -396,6 +431,14 @@ export function OpportunityCard({
           {opportunity.justification ?? 'No justification returned.'}
         </p>
       </blockquote>
+      </div>
+
+      {opportunity.pathway && (
+        <div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px' }}>Move</p>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5, margin: 0 }}>{opportunity.pathway}</p>
+        </div>
+      )}
 
       {/* Required missing nodes */}
       {Array.isArray(opportunity.required_missing_nodes) &&

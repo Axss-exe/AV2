@@ -55,6 +55,8 @@ export interface Dashboard {
   intelligence_id: string;
   trigger_event: string;
   market_equilibrium_shift: string;
+  urgency?: string;
+  feasibility?: string;
   opportunities: Opportunity[];
   pipeline_metadata: PipelineMetadata;
   // Additional intelligence fields that may be present from backend

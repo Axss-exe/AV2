@@ -16,8 +16,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   X,
+  Shield,
 } from 'lucide-react';
 import { useATIS } from '@/lib/context';
+import { useSession } from '@/lib/auth-client';
 import { AtisSymbol, AtisWordmark } from '@/components/brand';
 
 export const navItems = [
@@ -109,8 +111,10 @@ function NavLink({
 /* ── Desktop sidebar (md+) ── */
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const { sidebarCollapsed, setSidebarCollapsed } = useATIS();
   const width = sidebarCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
   return (
     <motion.aside
@@ -167,23 +171,46 @@ export function Sidebar() {
             <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={sidebarCollapsed} />
           );
         })}
+        {isAdmin && (
+          <NavLink
+            href="/admin"
+            label="Admin Control Room"
+            icon={Shield}
+            isActive={pathname.startsWith('/admin')}
+            collapsed={sidebarCollapsed}
+          />
+        )}
+        {isAdmin && (
+          <NavLink
+            href="/admin/features"
+            label="Feature Access"
+            icon={Shield}
+            isActive={pathname.startsWith('/admin/features')}
+            collapsed={sidebarCollapsed}
+          />
+        )}
       </nav>
 
-      <div
-        className="flex items-center flex-shrink-0"
-        style={{ borderTop: '1px solid var(--border-default)', padding: sidebarCollapsed ? '12px 0' : '12px 14px', gap: 10, justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}
-      >
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-control-active)', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: 'var(--text-tertiary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-hidden="true">A</div>
-        <motion.div
-          animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
-          transition={{ duration: 0.15 }}
-          className="flex flex-col overflow-hidden"
-          style={{ minWidth: 0 }}
+        <Link
+          href="/profile"
+          title={sidebarCollapsed ? 'Profile' : undefined}
+          aria-label="Open profile"
+          className="flex items-center flex-shrink-0 transition-colors duration-150"
+          style={{ borderTop: '1px solid var(--border-default)', padding: sidebarCollapsed ? '12px 0' : '12px 14px', gap: 10, justifyContent: sidebarCollapsed ? 'center' : 'flex-start', color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(event) => { event.currentTarget.style.background = 'var(--bg-control)'; }}
+          onMouseLeave={(event) => { event.currentTarget.style.background = 'transparent'; }}
         >
-          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Analyst</span>
-          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Intelligence Desk</span>
-        </motion.div>
-      </div>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-control-active)', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: 'var(--text-tertiary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-hidden="true">A</div>
+          <motion.div
+            animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
+            transition={{ duration: 0.15 }}
+            className="flex flex-col overflow-hidden"
+            style={{ minWidth: 0 }}
+          >
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Profile</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>View account tier</span>
+          </motion.div>
+        </Link>
     </motion.aside>
   );
 }
@@ -191,6 +218,8 @@ export function Sidebar() {
 /* ── Mobile drawer (< md) ── */
 export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
   return (
     <AnimatePresence>
@@ -241,16 +270,34 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
                   <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={false} onClick={onClose} />
                 );
               })}
+              {isAdmin && (
+                <NavLink
+                  href="/admin"
+                  label="Admin Control Room"
+                  icon={Shield}
+                  isActive={pathname.startsWith('/admin')}
+                  collapsed={false}
+                  onClick={onClose}
+                />
+              )}
+              {isAdmin && (
+                <NavLink href="/admin/features" label="Feature Access" icon={Shield} isActive={pathname.startsWith('/admin/features')} collapsed={false} onClick={onClose} />
+              )}
             </nav>
 
             {/* Footer */}
-            <div className="flex items-center gap-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border-default)', padding: '14px 16px' }}>
+            <Link
+              href="/profile"
+              onClick={onClose}
+              className="flex items-center gap-3 flex-shrink-0"
+              style={{ borderTop: '1px solid var(--border-default)', padding: '14px 16px', color: 'inherit', textDecoration: 'none' }}
+            >
               <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-control-active)', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: 'var(--text-tertiary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
               <div className="flex flex-col">
-                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>Analyst</span>
-                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)' }}>Intelligence Desk</span>
+                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>Profile</span>
+                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)' }}>View account tier</span>
               </div>
-            </div>
+            </Link>
           </motion.div>
         </>
       )}

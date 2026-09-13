@@ -352,13 +352,21 @@ export default function OpportunitiesPage() {
               </div>
 
               {/* Opportunity cards from analysis */}
+              {(!Array.isArray(currentDashboard.opportunities) || currentDashboard.opportunities.length === 0) ? (
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 10, padding: '16px 18px', marginBottom: 4 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 11, color: 'var(--text-tertiary)', letterSpacing: '0.08em', margin: '0 0 6px' }}>NO VALIDATED OPPORTUNITY IDENTIFIED</p>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5, margin: 0 }}>The News intelligence completed successfully, but it did not return an opportunity supported by the available evidence.</p>
+                </div>
+              ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', gap: 16 }}>
-                {(Array.isArray(currentDashboard.opportunities) ? currentDashboard.opportunities : [])
+                {currentDashboard.opportunities
                   .sort((a, b) => (b.urgency_score ?? 0) - (a.urgency_score ?? 0))
                   .map((opp, i) => (
                     <motion.div key={opp.opportunity_id ?? i} custom={i} variants={cardVariants} initial="hidden" animate="visible">
                       <OpportunityCard
                         opportunity={opp}
+                        signal={opp.trigger_event ?? currentDashboard.pipeline_metadata?.core_event}
+                        shift={currentDashboard.market_equilibrium_shift}
                         initialSaved={savedIds.has(opp.opportunity_id) || justSaved.has(opp.opportunity_id)}
                         onSaved={(dbId) => {
                           setJustSaved((prev) => new Set([...prev, opp.opportunity_id]));
@@ -370,6 +378,7 @@ export default function OpportunitiesPage() {
                     </motion.div>
                   ))}
               </div>
+              )}
             </motion.section>
           )}
 

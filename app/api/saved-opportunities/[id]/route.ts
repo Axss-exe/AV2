@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiUser } from '@/lib/auth-guard';
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -8,6 +9,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireApiUser();
+  if (authResult.response) return authResult.response;
   try {
     const { id } = await params;
     const numId = parseInt(id, 10);
@@ -27,6 +30,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireApiUser();
+  if (authResult.response) return authResult.response;
   try {
     const { id } = await params;
     const numId = parseInt(id, 10);

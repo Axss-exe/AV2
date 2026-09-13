@@ -1,5 +1,8 @@
-import { proxyGET } from '@/lib/proxy';
+import { requireFeatureAccess } from '@/lib/features'
+import { proxyGET } from '@/lib/proxy'
 
 export async function GET() {
-  return proxyGET('/api/entities');
+  const authz = await requireFeatureAccess('entities')
+  if (authz.response) return authz.response
+  return proxyGET('/api/entities')
 }
