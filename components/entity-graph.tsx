@@ -173,12 +173,14 @@ export function EntityGraph({ nodes: nodesProp, edges: edgesProp, title, onNodeC
       if (!svgRect) return;
       const scaleX = VIEW_W / svgRect.width / transform.k;
       const scaleY = VIEW_H / svgRect.height / transform.k;
-      const dx = (e.clientX - dragState.current.sx) * scaleX;
-      const dy = (e.clientY - dragState.current.sy) * scaleY;
-      dragState.current.sx = e.clientX;
-      dragState.current.sy = e.clientY;
+      const activeDrag = dragState.current;
+      if (!activeDrag) return;
+      const dx = (e.clientX - activeDrag.sx) * scaleX;
+      const dy = (e.clientY - activeDrag.sy) * scaleY;
+      activeDrag.sx = e.clientX;
+      activeDrag.sy = e.clientY;
       setSimNodes((prev) =>
-        prev.map((n) => (n.id === dragState.current!.id ? { ...n, x: (n.x ?? 0) + dx, y: (n.y ?? 0) + dy, fx: (n.x ?? 0) + dx, fy: (n.y ?? 0) + dy } : n))
+        prev.map((n) => (n.id === activeDrag.id ? { ...n, x: (n.x ?? 0) + dx, y: (n.y ?? 0) + dy, fx: (n.x ?? 0) + dx, fy: (n.y ?? 0) + dy } : n))
       );
       return;
     }
