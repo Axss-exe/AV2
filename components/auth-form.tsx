@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
+import { trackUserEvent } from '@/lib/analytics-client'
 
 type AuthFormProps = { mode: 'sign-in' | 'sign-up' }
 
@@ -26,6 +27,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       setError('Unable to authenticate with those details.')
       return
     }
+    trackUserEvent({ eventType: mode === 'sign-in' ? 'sign_in_completed' : 'sign_up_completed', feature: 'authentication', payload: { authMode: mode } })
     router.push('/atis-dashboard')
     router.refresh()
   }
