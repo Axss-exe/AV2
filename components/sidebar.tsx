@@ -180,6 +180,15 @@ export function Sidebar() {
             collapsed={sidebarCollapsed}
           />
         )}
+        {isAdmin && (
+          <NavLink
+            href="/admin/features"
+            label="Feature Access"
+            icon={Shield}
+            isActive={pathname.startsWith('/admin/features')}
+            collapsed={sidebarCollapsed}
+          />
+        )}
       </nav>
 
         <Link
@@ -270,6 +279,9 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
                   collapsed={false}
                   onClick={onClose}
                 />
+              )}
+              {isAdmin && (
+                <NavLink href="/admin/features" label="Feature Access" icon={Shield} isActive={pathname.startsWith('/admin/features')} collapsed={false} onClick={onClose} />
               )}
             </nav>
 
