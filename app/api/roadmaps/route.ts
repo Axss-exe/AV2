@@ -1,10 +1,13 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiUser } from '@/lib/auth-guard';
 
 const sql = neon(process.env.DATABASE_URL!);
 
 // POST /api/roadmaps — save a roadmap result after execute
 export async function POST(req: NextRequest) {
+  const authResult = await requireApiUser();
+  if (authResult.response) return authResult.response;
   try {
     const body = await req.json();
     const {
@@ -41,6 +44,8 @@ export async function POST(req: NextRequest) {
 
 // GET /api/roadmaps?opportunity_id=... — fetch roadmaps for an opportunity
 export async function GET(req: NextRequest) {
+  const authResult = await requireApiUser();
+  if (authResult.response) return authResult.response;
   try {
     const { searchParams } = new URL(req.url);
     const opportunityId = searchParams.get('opportunity_id');
