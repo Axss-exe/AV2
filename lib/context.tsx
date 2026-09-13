@@ -217,9 +217,18 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         throw new Error('The analysis result did not contain a dashboard.');
       }
 
-      const dashboard = normalizeDashboardData(json.data as Record<string, unknown>);
+      // The API has returned both a direct dashboard and an enveloped payload
+      // (`data.dashboard`, `data.result`, or `data.analysis`) across versions.
+      // Normalize the innermost object so a valid completed job is not rejected
+      // just because the response envelope changed.
+      const rawData = json.data as Record<string, unknown>;
+      const nestedData = [rawData.dashboard, rawData.result, rawData.analysis]
+        .find((value): value is Record<string, unknown> =>
+          Boolean(value) && typeof value === 'object' && !Array.isArray(value),
+        );
+      const dashboard = normalizeDashboardData(nestedData ?? rawData, jobId);
       if (!hasMeaningfulDashboardData(dashboard)) {
-        throw new Error('The analysis returned no usable intelligence data. Please try again.');
+        throw new Error('The completed analysis did not include usable intelligence data.');
       }
 
       setExecutionState((current) => ({
@@ -313,11 +322,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   }, [fetchJobResult, stopPolling]);
 
   // Normalize backend dashboard data to frontend Dashboard type
-  function normalizeDashboardData(data: Record<string, unknown>): Dashboard {
+  function normalizeDashboardData(data: Record<string, unknown>, fallbackId?: string): Dashboard {
     const pm = data.pipeline_metadata as Record<string, unknown> | undefined;
     return {
       ...data,
-      intelligence_id: String(data.intelligence_id ?? data.job_id ?? ''),
+      intelligence_id: String(data.intelligence_id ?? data.intelligenceId ?? data.job_id ?? fallbackId ?? ''),
       trigger_event: String(data.trigger_event ?? data.core_event ?? ''),
       market_equilibrium_shift: String(data.market_equilibrium_shift ?? ''),
       executive_summary: data.executive_summary ? String(data.executive_summary) : undefined,
