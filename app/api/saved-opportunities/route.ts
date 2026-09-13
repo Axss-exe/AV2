@@ -1,11 +1,14 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApiUser } from '@/lib/auth-guard';
+import { requireFeatureAccess } from '@/lib/features';
 
 const sql = neon(process.env.DATABASE_URL!);
 
 // GET /api/saved-opportunities — list all saved opportunities
 export async function GET() {
+  const featureAccess = await requireFeatureAccess('opportunities');
+  if (featureAccess.response) return featureAccess.response;
   const authResult = await requireApiUser();
   if (authResult.response) return authResult.response;
   try {
@@ -29,6 +32,8 @@ export async function GET() {
 
 // POST /api/saved-opportunities — save a new opportunity
 export async function POST(req: NextRequest) {
+  const featureAccess = await requireFeatureAccess('opportunities');
+  if (featureAccess.response) return featureAccess.response;
   const authResult = await requireApiUser();
   if (authResult.response) return authResult.response;
   try {
