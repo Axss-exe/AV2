@@ -320,6 +320,14 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       intelligence_id: String(data.intelligence_id ?? data.job_id ?? ''),
       trigger_event: String(data.trigger_event ?? data.core_event ?? ''),
       market_equilibrium_shift: String(data.market_equilibrium_shift ?? ''),
+      executive_summary: data.executive_summary ? String(data.executive_summary) : undefined,
+      summary: data.summary ? String(data.summary) : undefined,
+      findings: Array.isArray(data.findings) ? data.findings.map(String) : undefined,
+      key_entities: Array.isArray(data.key_entities) ? data.key_entities : undefined,
+      structured_intelligence: Array.isArray(data.structured_intelligence) ? data.structured_intelligence : undefined,
+      intent: data.intent && typeof data.intent === 'object' ? data.intent as Record<string, unknown> : undefined,
+      filter_stats: data.filter_stats && typeof data.filter_stats === 'object' ? data.filter_stats as Record<string, number> : undefined,
+      perspective_nodes: Array.isArray(data.perspective_nodes) ? data.perspective_nodes : undefined,
       opportunities: Array.isArray(data.opportunities) 
         ? data.opportunities.map((opp: unknown) => {
             const o = opp as Record<string, unknown>;
@@ -355,8 +363,13 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     const hasTrigger = dashboard.trigger_event && dashboard.trigger_event.trim() !== '';
     const hasShift = dashboard.market_equilibrium_shift && dashboard.market_equilibrium_shift.trim() !== '';
     const hasOpportunities = Array.isArray(dashboard.opportunities) && dashboard.opportunities.length > 0;
+    const hasFindings = Array.isArray(dashboard.findings) && dashboard.findings.length > 0;
+    const hasKeyEntities = Array.isArray(dashboard.key_entities) && dashboard.key_entities.length > 0;
+    const hasStructuredIntelligence = Array.isArray(dashboard.structured_intelligence) && dashboard.structured_intelligence.length > 0;
+    const hasExecutiveSummary = dashboard.executive_summary != null && dashboard.executive_summary.trim() !== '';
+    const hasSummary = dashboard.summary != null && dashboard.summary.trim() !== '';
     
-    return hasTrigger || hasShift || hasOpportunities;
+    return hasTrigger || hasShift || hasOpportunities || hasFindings || hasKeyEntities || hasStructuredIntelligence || hasExecutiveSummary || hasSummary;
   }
 
   // Main analysis function - implements proper async lifecycle

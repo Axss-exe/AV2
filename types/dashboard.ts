@@ -57,4 +57,13 @@ export interface Dashboard {
   market_equilibrium_shift: string;
   opportunities: Opportunity[];
   pipeline_metadata: PipelineMetadata;
+  // Additional intelligence fields that may be present from backend
+  executive_summary?: string;
+  summary?: string;
+  findings?: string[];
+  key_entities?: unknown[];
+  structured_intelligence?: unknown[];
+  intent?: Record<string, unknown>;
+  filter_stats?: Record<string, number>;
+  perspective_nodes?: unknown[];
 }
