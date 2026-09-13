@@ -217,12 +217,9 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         throw new Error('The analysis result did not contain a dashboard.');
       }
 
-      // Result envelopes have varied between backend versions. Walk through the
-      // known envelope keys instead of assuming the first nested object is the
-      // dashboard; some responses wrap it more than once.
-      const rawData = json.data as Record<string, unknown>;
-      const dashboardData = findDashboardData(rawData);
-      const dashboard = normalizeDashboardData(dashboardData, jobId);
+      // The News API contract returns the completed intelligence directly in
+      // the response's data envelope. Do not search unrelated nested payloads.
+      const dashboard = normalizeDashboardData(json.data as Record<string, unknown>);
       if (!hasMeaningfulDashboardData(dashboard)) {
         throw new Error('The completed analysis did not include usable intelligence data.');
       }
@@ -261,6 +258,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     const controller = new AbortController();
     statusAbortRef.current = controller;
 
+    let terminalStatus = false;
     try {
       const res = await fetch(`/api/news/status/${jobId}`, {
         method: 'GET',
@@ -293,11 +291,13 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (status === 'COMPLETED') {
+        terminalStatus = true;
         stopPolling();
         await fetchJobResult(jobId);
         return;
       }
       if (status === 'FAILED') {
+        terminalStatus = true;
         stopPolling();
         const errorMessage = job.error || 'Backend processing failed. Please try again.';
         setExecutionState((current) => ({ ...current, phase: 'error', error: errorMessage }));
@@ -311,38 +311,18 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     } finally {
       pollInFlightRef.current = false;
       if (statusAbortRef.current === controller) statusAbortRef.current = null;
-      if (lifecycle === lifecycleRef.current) {
+      if (!terminalStatus && lifecycle === lifecycleRef.current) {
         pollTimerRef.current = setTimeout(() => void pollJobStatus(jobId, lifecycle), POLL_INTERVAL_MS);
       }
     }
   }, [fetchJobResult, stopPolling]);
 
-  function isRecord(value: unknown): value is Record<string, unknown> {
-    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-  }
-
-  function findDashboardData(value: Record<string, unknown>): Record<string, unknown> {
-    const envelopeKeys = ['dashboard', 'intelligence', 'intelligence_data', 'result', 'analysis', 'output', 'payload', 'data'];
-    const candidates: Record<string, unknown>[] = [value];
-
-    for (const key of envelopeKeys) {
-      const nested = value[key];
-      if (isRecord(nested)) candidates.push(findDashboardData(nested));
-    }
-
-    const score = (candidate: Record<string, unknown>) => Object.keys(candidate).reduce((total, key) => {
-      return total + (['intelligence_id', 'intelligenceId', 'trigger_event', 'core_event', 'summary', 'executive_summary', 'findings', 'opportunities', 'key_entities', 'structured_intelligence', 'market_equilibrium_shift'].includes(key) ? 2 : 0);
-    }, 0);
-
-    return candidates.reduce((best, candidate) => score(candidate) > score(best) ? candidate : best, value);
-  }
-
-  // Normalize backend dashboard data to frontend Dashboard type
-  function normalizeDashboardData(data: Record<string, unknown>, fallbackId?: string): Dashboard {
+  // Normalize the documented News result data to the frontend Dashboard type.
+  function normalizeDashboardData(data: Record<string, unknown>): Dashboard {
     const pm = data.pipeline_metadata as Record<string, unknown> | undefined;
     return {
       ...data,
-      intelligence_id: String(data.intelligence_id ?? data.intelligenceId ?? data.job_id ?? fallbackId ?? ''),
+      intelligence_id: String(data.intelligence_id ?? data.intelligenceId ?? ''),
       trigger_event: String(data.trigger_event ?? data.core_event ?? ''),
       market_equilibrium_shift: String(data.market_equilibrium_shift ?? ''),
       executive_summary: data.executive_summary ? String(data.executive_summary) : undefined,
