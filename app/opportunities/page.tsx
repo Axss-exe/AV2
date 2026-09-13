@@ -12,6 +12,7 @@ import { AppShell } from '@/components/app-shell';
 import { OpportunityCard } from '@/components/opportunity-card';
 import { useATIS } from '@/lib/context';
 import { executeOpportunity, APIError } from '@/lib/api';
+import { FeatureUnavailable, useFeatureAccess } from '@/components/feature-access';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -95,6 +96,7 @@ function SkeletonCard() {
 
 export default function OpportunitiesPage() {
   const router = useRouter();
+  const { feature, state } = useFeatureAccess('opportunities');
   const {
     currentDashboard,
     currentNewsArticle,
@@ -216,6 +218,8 @@ export default function OpportunitiesPage() {
 
   // ── View: no analysis and no saved items ──────────────────────────────────
   const showEmpty = !loadingSaved && saved.length === 0 && !currentDashboard;
+
+  if (state !== 'AVAILABLE' && feature) return <AppShell><main className="mx-auto flex min-h-[70vh] max-w-3xl items-center px-6"><FeatureUnavailable label={feature.label} description={feature.description} state={state} /></main></AppShell>;
 
   return (
     <AppShell>
