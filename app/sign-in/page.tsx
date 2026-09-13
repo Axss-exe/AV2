@@ -57,8 +57,8 @@ export default async function SignInPage() {
 
   return (
     <main className="min-h-screen bg-bg-primary text-text-primary">
-      <div className="mx-auto grid min-h-screen w-full max-w-[1500px] lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
-        <section className="flex flex-col border-b border-border-default px-6 py-10 sm:px-10 lg:border-b-0 lg:border-r lg:px-14 lg:py-14 xl:px-20">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1500px] flex-col">
+        <section className="order-2 flex flex-col px-6 py-10 sm:px-10 lg:px-14 lg:py-14 xl:px-20">
           <header className="flex items-start justify-between gap-8">
             <div>
               <p className="font-mono text-sm font-medium tracking-[0.2em]">ATIS</p>
@@ -118,18 +118,17 @@ export default async function SignInPage() {
           </section>
         </section>
 
-        <section className="flex items-center px-6 py-12 sm:px-10 lg:sticky lg:top-0 lg:h-screen lg:self-start lg:px-14 lg:py-12 xl:px-20">
-          <div className="mx-auto w-full max-w-md">
-            <div className="mb-8">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">Secure entry</p>
-              <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em]">Continue to ATIS</h2>
-              <p className="mt-3 text-sm leading-6 text-text-secondary">Enter the intelligence environment through your existing account.</p>
+        <section className="order-1 border-b border-border-default bg-bg-secondary px-6 py-5 sm:px-10 lg:sticky lg:top-0 lg:z-20 lg:px-14 xl:px-20">
+          <div className="mx-auto flex w-full max-w-[1340px] flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+            <div className="shrink-0">
+              <p className="font-mono text-sm font-medium tracking-[0.2em]">ATIS</p>
+              <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-text-muted">Secure intelligence access</p>
             </div>
-            <div className="border border-border-default bg-bg-secondary p-6 sm:p-8">
-              <AuthForm mode="sign-in" />
-              <p className="mt-6 text-sm leading-6 text-text-secondary">Pilot and Client access are currently controlled. <Link className="underline underline-offset-4" href="/sign-up">Create an account</Link></p>
+            <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-end lg:max-w-[760px] lg:justify-end">
+              <div className="hidden min-w-0 flex-1 sm:block lg:max-w-[250px]"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-muted">Continue to ATIS</p><p className="mt-1 text-xs text-text-secondary">Enter your existing account.</p></div>
+              <div className="w-full sm:max-w-[220px]"><AuthForm mode="sign-in" /></div>
+              <p className="shrink-0 text-xs leading-5 text-text-secondary sm:max-w-[150px]">Controlled access. <Link className="underline underline-offset-4" href="/sign-up">Create an account</Link></p>
             </div>
-            <p className="mt-5 font-mono text-[10px] uppercase leading-5 tracking-[0.12em] text-text-dim">ATIS / Africa Trade Intelligence System</p>
           </div>
         </section>
       </div>
