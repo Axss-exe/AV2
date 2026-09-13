@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { AppShell } from '@/components/app-shell'
 import { auth } from '@/lib/auth'
 import { pool } from '@/lib/db'
+import { SignOutButton } from '@/components/sign-out-button'
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -36,9 +37,12 @@ export default async function ProfilePage() {
         <div className="mb-8">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent-fg)' }}>Account profile</p>
           <h1 className="mt-2 text-balance text-3xl font-semibold" style={{ color: 'var(--text-primary)' }}>Your access profile</h1>
-          <p className="mt-2 max-w-xl leading-6" style={{ color: 'var(--text-secondary)' }}>
-            Confirm the account class and workspace tier currently assigned to your ATIS identity.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <p className="mt-2 max-w-xl leading-6" style={{ color: 'var(--text-secondary)' }}>
+              Confirm the account class and workspace tier currently assigned to your ATIS identity.
+            </p>
+            <SignOutButton />
+          </div>
         </div>
 
         <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]" aria-label="Profile details">
