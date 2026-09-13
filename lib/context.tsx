@@ -217,16 +217,12 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         throw new Error('The analysis result did not contain a dashboard.');
       }
 
-      // The API has returned both a direct dashboard and an enveloped payload
-      // (`data.dashboard`, `data.result`, or `data.analysis`) across versions.
-      // Normalize the innermost object so a valid completed job is not rejected
-      // just because the response envelope changed.
+      // Result envelopes have varied between backend versions. Walk through the
+      // known envelope keys instead of assuming the first nested object is the
+      // dashboard; some responses wrap it more than once.
       const rawData = json.data as Record<string, unknown>;
-      const nestedData = [rawData.dashboard, rawData.result, rawData.analysis]
-        .find((value): value is Record<string, unknown> =>
-          Boolean(value) && typeof value === 'object' && !Array.isArray(value),
-        );
-      const dashboard = normalizeDashboardData(nestedData ?? rawData, jobId);
+      const dashboardData = findDashboardData(rawData);
+      const dashboard = normalizeDashboardData(dashboardData, jobId);
       if (!hasMeaningfulDashboardData(dashboard)) {
         throw new Error('The completed analysis did not include usable intelligence data.');
       }
@@ -320,6 +316,26 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, [fetchJobResult, stopPolling]);
+
+  function isRecord(value: unknown): value is Record<string, unknown> {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function findDashboardData(value: Record<string, unknown>): Record<string, unknown> {
+    const envelopeKeys = ['dashboard', 'intelligence', 'intelligence_data', 'result', 'analysis', 'output', 'payload', 'data'];
+    const candidates: Record<string, unknown>[] = [value];
+
+    for (const key of envelopeKeys) {
+      const nested = value[key];
+      if (isRecord(nested)) candidates.push(findDashboardData(nested));
+    }
+
+    const score = (candidate: Record<string, unknown>) => Object.keys(candidate).reduce((total, key) => {
+      return total + (['intelligence_id', 'intelligenceId', 'trigger_event', 'core_event', 'summary', 'executive_summary', 'findings', 'opportunities', 'key_entities', 'structured_intelligence', 'market_equilibrium_shift'].includes(key) ? 2 : 0);
+    }, 0);
+
+    return candidates.reduce((best, candidate) => score(candidate) > score(best) ? candidate : best, value);
+  }
 
   // Normalize backend dashboard data to frontend Dashboard type
   function normalizeDashboardData(data: Record<string, unknown>, fallbackId?: string): Dashboard {
