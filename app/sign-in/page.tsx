@@ -118,7 +118,7 @@ export default async function SignInPage() {
           </section>
         </section>
 
-        <section className="flex items-center px-6 py-12 sm:px-10 lg:px-14 xl:px-20">
+        <section className="flex items-center px-6 py-12 sm:px-10 lg:sticky lg:top-0 lg:h-screen lg:self-start lg:px-14 lg:py-12 xl:px-20">
           <div className="mx-auto w-full max-w-md">
             <div className="mb-8">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">Secure entry</p>
