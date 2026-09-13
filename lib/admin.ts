@@ -16,7 +16,12 @@ export type AdminUser = {
 
 export async function getAdminUser() {
   const session = await auth.api.getSession({ headers: await headers() })
-  const user = session?.user as ({ id: string; email: string; name: string; role?: string } | undefined)
+  if (!session?.user?.id) return null
+  const result = await pool.query<Pick<AdminUser, 'id' | 'email' | 'name' | 'role'>>(
+    'SELECT id, email, name, role FROM "user" WHERE id = $1 AND status = \'active\' LIMIT 1',
+    [session.user.id],
+  )
+  const user = result.rows[0]
   return user?.role === 'admin' ? user : null
 }
 
@@ -67,8 +72,11 @@ const ADMIN_VALUES = {
 export async function updateAdminUser(actorId: string, id: string, input: { role?: string; tier?: string; status?: string }) {
   const fields: string[] = []
   const values: string[] = []
+  const normalizedInput = { ...input }
+  if (normalizedInput.role === 'admin') normalizedInput.tier = 'admin'
+  if (normalizedInput.tier === 'admin') normalizedInput.role = 'admin'
   for (const key of ['role', 'tier', 'status'] as const) {
-    const value = input[key]
+    const value = normalizedInput[key]
     if (value !== undefined) {
       if (!ADMIN_VALUES[key].has(value)) throw new Error(`Invalid ${key}`)
       fields.push(`"${key}" = $${values.length + 1}`)
