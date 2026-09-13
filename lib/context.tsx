@@ -328,6 +328,8 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
       intelligence_id: String(data.intelligence_id ?? data.intelligenceId ?? ''),
       trigger_event: String(data.trigger_event ?? data.core_event ?? ''),
       market_equilibrium_shift: String(data.market_equilibrium_shift ?? ''),
+      urgency: data.urgency ? String(data.urgency) : undefined,
+      feasibility: data.feasibility ? String(data.feasibility) : undefined,
       executive_summary: data.executive_summary ? String(data.executive_summary) : undefined,
       summary: data.summary ? String(data.summary) : undefined,
       findings: Array.isArray(data.findings) ? data.findings.map(String) : undefined,
@@ -364,9 +366,12 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
     
     const hasTrigger = dashboard.trigger_event.trim() !== '';
     const hasShift = dashboard.market_equilibrium_shift.trim() !== '';
-    const hasOpportunities = dashboard.opportunities.length > 0;
+    const hasUrgency = dashboard.urgency?.trim() !== '';
+    const hasFeasibility = dashboard.feasibility?.trim() !== '';
+    const hasPipelineEvent = dashboard.pipeline_metadata.core_event.trim() !== '';
 
-    return hasTrigger || hasShift || hasOpportunities;
+    // An empty opportunities array is a valid News outcome, not a failed result.
+    return hasTrigger || hasShift || hasUrgency || hasFeasibility || hasPipelineEvent;
   }
 
   // Main analysis function - implements proper async lifecycle
