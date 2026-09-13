@@ -214,14 +214,13 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
       const json = await res.json();
       if (json.status !== 'success' || !json.data || typeof json.data !== 'object') {
-        throw new Error('The analysis result did not contain a dashboard.');
+        throw new Error('The completed News result has an invalid response envelope.');
       }
 
-      // The News API contract returns the completed intelligence directly in
-      // the response's data envelope. Do not search unrelated nested payloads.
-      const dashboard = normalizeDashboardData(json.data as Record<string, unknown>);
+      const resultData = json.data as Record<string, unknown>;
+      const dashboard = normalizeDashboardData(resultData);
       if (!hasMeaningfulDashboardData(dashboard)) {
-        throw new Error('The completed analysis did not include usable intelligence data.');
+        throw new Error('The completed News result did not include usable intelligence data.');
       }
 
       setExecutionState((current) => ({
@@ -307,7 +306,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
 
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
-      console.warn('Job status polling failed, will retry:', err);
+      if (terminalStatus) {
+        console.error('Completed News result processing failed:', err);
+      } else {
+        console.warn('Job status polling failed, will retry:', err);
+      }
     } finally {
       pollInFlightRef.current = false;
       if (statusAbortRef.current === controller) statusAbortRef.current = null;
@@ -347,7 +350,7 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
         processed_at: String(pm?.processed_at ?? new Date().toISOString()),
         source_article: String(pm?.source_article ?? (data.article_text?.toString().slice(0, 100) ?? '')),
         extracted_entities_count: Number(pm?.extracted_entities_count ?? 0),
-        core_event: String(pm?.core_event ?? data.trigger_event ?? ''),
+        core_event: String(pm?.core_event ?? data.core_event ?? data.trigger_event ?? ''),
         model_primary: String(pm?.model_primary ?? ''),
         model_fallback: String(pm?.model_fallback ?? ''),
         elapsed_seconds: Number(pm?.elapsed_seconds ?? 0),
@@ -359,22 +362,11 @@ export function ATISProvider({ children }: { children: React.ReactNode }) {
   function hasMeaningfulDashboardData(dashboard: Dashboard | null): boolean {
     if (!dashboard) return false;
     
-    // Must have intelligence_id
-    if (!dashboard.intelligence_id || dashboard.intelligence_id.trim() === '') {
-      return false;
-    }
-    
-    // Must have at least one meaningful field
-    const hasTrigger = dashboard.trigger_event && dashboard.trigger_event.trim() !== '';
-    const hasShift = dashboard.market_equilibrium_shift && dashboard.market_equilibrium_shift.trim() !== '';
-    const hasOpportunities = Array.isArray(dashboard.opportunities) && dashboard.opportunities.length > 0;
-    const hasFindings = Array.isArray(dashboard.findings) && dashboard.findings.length > 0;
-    const hasKeyEntities = Array.isArray(dashboard.key_entities) && dashboard.key_entities.length > 0;
-    const hasStructuredIntelligence = Array.isArray(dashboard.structured_intelligence) && dashboard.structured_intelligence.length > 0;
-    const hasExecutiveSummary = dashboard.executive_summary != null && dashboard.executive_summary.trim() !== '';
-    const hasSummary = dashboard.summary != null && dashboard.summary.trim() !== '';
-    
-    return hasTrigger || hasShift || hasOpportunities || hasFindings || hasKeyEntities || hasStructuredIntelligence || hasExecutiveSummary || hasSummary;
+    const hasTrigger = dashboard.trigger_event.trim() !== '';
+    const hasShift = dashboard.market_equilibrium_shift.trim() !== '';
+    const hasOpportunities = dashboard.opportunities.length > 0;
+
+    return hasTrigger || hasShift || hasOpportunities;
   }
 
   // Main analysis function - implements proper async lifecycle
