@@ -7,6 +7,7 @@ import { AppShell } from '@/components/app-shell';
 import { AnalysisLoader } from '@/components/analysis-loader';
 import { useATIS } from '@/lib/context';
 import { AlertCircle, ChevronRight, Zap } from 'lucide-react';
+import { useFeatureAccess } from '@/components/feature-access';
 import type { Article } from '@/types/article';
 
 function formatDate(dateStr: string): string {
@@ -72,6 +73,7 @@ export default function ArticleDetailPage({
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { feature: analysisFeature, state: analysisFeatureState } = useFeatureAccess('opportunity-analysis');
 
   useEffect(() => {
     async function fetchArticle() {
@@ -104,7 +106,7 @@ export default function ArticleDetailPage({
   }, [article?.id, currentDashboard, currentNewsArticle?.id, router]);
 
   const handleAnalyze = async () => {
-    if (!article) return;
+    if (!article || analysisFeatureState !== 'AVAILABLE') return;
     // Clear any existing job before starting new analysis
     clearAnalysis();
     await runAnalysis(article);
@@ -358,6 +360,10 @@ export default function ArticleDetailPage({
                 aria-hidden="true"
               />
 
+              <div className="mb-5 flex gap-2 overflow-x-auto" aria-label="Analysis workflow preview">
+                {['Article signals', 'Constraint map', 'Opportunity output'].map((step, index) => <div key={step} className="min-w-[150px] rounded-lg border p-3" style={{ borderColor: 'var(--border-default)', background: index === 0 ? 'var(--bg-control)' : 'var(--bg-primary)' }}><p className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: '#007aff' }}>0{index + 1}</p><p className="mt-2 text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{step}</p><p className="mt-1 text-[11px] leading-5" style={{ color: 'var(--text-dim)' }}>{index === 0 ? 'Identify structural signals in the article.' : index === 1 ? 'Trace gaps across supply, demand, and constraints.' : 'Return ranked market openings and evidence.'}</p></div>)}
+              </div>
+
               <div
                 className="flex items-start justify-between gap-4"
                 style={{ flexWrap: 'wrap' }}
@@ -403,7 +409,7 @@ export default function ArticleDetailPage({
                   </p>
                 </div>
 
-                <button
+                {analysisFeatureState === 'AVAILABLE' ? <button
                   onClick={handleAnalyze}
                   disabled={analysisLoading}
                   style={{
@@ -434,7 +440,7 @@ export default function ArticleDetailPage({
                 >
                   <Zap size={14} aria-hidden="true" />
                   Run Opportunity Analysis
-                </button>
+                </button> : <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('atis:feature-preview', { detail: { key: 'opportunity-analysis' } }))} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-control)', border: '1px solid var(--border-default)', borderRadius: 10, padding: '12px 22px', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>View feature preview</button>}
               </div>
             </div>
           </>
