@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-border-default bg-bg-surface px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <div><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-text-dim">ATIS / CONTROL ROOM</p><h1 className="mt-1 text-lg font-semibold">Administration</h1></div>
-          <div className="text-right"><p className="font-mono text-[10px] uppercase text-text-dim">Signed in as</p><p className="text-sm">{admin.email}</p></div>
+          <div className="flex items-center gap-5"><Link href="/atis-dashboard" className="rounded-md border border-border-default px-3 py-2 font-mono text-xs text-text-muted transition hover:border-border-active hover:text-text-primary">Back to ATIS</Link><div className="text-right"><p className="font-mono text-[10px] uppercase text-text-dim">Signed in as</p><p className="text-sm">{admin.email}</p></div></div>
         </div>
       </header>
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-8 lg:flex-row">
