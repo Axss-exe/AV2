@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { AuthForm } from '@/components/auth-form'
+import { AtisSymbol } from '@/components/brand'
 import { auth } from '@/lib/auth'
 
 const pathway = [
@@ -118,16 +119,16 @@ export default async function SignInPage() {
           </section>
         </section>
 
-        <section className="order-1 border-b border-border-default bg-bg-secondary px-6 py-5 sm:px-10 lg:sticky lg:top-0 lg:z-20 lg:px-14 xl:px-20">
-          <div className="mx-auto flex w-full max-w-[1340px] flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-            <div className="shrink-0">
-              <p className="font-mono text-sm font-medium tracking-[0.2em]">ATIS</p>
-              <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-text-muted">Secure intelligence access</p>
-            </div>
-            <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-end lg:max-w-[760px] lg:justify-end">
-              <div className="hidden min-w-0 flex-1 sm:block lg:max-w-[250px]"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-muted">Continue to ATIS</p><p className="mt-1 text-xs text-text-secondary">Enter your existing account.</p></div>
-              <div className="w-full sm:max-w-[220px]"><AuthForm mode="sign-in" /></div>
-              <p className="shrink-0 text-xs leading-5 text-text-secondary sm:max-w-[150px]">Controlled access. <Link className="underline underline-offset-4" href="/sign-up">Create an account</Link></p>
+        <section className="order-1 border-b border-border-default bg-bg-secondary px-6 py-4 sm:px-10 lg:sticky lg:top-0 lg:z-20 lg:px-14 xl:px-20" style={{ backgroundColor: 'var(--bg-secondary)', opacity: 1 }}>
+          <div className="mx-auto flex w-full max-w-[1340px] flex-col gap-4 lg:flex-row lg:items-center lg:gap-8">
+            <Link href="https://aksos.net" className="flex shrink-0 items-center gap-3 text-text-primary" aria-label="Back to AKSOS">
+              <AtisSymbol size={28} />
+              <span><span className="block font-mono text-sm font-medium tracking-[0.2em]">ATIS</span><span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.14em] text-text-muted">Secure intelligence access</span></span>
+            </Link>
+            <div className="flex min-w-0 flex-1 items-center justify-between gap-5 lg:justify-end">
+              <div className="hidden min-w-0 xl:block"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-muted">Continue to ATIS</p><p className="mt-1 text-xs text-text-secondary">Enter your existing account.</p></div>
+              <AuthForm mode="sign-in" />
+              <div className="flex shrink-0 items-center gap-3"><p className="hidden text-xs leading-5 text-text-secondary sm:block">Controlled access. <Link className="underline underline-offset-4" href="/sign-up">Create an account</Link></p><Link href="https://aksos.net" className="rounded border border-border-default bg-bg-primary px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-text-primary transition hover:border-border-active">Back to AKSOS</Link></div>
             </div>
           </div>
         </section>
