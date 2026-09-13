@@ -16,8 +16,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   X,
+  Shield,
 } from 'lucide-react';
 import { useATIS } from '@/lib/context';
+import { useSession } from '@/lib/auth-client';
 import { AtisSymbol, AtisWordmark } from '@/components/brand';
 
 export const navItems = [
@@ -109,8 +111,10 @@ function NavLink({
 /* ── Desktop sidebar (md+) ── */
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const { sidebarCollapsed, setSidebarCollapsed } = useATIS();
   const width = sidebarCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
   return (
     <motion.aside
@@ -167,6 +171,15 @@ export function Sidebar() {
             <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={sidebarCollapsed} />
           );
         })}
+        {isAdmin && (
+          <NavLink
+            href="/admin"
+            label="Admin Control Room"
+            icon={Shield}
+            isActive={pathname.startsWith('/admin')}
+            collapsed={sidebarCollapsed}
+          />
+        )}
       </nav>
 
       <div
@@ -191,6 +204,8 @@ export function Sidebar() {
 /* ── Mobile drawer (< md) ── */
 export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
   return (
     <AnimatePresence>
@@ -241,6 +256,16 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
                   <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={false} onClick={onClose} />
                 );
               })}
+              {isAdmin && (
+                <NavLink
+                  href="/admin"
+                  label="Admin Control Room"
+                  icon={Shield}
+                  isActive={pathname.startsWith('/admin')}
+                  collapsed={false}
+                  onClick={onClose}
+                />
+              )}
             </nav>
 
             {/* Footer */}
