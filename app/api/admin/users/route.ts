@@ -12,7 +12,14 @@ export async function PATCH(request: Request) {
   if (authz.response) return authz.response
   const body = await request.json() as { id?: string; role?: string; tier?: string; status?: string }
   if (!body.id) return NextResponse.json({ error: 'User id is required' }, { status: 400 })
-  const user = await updateAdminUser(body.id, { role: body.role, tier: body.tier, status: body.status })
-  if (!user) return NextResponse.json({ error: 'User not found or no changes supplied' }, { status: 404 })
-  return NextResponse.json({ user })
+  try {
+    const user = await updateAdminUser(authz.user.id, body.id, { role: body.role, tier: body.tier, status: body.status })
+    if (!user) return NextResponse.json({ error: 'User not found or no changes supplied' }, { status: 404 })
+    return NextResponse.json({ user })
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('Invalid ')) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+    throw error
+  }
 }
