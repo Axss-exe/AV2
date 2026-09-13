@@ -73,27 +73,27 @@ export default function InvestigationReportPage() {
                 </section>
                 <section>
                   <h2 className="report-heading">Key Findings</h2>
-                  <ReportList items={investigation.report.key_findings.map((item) => String(item.finding ?? ''))} />
+                  <ReportList items={(investigation.report.key_findings ?? []).map((item) => String(item.finding ?? ''))} />
                 </section>
                 <section>
                   <h2 className="report-heading">Important Entities</h2>
-                  <ReportList items={investigation.report.important_entities.map((item) => String(item.name ?? ''))} />
+                  <ReportList items={(investigation.report.important_entities ?? []).map((item) => String(item.name ?? ''))} />
                 </section>
                 <section>
                   <h2 className="report-heading">Important Relationships</h2>
-                  <ReportList items={investigation.report.important_relationships.map((item) => String(item.insight ?? `${item.from_entity ?? ''} ${item.relationship_type ?? ''} ${item.to_entity ?? ''}`))} />
+                  <ReportList items={(investigation.report.important_relationships ?? []).map((item) => String(item.insight ?? `${item.from_entity ?? ''} ${item.relationship_type ?? ''} ${item.to_entity ?? ''}`))} />
                 </section>
                 <section>
                   <h2 className="report-heading">Research Required</h2>
-                  <ReportList items={investigation.report.research_required} />
+                  <ReportList items={investigation.report.research_required ?? []} />
                 </section>
                 <section>
                   <h2 className="report-heading">Evidence &amp; Sources</h2>
-                  <ReportList items={investigation.report.evidence_and_sources.map((item) => String(item.source_id ?? ''))} />
+                  <ReportList items={(investigation.report.evidence_and_sources ?? []).map((item) => String(item.source_id ?? ''))} />
                 </section>
                 <section>
                   <h2 className="report-heading">Unresolved Questions</h2>
-                  <ReportList items={investigation.report.unresolved_questions} />
+                  <ReportList items={investigation.report.unresolved_questions ?? []} />
                 </section>
                 <section>
                   <h2 className="report-heading">Investigation Narrative</h2>
