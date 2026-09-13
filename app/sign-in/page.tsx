@@ -128,7 +128,7 @@ export default async function SignInPage() {
             <div className="flex w-full min-w-0 flex-col items-start justify-between gap-5 lg:justify-start">
               <div className="hidden min-w-0 xl:block"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-text-muted">Continue to ATIS</p><p className="mt-1 text-xs text-text-secondary">Enter your existing account.</p></div>
               <AuthForm mode="sign-in" />
-              <div className="flex shrink-0 items-center gap-3"><p className="hidden text-xs leading-5 text-text-secondary sm:block">Controlled access. <Link className="underline underline-offset-4" href="/sign-up">Create an account</Link></p><Link href="https://aksos.net" className="rounded border border-border-default bg-bg-primary px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-text-primary transition hover:border-border-active">Back to AKSOS</Link></div>
+              <div className="flex shrink-0 items-center gap-3"><p className="hidden text-xs leading-5 text-text-secondary sm:block"><Link className="underline underline-offset-4" href="https://aksos.net/participate">Join Batana (aksos.net/participate)</Link>. <Link className="underline underline-offset-4" href="/sign-up">Request Access</Link></p><Link href="https://aksos.net" className="rounded border border-border-default bg-bg-primary px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-text-primary transition hover:border-border-active">Back to AKSOS</Link></div>
             </div>
           </div>
         </section>
