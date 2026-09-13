@@ -63,6 +63,7 @@ export default function ArticleDetailPage({
     analysisStatusText,
     analysisError,
     currentDashboard,
+    currentNewsArticle,
     currentJobId,
     currentJobStatus,
     jobCheckpoint,
@@ -90,12 +91,17 @@ export default function ArticleDetailPage({
     fetchArticle();
   }, [id]);
 
-  // Navigate to /opportunities when dashboard is ready
+  // A previous article's result must not redirect a newly opened article.
   useEffect(() => {
-    if (currentDashboard) {
+    clearAnalysis();
+  }, [id, clearAnalysis]);
+
+  // Navigate to /opportunities only when this article's analysis is ready.
+  useEffect(() => {
+    if (currentDashboard && currentNewsArticle?.id === article?.id) {
       router.push('/opportunities');
     }
-  }, [currentDashboard, router]);
+  }, [article?.id, currentDashboard, currentNewsArticle?.id, router]);
 
   const handleAnalyze = async () => {
     if (!article) return;
