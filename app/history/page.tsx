@@ -10,6 +10,7 @@ import { fetchHistory, APIError } from '@/lib/api';
 import { useATIS } from '@/lib/context';
 import { useRouter } from 'next/navigation';
 import type { QueryHistory } from '@/lib/types';
+import { FeatureUnavailable, useFeatureAccess } from '@/components/feature-access';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -28,6 +29,7 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { feature, state } = useFeatureAccess('history');
 
   const load = async () => {
     setLoading(true);
@@ -115,6 +117,8 @@ export default function HistoryPage() {
     }),
     exit: { opacity: 0, x: -20, transition: { duration: 0.25 } },
   };
+
+  if (state !== 'AVAILABLE' && feature) return <AppShell><main className="mx-auto flex min-h-[70vh] max-w-3xl items-center px-6"><FeatureUnavailable label={feature.label} description={feature.description} state={state} /></main></AppShell>;
 
   return (
     <AppShell>

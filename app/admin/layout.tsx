@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getAdminUser } from '@/lib/admin'
 
-const links = [['/admin', 'Overview'], ['/admin/users', 'Users'], ['/admin/requests', 'Requests'], ['/admin/roles', 'Roles & tiers'], ['/admin/permissions', 'Permissions'], ['/admin/system', 'System']] as const
+const links = [['/admin', 'Overview'], ['/admin/analytics', 'Analytics'], ['/admin/users', 'Users'], ['/admin/requests', 'Requests'], ['/admin/roles', 'Roles & tiers'], ['/admin/permissions', 'Permissions'], ['/admin/system', 'System']] as const
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await getAdminUser()

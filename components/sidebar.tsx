@@ -21,6 +21,7 @@ import {
 import { useATIS } from '@/lib/context';
 import { useSession } from '@/lib/auth-client';
 import { AtisSymbol, AtisWordmark } from '@/components/brand';
+import { FeatureNavLink } from '@/components/feature-access';
 
 export const navItems = [
   { label: 'Home',         href: '/atis-dashboard', icon: Home },
@@ -167,8 +168,11 @@ export function Sidebar() {
       <nav className="flex-1 flex flex-col gap-1" style={{ padding: '8px 10px' }} role="navigation">
         {navItems.map(({ label, href, icon }) => {
           const isActive = pathname.startsWith(href);
-          return (
+          const featureKey = href.slice(1).replaceAll('/', '-')
+          return featureKey === 'home' ? (
             <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={sidebarCollapsed} />
+          ) : (
+            <FeatureNavLink key={href} featureKey={featureKey} href={href} label={label} icon={icon} isActive={isActive} collapsed={sidebarCollapsed} />
           );
         })}
         {isAdmin && (
@@ -266,8 +270,11 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
             <nav className="flex-1 flex flex-col gap-1 overflow-y-auto" style={{ padding: '10px 10px' }}>
               {navItems.map(({ label, href, icon }) => {
                 const isActive = pathname.startsWith(href);
-                return (
+                const featureKey = href.slice(1).replaceAll('/', '-')
+                return featureKey === 'home' ? (
                   <NavLink key={href} href={href} label={label} icon={icon} isActive={isActive} collapsed={false} onClick={onClose} />
+                ) : (
+                  <FeatureNavLink key={href} featureKey={featureKey} href={href} label={label} icon={icon} isActive={isActive} collapsed={false} onClick={onClose} />
                 );
               })}
               {isAdmin && (
