@@ -21,6 +21,28 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'user',
+        input: false,
+      },
+      tier: {
+        type: 'string',
+        required: false,
+        defaultValue: 'standard',
+        input: false,
+      },
+      status: {
+        type: 'string',
+        required: false,
+        defaultValue: 'active',
+        input: false,
+      },
+    },
+  },
   trustedOrigins:
     process.env.NODE_ENV === 'development'
       ? developmentOrigins
