@@ -34,14 +34,28 @@ export async function listAdminUsers(): Promise<AdminUser[]> {
 }
 
 export async function getAdminOverview() {
-  const result = await pool.query<{ total: string; active: string; admins: string; pilots: string }>(
-    `SELECT COUNT(*)::text AS total,
-      COUNT(*) FILTER (WHERE status = 'active')::text AS active,
-      COUNT(*) FILTER (WHERE role = 'admin')::text AS admins,
-      COUNT(*) FILTER (WHERE tier = 'pilot')::text AS pilots
-     FROM "user"`,
-  )
-  return { ...result.rows[0], requests: null, integrations: 'not_available' }
+  const [users, workspaces, sessions, audit] = await Promise.all([
+    pool.query<{ total: string; active: string; admins: string; pilots: string }>(
+      `SELECT COUNT(*)::text AS total,
+        COUNT(*) FILTER (WHERE status = 'active')::text AS active,
+        COUNT(*) FILTER (WHERE role = 'admin')::text AS admins,
+        COUNT(*) FILTER (WHERE tier = 'pilot')::text AS pilots
+       FROM "user"`,
+    ),
+    pool.query<{ total: string; active: string }>(
+      `SELECT COUNT(*)::text AS total, COUNT(*) FILTER (WHERE status = 'active' AND ("expiresAt" IS NULL OR "expiresAt" > now()))::text AS active FROM "workspace"`,
+    ),
+    pool.query<{ active: string }>('SELECT COUNT(*)::text AS active FROM "session" WHERE "expiresAt" > now()'),
+    getAuditLogStatus(),
+  ])
+  return {
+    ...users.rows[0],
+    workspaces: workspaces.rows[0],
+    activeSessions: Number(sessions.rows[0]?.active ?? 0),
+    audit,
+    requests: null,
+    integrations: 'not_available',
+  }
 }
 
 const ADMIN_VALUES = {
