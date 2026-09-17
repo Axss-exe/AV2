@@ -22,6 +22,8 @@ import { useATIS } from '@/lib/context';
 import { useSession } from '@/lib/auth-client';
 import { AtisSymbol, AtisWordmark } from '@/components/brand';
 import { FeatureNavLink } from '@/components/feature-access';
+import { UserAvatar } from '@/components/user-avatar';
+import { useProfile, resolveDisplayName } from '@/lib/use-profile';
 
 export const navItems = [
   { label: 'Home',         href: '/atis-dashboard', icon: Home },
@@ -113,6 +115,7 @@ function NavLink({
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { data: profile } = useProfile();
   const { sidebarCollapsed, setSidebarCollapsed } = useATIS();
   const width = sidebarCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
@@ -204,16 +207,16 @@ export function Sidebar() {
           onMouseEnter={(event) => { event.currentTarget.style.background = 'var(--bg-control)'; }}
           onMouseLeave={(event) => { event.currentTarget.style.background = 'transparent'; }}
         >
-          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-control-active)', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: 'var(--text-tertiary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-hidden="true">A</div>
-          <motion.div
-            animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
-            transition={{ duration: 0.15 }}
-            className="flex flex-col overflow-hidden"
-            style={{ minWidth: 0 }}
-          >
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Profile</span>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>View account tier</span>
-          </motion.div>
+        <UserAvatar name={resolveDisplayName(profile)} image={profile?.image} size={28} fontSize={11} />
+        <motion.div
+          animate={{ opacity: sidebarCollapsed ? 0 : 1, width: sidebarCollapsed ? 0 : 'auto' }}
+          transition={{ duration: 0.15 }}
+          className="flex flex-col overflow-hidden"
+          style={{ minWidth: 0 }}
+        >
+          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{resolveDisplayName(profile)}</span>
+          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>View account tier</span>
+        </motion.div>
         </Link>
     </motion.aside>
   );
@@ -223,6 +226,7 @@ export function Sidebar() {
 export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { data: profile } = useProfile();
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
   return (
@@ -299,11 +303,11 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
               className="flex items-center gap-3 flex-shrink-0"
               style={{ borderTop: '1px solid var(--border-default)', padding: '14px 16px', color: 'inherit', textDecoration: 'none' }}
             >
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-control-active)', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11, color: 'var(--text-tertiary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
-              <div className="flex flex-col">
-                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>Profile</span>
-                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)' }}>View account tier</span>
-              </div>
+        <UserAvatar name={resolveDisplayName(profile)} image={profile?.image} size={28} fontSize={11} />
+          <div className="flex flex-col">
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>{resolveDisplayName(profile)}</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: 'var(--text-muted)' }}>View account tier</span>
+          </div>
             </Link>
           </motion.div>
         </>

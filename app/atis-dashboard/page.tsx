@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { AppShell } from '@/components/app-shell';
+import { DashboardGreeting } from '@/components/dashboard-greeting';
 import { getQueryHistory } from '@/lib/data';
 import type { QueryHistory } from '@/lib/types';
 import {
@@ -166,12 +167,6 @@ const CONSTRAINTS = [
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function getGreeting(h: number): string {
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
 
 function formatDate(d: Date): string {
   return d.toLocaleDateString('en-US', {
@@ -732,13 +727,10 @@ function StrategicAssessment() {
 export default function HomePage() {
   const [history, setHistory] = useState<QueryHistory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [greeting, setGreeting] = useState('');
   const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
-    const now = new Date();
-    setGreeting(getGreeting(now.getHours()));
-    setDateStr(formatDate(now));
+    setDateStr(formatDate(new Date()));
   }, []);
 
   useEffect(() => {
@@ -777,12 +769,7 @@ export default function HomePage() {
           </div>
 
           {/* Greeting + mission */}
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(22px, 3vw, 34px)', color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 6 }}>
-            {greeting || 'Welcome back'}, Analyst
-          </h1>
-          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-dim)', marginBottom: 14, maxWidth: 560 }}>
-            Zimbabwe macro briefing — population, economy, minerals, and strategic constraints.
-          </p>
+          <DashboardGreeting />
         </motion.div>
 
         {/* ── Ticker ────────────────────────────────────────────── */}
