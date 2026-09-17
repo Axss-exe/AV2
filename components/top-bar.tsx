@@ -1,6 +1,8 @@
 'use client';
 
-import { Search, Bell, Menu, Globe, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Search, Bell, Menu, Globe, ChevronDown, Sun, Moon, Check } from 'lucide-react';
+import useSWR from 'swr';
+import { useEffect, useRef, useState } from 'react';
 import { useATIS } from '@/lib/context';
 import { PERSPECTIVE_COUNTRIES } from '@/lib/perspective';
 import { useTheme } from '@/components/theme-provider';
@@ -13,6 +15,23 @@ interface TopBarProps {
 export function TopBar({ onMenuClick }: TopBarProps) {
   const { perspectiveCountry, setPerspectiveCountry } = useATIS();
   const { theme, toggleTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const fetcher = (url: string) => fetch(url).then((response) => response.json());
+  const { data, mutate } = useSWR<{ notifications: Array<{ id: string; title: string; body: string; href?: string | null; read: boolean; createdAt: string }> }>('/api/notifications', fetcher, { refreshInterval: 30000 });
+  const notifications = data?.notifications ?? [];
+  const unread = notifications.filter((item) => !item.read).length;
+
+  useEffect(() => {
+    const close = (event: MouseEvent) => { if (panelRef.current && !panelRef.current.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
+
+  const markRead = async (id?: string) => {
+    await fetch('/api/notifications', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(id ? { id } : {}) });
+    mutate();
+  };
 
   const iconBtn = {
     width: 36,
@@ -125,29 +144,23 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           <Search size={16} strokeWidth={1.5} aria-hidden="true" />
         </button>
 
-        <button
-          className="relative flex items-center justify-center transition-colors duration-200"
-          style={iconBtn}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-control)'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-          aria-label="Notifications"
-        >
-          <Bell size={16} strokeWidth={1.5} aria-hidden="true" />
-          <span
-            className="absolute top-1 right-1 block"
-            style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-warning)' }}
-            aria-label="New notifications"
-          />
-        </button>
-
-        <div
-          className="flex items-center justify-center"
-          style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-control-active)', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 12, color: 'var(--text-tertiary)', cursor: 'pointer' }}
-          role="button"
-          tabIndex={0}
-          aria-label="User profile"
-        >
-          A
+        <div className="relative" ref={panelRef}>
+          <button
+            className="relative flex items-center justify-center transition-colors duration-200"
+            style={iconBtn}
+            onClick={() => setOpen((value) => !value)}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-control)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+            aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
+            aria-expanded={open}
+          >
+            <Bell size={16} strokeWidth={1.5} aria-hidden="true" />
+            {unread > 0 && <span className="absolute right-1 top-1 block" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-warning)' }} aria-label="New notifications" />}
+          </button>
+          {open && <div className="absolute right-0 top-11 z-50 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-xl border shadow-xl" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-default)' }} role="dialog" aria-label="Notifications">
+            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: 'var(--border-default)' }}><div><p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</p><p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>{unread ? `${unread} unread` : 'All caught up'}</p></div>{unread > 0 && <button type="button" className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-secondary)' }} onClick={() => markRead()}><Check size={13} /> Mark all read</button>}</div>
+            <div className="max-h-80 overflow-y-auto">{notifications.length === 0 ? <p className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No notifications yet.</p> : notifications.map((item) => <button key={item.id} type="button" className="flex w-full gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-bg-control" style={{ borderColor: 'var(--border-default)', background: item.read ? 'transparent' : 'var(--bg-control)' }} onClick={() => { markRead(item.id); if (item.href) window.location.href = item.href; }}><span className="mt-1 size-2 shrink-0 rounded-full" style={{ background: item.read ? 'var(--border-default)' : 'var(--accent-warning)' }} /><span className="min-w-0"><span className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.title}</span><span className="mt-1 block text-xs leading-5" style={{ color: 'var(--text-secondary)' }}>{item.body}</span><span className="mt-1 block font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{new Date(item.createdAt).toLocaleString()}</span></span></button>)}</div>
+          </div>}
         </div>
       </div>
     </header>
