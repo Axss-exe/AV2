@@ -68,9 +68,10 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           borderRadius: 10,
           padding: '6px 10px',
           gap: 8,
+          boxShadow: 'var(--shadow-soft)',
         }}
       >
-        <Globe size={15} strokeWidth={1.5} color="var(--text-secondary)" aria-hidden="true" />
+        <Globe size={15} strokeWidth={1.5} color="var(--accent-brass)" aria-hidden="true" />
         <div className="flex flex-col" style={{ lineHeight: 1.1 }}>
           <span
             style={{
@@ -155,11 +156,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             aria-expanded={open}
           >
             <Bell size={16} strokeWidth={1.5} aria-hidden="true" />
-            {unread > 0 && <span className="absolute right-1 top-1 block" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-warning)' }} aria-label="New notifications" />}
+            {unread > 0 && <span className="absolute right-1 top-1 block" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-brass)' }} aria-label="New notifications" />}
           </button>
-          {open && <div className="absolute right-0 top-11 z-50 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-xl border shadow-xl" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-default)' }} role="dialog" aria-label="Notifications">
-            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: 'var(--border-default)' }}><div><p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</p><p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>{unread ? `${unread} unread` : 'All caught up'}</p></div>{unread > 0 && <button type="button" className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-secondary)' }} onClick={() => markRead()}><Check size={13} /> Mark all read</button>}</div>
-            <div className="max-h-80 overflow-y-auto">{notifications.length === 0 ? <p className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No notifications yet.</p> : notifications.map((item) => <button key={item.id} type="button" className="flex w-full gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-bg-control" style={{ borderColor: 'var(--border-default)', background: item.read ? 'transparent' : 'var(--bg-control)' }} onClick={() => { markRead(item.id); if (item.href) window.location.href = item.href; }}><span className="mt-1 size-2 shrink-0 rounded-full" style={{ background: item.read ? 'var(--border-default)' : 'var(--accent-warning)' }} /><span className="min-w-0"><span className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.title}</span><span className="mt-1 block text-xs leading-5" style={{ color: 'var(--text-secondary)' }}>{item.body}</span><span className="mt-1 block font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{new Date(item.createdAt).toLocaleString()}</span></span></button>)}</div>
+          {open && <div className="absolute right-0 top-11 z-50 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-xl border" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-soft)' }} role="dialog" aria-label="Notifications">
+            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: 'var(--border-default)' }}><div><p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</p><p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>{unread ? `${unread} unread` : 'All caught up'}</p></div>{unread > 0 && <button type="button" className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--accent-brass)' }} onClick={() => markRead()}><Check size={13} /> Mark all read</button>}</div>
+            <div className="max-h-80 overflow-y-auto">{notifications.length === 0 ? <p className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No notifications yet.</p> : notifications.map((item) => <button key={item.id} type="button" className="flex w-full gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-bg-control" style={{ borderColor: 'var(--border-default)', background: item.read ? 'transparent' : 'var(--bg-control)' }} onClick={() => { markRead(item.id); if (item.href) window.location.href = item.href; }}><span className="mt-1 size-2 shrink-0 rounded-full" style={{ background: item.read ? 'var(--border-default)' : 'var(--accent-brass)' }} /><span className="min-w-0"><span className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.title}</span><span className="mt-1 block text-xs leading-5" style={{ color: 'var(--text-secondary)' }}>{item.body}</span><span className="mt-1 block font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{new Date(item.createdAt).toLocaleString()}</span></span></button>)}</div>
           </div>}
         </div>
       </div>

@@ -151,7 +151,7 @@ export function ProfileEditor() {
       </div>
 
       {error && (
-        <p className="text-xs" style={{ color: '#ff6b63' }} role="alert">{error}</p>
+        <p className="text-xs" style={{ color: 'var(--accent-danger)' }} role="alert">{error}</p>
       )}
 
       <div className="flex items-center gap-3">

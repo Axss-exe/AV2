@@ -74,6 +74,7 @@ export function AppShell({ children }: AppShellProps) {
           borderTop: '1px solid var(--border-default)',
           height: 'calc(56px + env(safe-area-inset-bottom))',
           paddingBottom: 'env(safe-area-inset-bottom)',
+          boxShadow: 'var(--shadow-soft)',
         }}
         aria-label="Mobile navigation"
       >
@@ -84,7 +85,7 @@ export function AppShell({ children }: AppShellProps) {
               key={href}
               href={href}
               className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2"
-              style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
+              style={{ color: isActive ? 'var(--accent-brass)' : 'var(--text-dim)', textDecoration: 'none', transition: 'color 0.15s' }}
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} aria-hidden="true" />

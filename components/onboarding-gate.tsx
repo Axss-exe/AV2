@@ -190,7 +190,7 @@ export function OnboardingGate() {
               </div>
 
               {error && (
-                <p className="text-xs" style={{ color: '#ff6b63' }} role="alert">
+                <p className="text-xs" style={{ color: 'var(--accent-danger)' }} role="alert">
                   {error}
                 </p>
               )}

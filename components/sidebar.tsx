@@ -103,7 +103,7 @@ function NavLink({
         <motion.div
           layoutId="nav-active-desktop"
           className="absolute left-0 w-[2px] rounded-r"
-          style={{ background: 'var(--accent-fg)', top: 6, bottom: 6 }}
+          style={{ background: 'var(--accent-brass)', top: 6, bottom: 6 }}
           transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         />
       )}
