@@ -6,6 +6,7 @@ import './globals.css'
 import { ATISProvider } from '@/lib/context'
 import { EntityProvider } from '@/components/entity-provider'
 import { ThemeProvider, themeNoFlashScript } from '@/components/theme-provider'
+import { SWRProvider } from '@/components/swr-provider'
 
 // Inter Display — ATIS editable production font (Regular + Medium).
 const _interDisplay = localFont({
@@ -55,11 +56,13 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
         <ThemeProvider>
-          <ATISProvider>
-            <EntityProvider>
-              {children}
-            </EntityProvider>
-          </ATISProvider>
+          <SWRProvider>
+            <ATISProvider>
+              <EntityProvider>
+                {children}
+              </EntityProvider>
+            </ATISProvider>
+          </SWRProvider>
         </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

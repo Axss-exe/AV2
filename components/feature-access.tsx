@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { useEffect, useState } from 'react'
 import type { ElementType, MouseEvent } from 'react'
+import { motion } from 'framer-motion'
 
 const fetcher = (url: string) => fetch(url).then((response) => response.json())
 type FeatureState = 'AVAILABLE' | 'RESTRICTED' | 'DISABLED'
@@ -68,7 +69,14 @@ export function FeatureNavLink({ featureKey, href, label, icon: Icon, isActive, 
   }
   return <>
     <a href={href} aria-current={isActive ? 'page' : undefined} title={collapsed ? label : undefined} onClick={handleClick} className="flex items-center relative transition-all duration-150" style={{ gap: collapsed ? 0 : 12, padding: collapsed ? '9px 0' : '8px 10px', justifyContent: collapsed ? 'center' : 'flex-start', borderRadius: 8, background: isActive ? 'var(--bg-control)' : 'transparent', color: unavailable ? 'var(--text-dim)' : isActive ? 'var(--text-primary)' : 'var(--text-tertiary)', textDecoration: 'none', opacity: unavailable ? 0.55 : 1, cursor: unavailable ? 'not-allowed' : 'pointer' }}>
-      <Icon size={16} aria-hidden="true" /><span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, overflow: 'hidden', whiteSpace: 'nowrap' }}>{label}</span>
+      <Icon size={16} aria-hidden="true" style={{ flexShrink: 0 }} />
+      <motion.span
+        animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : 'auto' }}
+        transition={{ duration: 0.15 }}
+        style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, overflow: 'hidden', whiteSpace: 'nowrap', display: 'inline-block' }}
+      >
+        {label}
+      </motion.span>
     </a>
     {open && feature && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-5" role="dialog" aria-modal="true" onClick={() => setOpen(false)}><div className="w-full max-w-lg rounded-2xl border p-6 shadow-xl" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }} onClick={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4"><div><p className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: 'var(--text-muted)' }}>ATIS feature catalog</p><h2 className="mt-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{feature.label}</h2></div><button type="button" onClick={() => setOpen(false)} aria-label="Close feature preview" className="text-xl" style={{ color: 'var(--text-muted)' }}>×</button></div><div className="mt-5 rounded-xl border p-5" style={{ borderColor: 'var(--border-default)', background: 'var(--bg-primary)' }}><div className="flex items-center justify-between"><p className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: '#007aff' }}>Preview {slide + 1} / {slides.length}</p><span className="text-xs" style={{ color: 'var(--text-dim)' }}>{feature.state === 'DISABLED' ? 'Unavailable' : 'Tier restricted'}</span></div><div className="mt-6 flex min-h-28 flex-col justify-center"><p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>{slides[slide].title}</p><p className="mt-2 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>{slides[slide].body}</p></div><div className="mt-5 flex gap-2">{slides.map((item, index) => <button key={item.title} type="button" aria-label={`Show preview ${index + 1}`} onClick={() => setSlide(index)} className="h-1.5 flex-1 rounded-full" style={{ background: index === slide ? '#007aff' : 'var(--border-default)' }} />)}</div></div><p className="mt-4 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>{feature.state === 'DISABLED' ? 'This feature is currently disabled by an administrator.' : `Your ${user?.tier ?? 'current'} tier does not include this capability yet.`} Contact an administrator if you believe this access is incorrect.</p><div className="mt-5 flex gap-3"><button type="button" onClick={() => setSlide((slide + slides.length - 1) % slides.length)} className="flex-1 rounded-lg border px-4 py-2 text-sm font-medium" style={{ borderColor: 'var(--border-default)', color: 'var(--text-primary)' }}>Previous</button><button type="button" onClick={() => slide === slides.length - 1 ? setOpen(false) : setSlide(slide + 1)} className="flex-1 rounded-lg border px-4 py-2 text-sm font-medium" style={{ borderColor: '#007aff', color: 'var(--text-primary)' }}>{slide === slides.length - 1 ? 'Close preview' : 'Next preview'}</button></div></div></div>}
   </>

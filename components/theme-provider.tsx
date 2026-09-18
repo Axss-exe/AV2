@@ -15,10 +15,22 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 const STORAGE_KEY = 'atis-theme';
 const DEFAULT_THEME: Theme = 'dark'; // Obsidian is the ATIS default surface
 
+let transitionTimeout: ReturnType<typeof setTimeout> | undefined;
+
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
+
+  // Briefly enable a crossfade so the theme swap reads as a soft dissolve
+  // rather than an instant, jarring flash.
+  root.classList.add('theme-transitioning');
+  if (transitionTimeout) clearTimeout(transitionTimeout);
+
   root.classList.toggle('dark', theme === 'dark');
   root.style.colorScheme = theme;
+
+  transitionTimeout = setTimeout(() => {
+    root.classList.remove('theme-transitioning');
+  }, 550);
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
