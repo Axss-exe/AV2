@@ -5,6 +5,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Soft theme crossfade ──
+   Applied to <html> only while a theme switch is in flight (toggled via JS),
+   so ordinary hover/focus transitions elsewhere stay snappy. */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition:
+    background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
 /* ===========================================================================
    ATIS BRAND SYSTEM — minimal luxury, dual-theme (Graphite dark / Ivory light)
    Palette: Ink #1C1A16 · Warm Ivory #F6F1E7 · Graphite #0D0C0A
