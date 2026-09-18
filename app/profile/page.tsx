@@ -4,6 +4,8 @@ import { AppShell } from '@/components/app-shell'
 import { auth } from '@/lib/auth'
 import { pool } from '@/lib/db'
 import { SignOutButton } from '@/components/sign-out-button'
+import { UserAvatar } from '@/components/user-avatar'
+import { ProfileEditor } from '@/components/profile-editor'
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -12,24 +14,21 @@ export default async function ProfilePage() {
   const result = await pool.query<{
     name: string
     email: string
+    image: string | null
+    display_name: string | null
     role: string
     tier: string
     status: string
     createdAt: Date
   }>(
-    'SELECT name, email, role, tier, status, "createdAt" FROM "user" WHERE id = $1',
+    'SELECT name, email, image, display_name, role, tier, status, "createdAt" FROM "user" WHERE id = $1',
     [session.user.id],
   )
   const profile = result.rows[0]
 
   if (!profile) redirect('/sign-in')
 
-  const initials = profile.name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
+  const displayName = profile.display_name?.trim() || profile.name.split(/\s+/)[0]
 
   return (
     <AppShell>
@@ -48,11 +47,9 @@ export default async function ProfilePage() {
         <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]" aria-label="Profile details">
           <div className="rounded-xl border p-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }}>
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold" style={{ background: 'var(--bg-control-active)', color: 'var(--text-primary)' }} aria-hidden="true">
-                {initials}
-              </div>
+              <UserAvatar name={displayName} image={profile.image} size={64} fontSize={22} />
               <div className="min-w-0">
-                <h2 className="truncate text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>{profile.name}</h2>
+                <h2 className="truncate text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>{displayName}</h2>
                 <p className="truncate text-sm" style={{ color: 'var(--text-secondary)' }}>{profile.email}</p>
               </div>
             </div>
@@ -61,6 +58,14 @@ export default async function ProfilePage() {
               <Detail label="Account status" value={profile.status === 'active' ? 'Active' : 'Suspended'} />
               <Detail label="Member since" value={profile.createdAt.toLocaleDateString()} />
               <Detail label="User ID" value={session.user.id} mono />
+            </div>
+
+            <div className="mt-8 border-t pt-6" style={{ borderColor: 'var(--border-default)' }}>
+              <p className="text-[11px] uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>Personalize</p>
+              <p className="mt-1 mb-5 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
+                Update the name we greet you by and your profile picture.
+              </p>
+              <ProfileEditor />
             </div>
           </div>
 

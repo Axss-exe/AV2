@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { AppShell } from '@/components/app-shell';
+import { DashboardGreeting } from '@/components/dashboard-greeting';
 import { getQueryHistory } from '@/lib/data';
 import type { QueryHistory } from '@/lib/types';
 import {
@@ -167,12 +168,6 @@ const CONSTRAINTS = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function getGreeting(h: number): string {
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
 function formatDate(d: Date): string {
   return d.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -188,13 +183,13 @@ function formatTime(iso: string): string {
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
-  high:   '#ff453a',
-  medium: '#ff9f0a',
+  high:   'var(--accent-danger)',
+  medium: 'var(--accent-brass)',
   low:    'var(--text-primary)',
 };
 const URGENCY_COLOR: Record<string, string> = {
-  HIGH:   '#ff453a',
-  MEDIUM: '#ff9f0a',
+  HIGH:   'var(--accent-danger)',
+  MEDIUM: 'var(--accent-brass)',
   LOW:    'var(--text-primary)',
 };
 
@@ -274,8 +269,8 @@ function StatCard({ stat, i }: { stat: typeof VITAL_STATS[0]; i: number }) {
                                            'rgba(255,69,58,0.12)',
               color:
                 stat.trendDir === 'up'   ? 'var(--text-primary)' :
-                stat.trendDir === 'warn' ? '#ff9f0a' :
-                                           '#ff453a',
+                stat.trendDir === 'warn' ? 'var(--accent-brass)' :
+                                           'var(--accent-danger)',
             }}
           >
             {stat.trend}
@@ -308,7 +303,7 @@ function EntityChip({ label, href }: { label: string; href?: string }) {
   if (href) {
     return (
       <Link href={href} style={base}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#444'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--accent-brass)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-primary)'; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border-hover)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-tertiary)'; }}
       >
         {label}
@@ -377,9 +372,9 @@ function CountryProfilePanel() {
                       style={{
                         fontFamily: 'var(--font-mono)', fontSize: 10,
                         padding: '3px 8px', borderRadius: 4,
-                        background: m.priority === 'HIGH' ? 'rgba(255,69,58,0.08)' : 'var(--bg-control)',
-                        border: `1px solid ${m.priority === 'HIGH' ? 'rgba(255,69,58,0.25)' : 'var(--border-default)'}`,
-                        color: m.priority === 'HIGH' ? '#ff6b63' : 'var(--text-muted)',
+                        background: m.priority === 'HIGH' ? 'color-mix(in srgb, var(--accent-danger) 10%, transparent)' : 'var(--bg-control)',
+                        border: `1px solid ${m.priority === 'HIGH' ? 'color-mix(in srgb, var(--accent-danger) 30%, transparent)' : 'var(--border-default)'}`,
+                        color: m.priority === 'HIGH' ? 'var(--accent-danger)' : 'var(--text-muted)',
                         cursor: 'default',
                       }}
                     >
@@ -461,7 +456,7 @@ function CountryProfilePanel() {
                     >
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-secondary)' }}>{s}</span>
                       <Link href="/entities" style={{ color: 'var(--border-default)', transition: 'color 0.15s' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-brass)'; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--border-default)'; }}
                       >
                         <ArrowRight size={12} aria-label={`View ${s}`} />
@@ -584,7 +579,7 @@ function OpportunitiesSpotlight() {
       <div className="flex items-center justify-between" style={{ padding: '11px 18px', borderBottom: '1px solid var(--border-default)' }}>
         <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>Investment Opportunities</span>
         <Link href="/opportunities" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--border-default)', textDecoration: 'none', transition: 'color 0.15s' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-brass)'; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--border-default)'; }}
         >
           DASHBOARD →
@@ -625,8 +620,8 @@ function OpportunitiesSpotlight() {
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 10,
                 padding: '3px 7px', borderRadius: 4,
-                background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)',
-                color: '#ff6b63',
+                background: 'color-mix(in srgb, var(--accent-danger) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--accent-danger) 25%, transparent)',
+                color: 'var(--accent-danger)',
               }}>
                 {opp.constraint}
               </span>
@@ -685,8 +680,8 @@ function StrategicAssessment() {
         {/* Constraints */}
         <div style={{ padding: '14px 18px' }}>
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle size={12} color="#ff453a" aria-hidden="true" />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#ff453a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Strategic Constraints</span>
+            <AlertTriangle size={12} color="var(--accent-danger)" aria-hidden="true" />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--accent-danger)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Strategic Constraints</span>
           </div>
           <div className="flex flex-col gap-2">
             {CONSTRAINTS.map((c) => (
@@ -701,7 +696,7 @@ function StrategicAssessment() {
                   cursor: 'default',
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderLeftColor = '#ff453a';
+                  (e.currentTarget as HTMLDivElement).style.borderLeftColor = 'var(--accent-danger)';
                   (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-elevated)';
                 }}
                 onMouseLeave={(e) => {
@@ -732,13 +727,10 @@ function StrategicAssessment() {
 export default function HomePage() {
   const [history, setHistory] = useState<QueryHistory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [greeting, setGreeting] = useState('');
   const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
-    const now = new Date();
-    setGreeting(getGreeting(now.getHours()));
-    setDateStr(formatDate(now));
+    setDateStr(formatDate(new Date()));
   }, []);
 
   useEffect(() => {
@@ -777,12 +769,7 @@ export default function HomePage() {
           </div>
 
           {/* Greeting + mission */}
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(22px, 3vw, 34px)', color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 6 }}>
-            {greeting || 'Welcome back'}, Analyst
-          </h1>
-          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--text-dim)', marginBottom: 14, maxWidth: 560 }}>
-            Zimbabwe macro briefing — population, economy, minerals, and strategic constraints.
-          </p>
+          <DashboardGreeting />
         </motion.div>
 
         {/* ── Ticker ────────────────────────────────────────────── */}
